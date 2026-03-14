@@ -1,0 +1,1805 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cv-ats-ready — Ton CV optimisé pour passer les robots</title>
+  <meta name="description" content="Optimise ton CV pour les ATS en moins de 30 secondes. Colle l'offre, uploade ton CV, paie 1€ — notre agent IA s'occupe du reste." />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ════════════════════════════════
+        DESIGN TOKENS
+    ════════════════════════════════ */
+    :root {
+      --orange:        #FF6B00;
+      --orange-dark:   #D95A00;
+      --orange-mid:    #FF8A30;
+      --orange-light:  #FFB347;
+      --orange-pale:   #FFF4EC;
+      --orange-glow:   rgba(255,107,0,.18);
+
+      --night:         #0C0C18;
+      --night-1:       #111122;
+      --night-2:       #181830;
+      --night-3:       #1F1F3A;
+      --night-border:  rgba(255,255,255,.07);
+
+      --white:         #FAFAF8;
+      --off-white:     #F5F4F0;
+      --text:          #1A1A1A;
+      --text-2:        #4A4A4A;
+      --text-muted:    #8A8A8A;
+      --border:        #E5E4DF;
+
+      --success:       #22C55E;
+      --success-bg:    rgba(34,197,94,.1);
+      --error:         #EF4444;
+
+      --r-sm:  8px;
+      --r-md:  14px;
+      --r-lg:  22px;
+      --r-xl:  32px;
+
+      --shadow-orange: 0 8px 32px rgba(255,107,0,.25);
+      --shadow-card:   0 2px 24px rgba(0,0,0,.07), 0 0 0 1px rgba(0,0,0,.04);
+    }
+
+    /* ════════════════════════════════
+        RESET & BASE
+    ════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--white);
+      color: var(--text);
+      overflow-x: hidden;
+      cursor: default;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--night-1); }
+    ::-webkit-scrollbar-thumb { background: var(--orange); border-radius: 3px; }
+
+    /* ════════════════════════════════
+        NAV
+    ════════════════════════════════ */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px;
+      height: 64px;
+      background: rgba(250,250,248,.88);
+      backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+      transition: background .3s;
+    }
+    nav.scrolled {
+      background: rgba(250,250,248,.97);
+      box-shadow: 0 1px 20px rgba(0,0,0,.08);
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800; font-size: 1.2rem;
+      color: var(--text); text-decoration: none;
+      display: flex; align-items: center; gap: 10px;
+      letter-spacing: -.01em;
+    }
+    .logo-mark {
+      width: 32px; height: 32px;
+      background: var(--orange);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .85rem;
+      box-shadow: 0 2px 8px rgba(255,107,0,.4);
+      position: relative; overflow: hidden;
+    }
+    .logo-mark::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,.25) 0%, transparent 50%);
+    }
+
+    .nav-right { display: flex; align-items: center; gap: 16px; }
+    .nav-chip {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--orange-pale);
+      border: 1px solid rgba(255,107,0,.2);
+      color: var(--orange-dark);
+      font-size: .78rem; font-weight: 600;
+      padding: 5px 12px; border-radius: 999px;
+    }
+    .nav-chip .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--orange);
+      animation: blink 1.8s ease-in-out infinite;
+    }
+    @keyframes blink {
+      0%,100% { opacity: 1; } 50% { opacity: .3; }
+    }
+
+    .nav-cta {
+      background: var(--orange);
+      color: #fff; border: none;
+      padding: 8px 18px; border-radius: var(--r-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .85rem; font-weight: 600;
+      cursor: pointer;
+      transition: background .2s, transform .15s;
+    }
+    .nav-cta:hover { background: var(--orange-dark); transform: translateY(-1px); }
+
+    /* ════════════════════════════════
+        HERO SECTION
+    ════════════════════════════════ */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 100px 24px 60px;
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+
+    /* Noise texture overlay */
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0; opacity: .6;
+    }
+
+    /* Ambient orbs */
+    .orb {
+      position: absolute; border-radius: 50%;
+      pointer-events: none; z-index: 0;
+      filter: blur(80px);
+    }
+    .orb-1 {
+      width: 600px; height: 600px;
+      top: -200px; right: -100px;
+      background: radial-gradient(circle, rgba(255,179,71,.15) 0%, transparent 70%);
+      animation: float1 12s ease-in-out infinite;
+    }
+    .orb-2 {
+      width: 500px; height: 500px;
+      bottom: -100px; left: -150px;
+      background: radial-gradient(circle, rgba(255,107,0,.1) 0%, transparent 70%);
+      animation: float2 15s ease-in-out infinite;
+    }
+    .orb-3 {
+      width: 300px; height: 300px;
+      top: 40%; left: 50%;
+      transform: translate(-50%,-50%);
+      background: radial-gradient(circle, rgba(255,107,0,.05) 0%, transparent 70%);
+      animation: float3 8s ease-in-out infinite;
+    }
+    @keyframes float1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-30px, 40px) scale(1.05); } }
+    @keyframes float2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(30px,-30px) scale(1.08); } }
+    @keyframes float3 { 0%,100% { transform: translate(-50%,-50%) scale(1); } 50% { transform: translate(-50%,-50%) scale(1.2); } }
+
+    .hero-content { position: relative; z-index: 1; max-width: 900px; width: 100%; }
+
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--orange-pale);
+      border: 1px solid rgba(255,107,0,.25);
+      color: var(--orange-dark);
+      font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+      padding: 6px 14px; border-radius: 999px;
+      margin-bottom: 28px;
+      animation: fadeUp .5s ease both;
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.5rem, 6.5vw, 4.5rem);
+      font-weight: 800; line-height: 1.05;
+      letter-spacing: -.03em;
+      margin-bottom: 24px;
+      animation: fadeUp .55s .08s ease both;
+    }
+    h1 .accent {
+      color: var(--orange);
+      position: relative; display: inline-block;
+    }
+    h1 .accent::after {
+      content: '';
+      position: absolute; left: 0; bottom: -6px; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--orange), var(--orange-light));
+      border-radius: 2px;
+      transform: scaleX(0); transform-origin: left;
+      animation: lineIn .6s .7s ease forwards;
+    }
+    @keyframes lineIn { to { transform: scaleX(1); } }
+    h1 .muted { color: var(--text-2); }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.15rem);
+      color: var(--text-2); line-height: 1.75;
+      max-width: 560px; margin: 0 auto 44px;
+      animation: fadeUp .6s .16s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ════════════════════════════════
+        MAIN CARD — L'outil
+    ════════════════════════════════ */
+    .main-card {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-xl);
+      box-shadow: 0 12px 60px rgba(255,107,0,.10), 0 4px 16px rgba(0,0,0,.06), 0 0 0 1px rgba(255,107,0,.04);
+      padding: 44px 40px 36px;
+      width: 100%; max-width: 740px;
+      margin: 0 auto;
+      animation: fadeUp .7s .24s ease both;
+      position: relative; overflow: hidden;
+    }
+    .main-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--orange-dark), var(--orange), var(--orange-light));
+    }
+
+    /* Steps indicator */
+    .steps {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0; margin-bottom: 36px;
+    }
+    .step {
+      display: flex; align-items: center; gap: 8px;
+      font-size: .78rem; font-weight: 600; color: var(--text-muted);
+      transition: color .3s;
+    }
+    .step.active { color: var(--orange); }
+    .step.done   { color: var(--success); }
+    .step-num {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--off-white); border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-size: .75rem; font-weight: 700;
+      color: var(--text-muted);
+      transition: all .3s;
+      flex-shrink: 0;
+    }
+    .step.active .step-num {
+      background: var(--orange); border-color: var(--orange);
+      color: #fff; box-shadow: 0 0 0 4px rgba(255,107,0,.15);
+    }
+    .step.done .step-num {
+      background: var(--success); border-color: var(--success); color: #fff;
+    }
+    .step-connector {
+      width: 36px; height: 1.5px;
+      background: var(--border); margin: 0 4px; flex-shrink: 0;
+      transition: background .4s;
+    }
+    .step-connector.done { background: var(--success); }
+
+    /* Field groups */
+    .field { margin-bottom: 22px; }
+    .field-label {
+      font-family: 'Syne', sans-serif;
+      font-size: .82rem; font-weight: 700;
+      color: var(--text); margin-bottom: 8px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .field-label .tag {
+      background: var(--orange-pale); color: var(--orange-dark);
+      font-size: .7rem; font-weight: 600; border-radius: 4px;
+      padding: 1px 6px;
+    }
+    .field-hint {
+      font-size: .78rem; color: var(--text-muted);
+      margin-bottom: 8px; font-weight: 400;
+    }
+
+    textarea, input[type="text"] {
+      width: 100%; padding: 14px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      font-family: 'DM Sans', sans-serif; font-size: .92rem;
+      color: var(--text); background: var(--white);
+      resize: vertical; outline: none;
+      transition: border-color .2s, box-shadow .2s, background .2s;
+      line-height: 1.6;
+    }
+    textarea { min-height: 130px; }
+    textarea:focus, input[type="text"]:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(255,107,0,.1);
+      background: #fff;
+    }
+    textarea::placeholder, input::placeholder { color: #C5C4BF; }
+
+    /* Upload zone */
+    .upload-zone {
+      border: 2px dashed var(--border); border-radius: var(--r-md);
+      padding: 28px 20px; text-align: center;
+      cursor: pointer; transition: all .25s;
+      background: var(--white); position: relative;
+    }
+    .upload-zone:hover, .upload-zone.drag-over {
+      border-color: var(--orange); background: var(--orange-pale);
+    }
+    .upload-zone input[type=file] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .upload-icon-wrap {
+      width: 48px; height: 48px; border-radius: 12px;
+      background: var(--orange-pale); border: 1.5px solid rgba(255,107,0,.2);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 12px; font-size: 1.4rem;
+      transition: transform .2s;
+    }
+    .upload-zone:hover .upload-icon-wrap { transform: translateY(-3px); }
+    .upload-text { font-size: .88rem; color: var(--text-2); line-height: 1.5; }
+    .upload-text strong { color: var(--orange); }
+    .upload-formats {
+      display: flex; gap: 6px; justify-content: center; margin-top: 10px;
+    }
+    .fmt { background: var(--border); border-radius: 4px; padding: 2px 8px; font-size: .72rem; font-weight: 700; color: var(--text-2); }
+    .file-selected {
+      display: none; align-items: center; gap: 10px;
+      background: var(--success-bg); border: 1.5px solid var(--success);
+      border-radius: var(--r-md); padding: 12px 16px; margin-top: 10px;
+    }
+    .file-selected.show { display: flex; }
+    .file-selected-name { font-size: .85rem; font-weight: 600; color: #16a34a; }
+
+    /* Divider */
+    .divider {
+      display: flex; align-items: center; gap: 14px;
+      margin: 24px 0; color: var(--text-muted); font-size: .8rem; font-weight: 500;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* Payment strip */
+    .payment-strip {
+      display: flex; align-items: center; justify-content: space-between;
+      background: linear-gradient(135deg, var(--orange-pale), #FFF8F2);
+      border: 1.5px solid rgba(255,107,0,.2);
+      border-radius: var(--r-md); padding: 16px 20px;
+      gap: 16px; flex-wrap: wrap;
+    }
+    .price-group { display: flex; align-items: baseline; gap: 6px; }
+    .price-main {
+      font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800;
+      color: var(--orange); line-height: 1;
+    }
+    .price-label { font-size: .8rem; color: var(--text-2); }
+    .price-desc { font-size: .8rem; color: var(--text-muted); max-width: 240px; line-height: 1.4; }
+    .price-desc b { color: var(--text); font-weight: 600; }
+
+    .btn-stripe {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--night); color: #fff;
+      border: none; border-radius: var(--r-sm);
+      padding: 10px 18px;
+      font-family: 'DM Sans', sans-serif; font-size: .85rem; font-weight: 600;
+      cursor: pointer; white-space: nowrap;
+      transition: background .2s, transform .15s;
+    }
+    .btn-stripe:hover { background: var(--night-3); transform: translateY(-1px); }
+    .btn-stripe.paid {
+      background: var(--success); pointer-events: none;
+    }
+    .stripe-logo { font-size: .7rem; opacity: .6; }
+
+    /* Main CTA */
+    .btn-cta {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      width: 100%; margin-top: 22px;
+      background: linear-gradient(135deg, var(--orange), var(--orange-mid));
+      color: #fff; border: none; border-radius: var(--r-md);
+      padding: 18px 24px;
+      font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 700;
+      cursor: pointer; letter-spacing: -.01em;
+      transition: all .25s;
+      box-shadow: var(--shadow-orange);
+      position: relative; overflow: hidden;
+    }
+    .btn-cta::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,.12) 0%, transparent 50%);
+    }
+    .btn-cta:hover {
+      background: linear-gradient(135deg, var(--orange-dark), var(--orange));
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(255,107,0,.4);
+    }
+    .btn-cta:active { transform: translateY(0); }
+    .btn-cta:disabled {
+      opacity: .5; cursor: not-allowed; transform: none;
+      box-shadow: none;
+    }
+    .btn-cta .spinner {
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      animation: spin .7s linear infinite;
+      display: none;
+    }
+    .btn-cta.loading .spinner { display: block; }
+    .btn-cta.loading .btn-cta-label { opacity: .7; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Trust signals */
+    .trust {
+      display: flex; align-items: center; justify-content: center;
+      flex-wrap: wrap; gap: 16px; margin-top: 14px;
+    }
+    .trust-item {
+      display: flex; align-items: center; gap: 5px;
+      font-size: .76rem; color: var(--text-muted);
+    }
+    .trust-item .check { color: var(--success); font-weight: 700; }
+
+    /* ════════════════════════════════
+        PROCESSING MODAL / OVERLAY
+    ════════════════════════════════ */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 300;
+      background: rgba(12,12,24,.85); backdrop-filter: blur(8px);
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.show { display: flex; }
+
+    .modal {
+      background: #fff; border-radius: var(--r-xl);
+      padding: 48px 40px; max-width: 560px; width: 90%;
+      text-align: center; position: relative;
+      animation: modalIn .35s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(.94) translateY(20px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-icon { font-size: 3rem; margin-bottom: 20px; }
+    .modal-title {
+      font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800;
+      margin-bottom: 10px;
+    }
+    .modal-sub { color: var(--text-2); font-size: .95rem; line-height: 1.6; margin-bottom: 32px; }
+
+    /* Progress bar */
+    .progress-wrap {
+      background: var(--off-white); border-radius: 999px;
+      height: 6px; overflow: hidden; margin-bottom: 12px;
+    }
+    .progress-bar {
+      height: 100%; border-radius: 999px;
+      background: linear-gradient(90deg, var(--orange), var(--orange-light));
+      transition: width .6s cubic-bezier(.4,0,.2,1);
+      width: 0%;
+    }
+    .progress-label {
+      font-size: .78rem; color: var(--text-muted); margin-bottom: 28px;
+    }
+
+    /* Steps list in modal */
+    .modal-steps { list-style: none; text-align: left; }
+    .modal-step {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 14px; border-radius: var(--r-sm);
+      font-size: .9rem; color: var(--text-muted);
+      transition: all .3s;
+    }
+    .modal-step.active {
+      background: var(--orange-pale); color: var(--orange-dark); font-weight: 600;
+    }
+    .modal-step.done { color: var(--success); }
+    .modal-step-icon {
+      width: 24px; height: 24px; border-radius: 50%;
+      border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .7rem; flex-shrink: 0;
+      transition: all .3s;
+    }
+    .modal-step.active .modal-step-icon {
+      border-color: var(--orange); background: var(--orange); color: #fff;
+    }
+    .modal-step.done .modal-step-icon {
+      border-color: var(--success); background: var(--success); color: #fff;
+    }
+
+    /* ════════════════════════════════
+        RESULT SECTION (Questions Tâche 2 & 3)
+    ════════════════════════════════ */
+    .result-section {
+      display: none; padding: 80px 24px;
+      background: var(--white);
+      position: relative;
+    }
+    .result-section.show { display: block; }
+    .result-inner { max-width: 740px; margin: 0 auto; }
+
+    .result-header {
+      text-align: center; margin-bottom: 48px;
+    }
+    .result-header h2 {
+      font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800;
+      margin-bottom: 10px;
+    }
+    .result-header p { color: var(--text-2); font-size: .95rem; }
+
+    .cv-preview-card {
+      background: var(--night-1); border: 1px solid var(--night-border);
+      border-radius: var(--r-lg); padding: 32px;
+      margin-bottom: 32px; position: relative; overflow: hidden;
+    }
+    .cv-preview-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--orange), var(--orange-light));
+    }
+    .cv-preview-label {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .cv-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(34,197,94,.15); border: 1px solid rgba(34,197,94,.3);
+      color: var(--success); font-size: .75rem; font-weight: 700;
+      padding: 4px 10px; border-radius: 999px;
+    }
+    .cv-preview-content {
+      font-family: 'DM Sans', sans-serif; font-size: .88rem;
+      color: rgba(255,255,255,.7); line-height: 1.8;
+      white-space: pre-wrap;
+      max-height: 320px; overflow-y: auto;
+    }
+    .cv-preview-content::-webkit-scrollbar { width: 4px; }
+    .cv-preview-content::-webkit-scrollbar-thumb { background: var(--orange); }
+
+    /* Options questions */
+    .question-block {
+      background: #fff; border: 1.5px solid var(--border);
+      border-radius: var(--r-lg); padding: 28px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-card);
+    }
+    .question-block h3 {
+      font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700;
+      margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+    }
+    .question-num {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--orange); color: #fff;
+      font-size: .7rem; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* Radio-style options */
+    .options-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 10px;
+    }
+    .option-btn {
+      padding: 10px 14px;
+      border: 1.5px solid var(--border); border-radius: var(--r-sm);
+      background: var(--white); cursor: pointer;
+      font-family: 'DM Sans', sans-serif; font-size: .85rem; font-weight: 500;
+      color: var(--text-2); text-align: left;
+      transition: all .2s; display: flex; align-items: center; gap: 8px;
+    }
+    .option-btn:hover {
+      border-color: var(--orange); color: var(--orange-dark);
+      background: var(--orange-pale);
+    }
+    .option-btn.selected {
+      border-color: var(--orange); background: var(--orange-pale);
+      color: var(--orange-dark); font-weight: 600;
+    }
+    .option-btn .opt-icon { font-size: 1rem; }
+
+    /* No/Yes toggle */
+    .toggle-group { display: flex; gap: 10px; }
+    .toggle-btn {
+      flex: 1; padding: 12px;
+      border: 1.5px solid var(--border); border-radius: var(--r-sm);
+      background: var(--white); cursor: pointer;
+      font-family: 'Syne', sans-serif; font-size: .88rem; font-weight: 700;
+      color: var(--text-2); text-align: center;
+      transition: all .2s;
+    }
+    .toggle-btn:hover { border-color: var(--orange); }
+    .toggle-btn.selected { border-color: var(--orange); background: var(--orange-pale); color: var(--orange-dark); }
+    .toggle-btn.selected-no { border-color: var(--error); background: rgba(239,68,68,.06); color: var(--error); }
+
+    /* Conditional block (style lettre) */
+    .conditional-block {
+      max-height: 0; overflow: hidden;
+      transition: max-height .4s cubic-bezier(.4,0,.2,1), opacity .3s;
+      opacity: 0;
+    }
+    .conditional-block.open {
+      max-height: 400px; opacity: 1;
+    }
+    .sub-block { margin-top: 16px; }
+
+    /* Format buttons */
+    .format-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+    .format-card {
+      border: 1.5px solid var(--border); border-radius: var(--r-md);
+      padding: 20px 16px; text-align: center; cursor: pointer;
+      background: var(--white); transition: all .2s;
+    }
+    .format-card:hover { border-color: var(--orange); }
+    .format-card.selected { border-color: var(--orange); background: var(--orange-pale); }
+    .format-icon { font-size: 2rem; margin-bottom: 8px; display: block; }
+    .format-name {
+      font-family: 'Syne', sans-serif; font-size: .88rem; font-weight: 700;
+      color: var(--text); display: block; margin-bottom: 4px;
+    }
+    .format-desc { font-size: .75rem; color: var(--text-muted); line-height: 1.3; }
+
+    /* Final download button */
+    .btn-download {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      width: 100%; margin-top: 28px;
+      background: linear-gradient(135deg, var(--success), #16a34a);
+      color: #fff; border: none; border-radius: var(--r-md);
+      padding: 18px; font-family: 'Syne', sans-serif;
+      font-size: 1.05rem; font-weight: 700; cursor: pointer;
+      box-shadow: 0 8px 28px rgba(34,197,94,.3);
+      transition: all .25s;
+    }
+    .btn-download:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(34,197,94,.4); }
+    .btn-download:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+    /* ════════════════════════════════
+        ATS EXPLAINER SECTION
+    ════════════════════════════════ */
+    .explainer {
+      padding: 110px 40px;
+      background: var(--night-1);
+      position: relative; overflow: hidden;
+    }
+    .explainer::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent 10%, var(--orange) 50%, transparent 90%);
+    }
+
+    /* Grid of hexagonal-ish decorative lines */
+    .explainer-bg {
+      position: absolute; inset: 0; pointer-events: none; overflow: hidden; opacity: .04;
+    }
+    .explainer-bg svg { width: 100%; height: 100%; }
+
+    .section-eyebrow {
+      font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--orange); text-align: center; margin-bottom: 12px;
+    }
+    .section-h2 {
+      font-family: 'Syne', sans-serif; font-size: clamp(1.9rem, 4vw, 2.8rem); font-weight: 800;
+      color: #fff; text-align: center; max-width: 600px; margin: 0 auto 16px; line-height: 1.15;
+    }
+    .section-desc {
+      text-align: center; color: rgba(255,255,255,.45); max-width: 500px;
+      margin: 0 auto 64px; font-size: .95rem; line-height: 1.7;
+    }
+
+    .cards-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px; max-width: 1000px; margin: 0 auto;
+    }
+
+    .info-card {
+      background: rgba(255,255,255,.03);
+      border: 1px solid var(--night-border);
+      border-radius: 20px; padding: 36px 28px;
+      position: relative; overflow: hidden;
+      transition: transform .3s, border-color .3s, background .3s;
+    }
+    .info-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(255,107,0,.3);
+      background: rgba(255,107,0,.04);
+    }
+    .info-card::after {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--orange), var(--orange-light));
+      opacity: 0; transition: opacity .3s;
+    }
+    .info-card:hover::after { opacity: 1; }
+
+    .card-num {
+      font-family: 'Syne', sans-serif; font-size: 3rem; font-weight: 800;
+      color: rgba(255,107,0,.12); line-height: 1; margin-bottom: 20px;
+      transition: color .3s;
+    }
+    .info-card:hover .card-num { color: rgba(255,107,0,.2); }
+
+    .card-icon-large { font-size: 1.8rem; margin-bottom: 16px; display: block; }
+    .info-card h3 {
+      font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700;
+      color: #fff; margin-bottom: 12px;
+    }
+    .info-card p { font-size: .88rem; color: rgba(255,255,255,.5); line-height: 1.75; }
+    .card-stat-pill {
+      display: inline-block; margin-top: 20px;
+      background: rgba(255,107,0,.12); border: 1px solid rgba(255,107,0,.2);
+      color: var(--orange-light); font-size: .73rem; font-weight: 700;
+      padding: 4px 12px; border-radius: 999px;
+    }
+
+    /* ════════════════════════════════
+        HOW IT WORKS STRIP
+    ════════════════════════════════ */
+    .how-it-works {
+      padding: 90px 40px;
+      background: var(--white);
+    }
+    .steps-row {
+      display: flex; align-items: flex-start; justify-content: center;
+      gap: 0; max-width: 900px; margin: 48px auto 0;
+      flex-wrap: wrap;
+    }
+    .hiw-step {
+      flex: 1; min-width: 160px; max-width: 220px;
+      text-align: center; padding: 0 20px;
+      position: relative;
+    }
+    .hiw-step:not(:last-child)::after {
+      content: '→';
+      position: absolute; right: -8px; top: 28px;
+      font-size: 1.2rem; color: var(--border);
+    }
+    .hiw-icon {
+      width: 56px; height: 56px;
+      background: var(--orange-pale); border: 2px solid rgba(255,107,0,.2);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; margin: 0 auto 14px;
+      transition: transform .2s;
+    }
+    .hiw-step:hover .hiw-icon { transform: translateY(-4px); }
+    .hiw-step h4 {
+      font-family: 'Syne', sans-serif; font-size: .88rem; font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .hiw-step p { font-size: .78rem; color: var(--text-muted); line-height: 1.5; }
+
+    /* ════════════════════════════════
+        SOCIAL PROOF / STATS BANNER
+    ════════════════════════════════ */
+    .stats-banner {
+      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+      padding: 56px 40px;
+      display: flex; align-items: center; justify-content: center;
+      gap: 60px; flex-wrap: wrap;
+      position: relative; overflow: hidden;
+    }
+    .stats-banner::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.06'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .stat-item { text-align: center; position: relative; z-index: 1; }
+    .stat-num {
+      font-family: 'Syne', sans-serif; font-size: 2.8rem; font-weight: 800;
+      color: #fff; line-height: 1; margin-bottom: 6px;
+    }
+    .stat-label { font-size: .85rem; color: rgba(255,255,255,.75); }
+
+    /* ════════════════════════════════
+        FAQ
+    ════════════════════════════════ */
+    .faq-section {
+      padding: 90px 40px;
+      background: var(--night-2);
+    }
+    .faq-grid { max-width: 700px; margin: 48px auto 0; }
+    .faq-item {
+      border-bottom: 1px solid var(--night-border);
+      padding: 20px 0;
+    }
+    .faq-q {
+      font-family: 'Syne', sans-serif; font-size: .95rem; font-weight: 700;
+      color: #fff; cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      user-select: none;
+    }
+    .faq-q .arrow {
+      font-size: .75rem; color: var(--orange); flex-shrink: 0;
+      transition: transform .3s;
+    }
+    .faq-item.open .faq-q .arrow { transform: rotate(180deg); }
+    .faq-a {
+      max-height: 0; overflow: hidden;
+      transition: max-height .35s ease, opacity .25s;
+      opacity: 0;
+    }
+    .faq-item.open .faq-a { max-height: 200px; opacity: 1; }
+    .faq-a p { padding-top: 12px; font-size: .88rem; color: rgba(255,255,255,.5); line-height: 1.75; }
+
+    /* ════════════════════════════════
+        FOOTER
+    ════════════════════════════════ */
+    footer {
+      background: var(--night);
+      padding: 56px 40px 32px;
+      border-top: 1px solid var(--night-border);
+    }
+    .footer-top {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 40px; flex-wrap: wrap; padding-bottom: 40px;
+      border-bottom: 1px solid var(--night-border);
+      margin-bottom: 28px;
+    }
+    .footer-brand { max-width: 280px; }
+    .footer-logo-text {
+      font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800;
+      color: #fff; margin-bottom: 10px; display: block;
+    }
+    .footer-logo-text span { color: var(--orange); }
+    .footer-tagline { font-size: .83rem; color: rgba(255,255,255,.35); line-height: 1.6; }
+    .footer-links-col h5 {
+      font-family: 'Syne', sans-serif; font-size: .8rem; font-weight: 700;
+      color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: .08em;
+      margin-bottom: 14px;
+    }
+    .footer-links-col a {
+      display: block; font-size: .85rem; color: rgba(255,255,255,.35);
+      text-decoration: none; margin-bottom: 8px; transition: color .2s;
+    }
+    .footer-links-col a:hover { color: var(--orange); }
+    .footer-bottom {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+    }
+    .footer-copy { font-size: .75rem; color: rgba(255,255,255,.2); }
+    .footer-made { font-size: .75rem; color: rgba(255,255,255,.2); }
+    .footer-made span { color: var(--orange); }
+
+    /* ════════════════════════════════
+        SCROLL TO TOP
+    ════════════════════════════════ */
+    .scroll-top {
+      position: fixed; bottom: 28px; right: 28px; z-index: 100;
+      width: 44px; height: 44px; border-radius: 12px;
+      background: var(--orange); color: #fff;
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      box-shadow: 0 4px 16px rgba(255,107,0,.4);
+      opacity: 0; transform: translateY(12px);
+      transition: opacity .3s, transform .3s;
+      pointer-events: none;
+    }
+    .scroll-top.visible { opacity: 1; transform: translateY(0); pointer-events: all; }
+    .scroll-top:hover { background: var(--orange-dark); }
+
+    /* ════════════════════════════════
+        RESPONSIVE
+    ════════════════════════════════ */
+    @media (max-width: 640px) {
+      nav { padding: 0 20px; }
+      .nav-chip, .nav-cta { display: none; }
+      .main-card { padding: 28px 20px 24px; }
+      .step span { display: none; }
+      .payment-strip { flex-direction: column; }
+      .format-grid { grid-template-columns: 1fr; }
+      .steps-row { gap: 20px; }
+      .hiw-step::after { display: none; }
+      .stats-banner { gap: 32px; padding: 40px 24px; }
+      .footer-top { flex-direction: column; }
+      .explainer { padding: 70px 20px; }
+      .how-it-works, .faq-section, .cards-grid { padding: 60px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════ NAV ════ -->
+  <nav id="navbar">
+    <a href="#" class="logo">
+      <div class="logo-mark">⚡</div>
+      cv-ats-ready
+    </a>
+    <div class="nav-right">
+      <div class="nav-chip"><span class="dot"></span> Agent IA actif</div>
+      <button class="nav-cta" onclick="scrollToApp()">Optimiser mon CV →</button>
+    </div>
+  </nav>
+
+  <!-- ════ HERO ════ -->
+  <section class="hero">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="hero-content">
+      <div class="eyebrow">✦ Agent IA spécialisé candidature</div>
+
+      <h1>
+        Ton CV mérite mieux<br>
+        que d'être <span class="accent">bloqué par un robot</span>
+      </h1>
+
+      <p class="hero-sub">
+        Colle l'offre d'emploi. Uploade ton CV. Paie 1€.<br>
+        Notre agent IA le réécrit pour <strong>passer les filtres ATS</strong> 
+        et atterrir directement sur le bureau du recruteur.
+      </p>
+
+      <!-- ══ MAIN APP CARD ══ -->
+      <div class="main-card" id="app-card">
+
+        <!-- Steps indicator -->
+        <div class="steps">
+          <div class="step active" id="s1">
+            <div class="step-num">1</div>
+            <span>L'offre</span>
+          </div>
+          <div class="step-connector" id="c1"></div>
+          <div class="step active" id="s2">
+            <div class="step-num">2</div>
+            <span>Ton CV</span>
+          </div>
+          <div class="step-connector" id="c2"></div>
+          <div class="step" id="s3">
+            <div class="step-num">3</div>
+            <span>Paiement</span>
+          </div>
+          <div class="step-connector" id="c3"></div>
+          <div class="step" id="s4">
+            <div class="step-num">⚡</div>
+            <span>Résultat</span>
+          </div>
+        </div>
+
+        <!-- Zone 1: Offre d'emploi -->
+        <div class="field">
+          <div class="field-label">
+            📋 Copie-colle l'offre d'emploi
+            <span class="tag">Obligatoire</span>
+          </div>
+          <div class="field-hint">Le texte complet de l'annonce à laquelle tu postules</div>
+          <textarea
+            id="jobOffer"
+            placeholder="Ex : Nous recherchons un(e) Développeur Full-Stack pour rejoindre notre équipe...
+
+Compétences requises : React, Node.js, TypeScript, SQL, méthodologie Agile...
+
+Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
+          ></textarea>
+        </div>
+
+        <!-- Zone 2: Upload CV -->
+        <div class="field">
+          <div class="field-label">
+            📄 Uploade ton CV actuel
+            <span class="tag">Obligatoire</span>
+          </div>
+          <div class="field-hint">On l'optimise pour le rendre invisible aux filtres ATS</div>
+          <div class="upload-zone" id="uploadZone">
+            <input type="file" id="cvFile" accept=".pdf,.doc,.docx" />
+            <div class="upload-icon-wrap">☁️</div>
+            <div class="upload-text">
+              <strong>Clique ou glisse ton fichier ici</strong><br>
+              PDF ou Word — max 5 Mo
+            </div>
+            <div class="upload-formats">
+              <span class="fmt">PDF</span>
+              <span class="fmt">DOC</span>
+              <span class="fmt">DOCX</span>
+            </div>
+          </div>
+          <div class="file-selected" id="fileSelected">
+            <span>✅</span>
+            <span class="file-selected-name" id="fileName">—</span>
+          </div>
+        </div>
+
+        <div class="divider">puis</div>
+
+        <!-- Zone 3: Paiement -->
+        <div class="payment-strip" id="paymentStrip" style="flex-direction:column;align-items:stretch;">
+          <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:8px;">
+            <span class="price-main">1€</span>
+            <span class="price-label">seulement</span>
+          </div>
+          <div class="price-desc" style="margin-bottom:16px;">
+            <b>Accès complet :</b> CV ATS optimisé · Lettre de motivation · Export PDF/Word
+          </div>
+
+          <!-- Champ code promo -->
+          <div style="display:flex;gap:8px;margin-bottom:12px;">
+            <input type="text" id="promoCode"
+              placeholder="🎟️ Code promo (ex : TEST_CV_ATS_READY)"
+              style="flex:1;padding:10px 14px;font-size:.83rem;border-radius:var(--r-sm);
+                      border:1.5px solid rgba(255,107,0,.3);background:var(--white);
+                      font-family:DM Sans,sans-serif;outline:none;"
+            />
+          </div>
+
+          <!-- Stripe Card Element -->
+          <div id="stripe-card-container" style="margin-bottom:12px;">
+            <div id="stripe-card-element" style="
+              border:1.5px solid rgba(255,107,0,.25);border-radius:var(--r-sm);
+              padding:12px 14px;background:var(--white);">
+            </div>
+            <div id="stripe-card-errors" style="color:#ef4444;font-size:.78rem;margin-top:5px;"></div>
+          </div>
+
+          <button class="btn-stripe" id="btnPay" onclick="pay()" style="align-self:flex-start;">
+            🔒 Payer 1€ avec Stripe
+          </button>
+        </div>
+
+        <!-- CTA -->
+        <button class="btn-cta" id="btnOptimize" onclick="startOptimization()" disabled>
+          <div class="spinner"></div>
+          <span class="btn-cta-label">⚡ Optimiser mon CV maintenant</span>
+        </button>
+
+        <!-- Trust -->
+        <div class="trust">
+          <span class="trust-item"><span class="check">✓</span> Résultat en &lt; 30 sec</span>
+          <span class="trust-item"><span class="check">✓</span> Aucun mensonge ajouté</span>
+          <span class="trust-item"><span class="check">✓</span> Paiement sécurisé Stripe</span>
+          <span class="trust-item"><span class="check">✓</span> Données non revendues</span>
+        </div>
+
+      </div><!-- /main-card -->
+    </div>
+  </section>
+
+  <!-- ════ PROCESSING MODAL ════ -->
+  <div class="modal-overlay" id="processingModal">
+    <div class="modal">
+      <div class="modal-icon">🤖</div>
+      <div class="modal-title">L'agent IA travaille pour toi…</div>
+      <div class="modal-sub">Analyse de l'offre, matching des mots-clés, réécriture optimisée ATS. Prends un café ☕</div>
+
+      <div class="progress-wrap">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <div class="progress-label" id="progressLabel">Initialisation…</div>
+
+      <ul class="modal-steps">
+        <li class="modal-step" id="ms1">
+          <div class="modal-step-icon">1</div>
+          Analyse de l'offre d'emploi et extraction des mots-clés
+        </li>
+        <li class="modal-step" id="ms2">
+          <div class="modal-step-icon">2</div>
+          Lecture et compréhension de ton CV actuel
+        </li>
+        <li class="modal-step" id="ms3">
+          <div class="modal-step-icon">3</div>
+          Réécriture ATS — adaptation & optimisation
+        </li>
+        <li class="modal-step" id="ms4">
+          <div class="modal-step-icon">4</div>
+          Vérification finale et mise en forme
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ════ RESULT SECTION ════ -->
+  <section class="result-section" id="resultSection">
+    <div class="result-inner">
+
+      <div class="result-header">
+        <div class="eyebrow" style="margin-bottom:16px;">✅ Tâche 1 accomplie</div>
+        <h2>Ton CV ATS-ready est prêt 🎉</h2>
+        <p>Il a été réécrit et optimisé pour matcher l'offre. Maintenant, quelques questions pour finaliser ta candidature.</p>
+      </div>
+
+      <!-- CV Preview -->
+      <div class="cv-preview-card">
+        <div class="cv-preview-label">
+          <span style="font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;color:rgba(255,255,255,.6);">Aperçu — CV optimisé</span>
+          <span class="cv-badge">✓ ATS Ready</span>
+        </div>
+        <div class="cv-preview-content" id="cvOutput">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+
+      <!-- Tâche 2: Lettre de motivation -->
+      <div class="question-block">
+        <h3>
+          <span class="question-num">2</span>
+          Veux-tu une lettre de motivation ?
+        </h3>
+        <div class="toggle-group">
+          <button class="toggle-btn" id="lmYes" onclick="toggleLM(true)">✍️ Oui, je veux une lettre</button>
+          <button class="toggle-btn" id="lmNo" onclick="toggleLM(false)">Non merci</button>
+        </div>
+
+        <div class="conditional-block" id="lmBlock">
+          <div class="sub-block">
+            <div class="field-label" style="margin-bottom:10px;font-size:.82rem;">Quel style pour ta lettre ?</div>
+            <div class="options-grid">
+              <button class="option-btn" onclick="selectStyle(this,'motivé')"><span class="opt-icon">🔥</span>Motivé</button>
+              <button class="option-btn" onclick="selectStyle(this,'très motivé')"><span class="opt-icon">🚀</span>Très motivé</button>
+              <button class="option-btn" onclick="selectStyle(this,'expert')"><span class="opt-icon">🎓</span>Expert</button>
+              <button class="option-btn" onclick="selectStyle(this,'débutant')"><span class="opt-icon">🌱</span>Débutant</button>
+              <button class="option-btn" onclick="selectStyle(this,'neutre & professionnel')"><span class="opt-icon">💼</span>Neutre & pro</button>
+              <button class="option-btn" onclick="selectStyle(this,'reconversion')"><span class="opt-icon">🔄</span>Reconversion</button>
+            </div>
+          </div>
+          <div class="sub-block" style="margin-top:16px;">
+            <div class="field-label" style="font-size:.82rem;margin-bottom:6px;">Une précision ? <span style="font-weight:400;color:var(--text-muted)">(optionnel)</span></div>
+            <input type="text" placeholder="Ex : je suis passionné par l'IA depuis 5 ans, j'ai un gap de 2 ans…" id="lmPrecision" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Tâche 3: Format de sortie -->
+      <div class="question-block">
+        <h3>
+          <span class="question-num">3</span>
+          Comment veux-tu recevoir tes fichiers ?
+        </h3>
+        <div class="format-grid">
+          <div class="format-card" onclick="selectFormat(this,'pdf')">
+            <span class="format-icon">📕</span>
+            <span class="format-name">PDF</span>
+            <span class="format-desc">Idéal pour l'envoi par email</span>
+          </div>
+          <div class="format-card" onclick="selectFormat(this,'word')">
+            <span class="format-icon">📘</span>
+            <span class="format-name">Word (.docx)</span>
+            <span class="format-desc">Pour modifier facilement ensuite</span>
+          </div>
+          <div class="format-card" onclick="selectFormat(this,'texte')">
+            <span class="format-icon">📋</span>
+            <span class="format-name">Texte brut</span>
+            <span class="format-desc">Copier-coller dans ton outil</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Final button -->
+      <button class="btn-download" id="btnDownload" onclick="generateFinal()" disabled>
+        🎁 Générer et télécharger mes fichiers
+      </button>
+
+    </div>
+  </section>
+
+  <!-- ════ HOW IT WORKS ════ -->
+  <section class="how-it-works" id="how">
+    <div class="section-eyebrow">Simple comme bonjour</div>
+    <div class="section-h2" style="color:var(--text);font-size:clamp(1.9rem,4vw,2.6rem);text-align:center;max-width:540px;margin:0 auto;">
+      4 étapes, moins de 2 minutes
+    </div>
+
+    <div class="steps-row">
+      <div class="hiw-step">
+        <div class="hiw-icon">📋</div>
+        <h4>1. Colle l'offre</h4>
+        <p>Le texte complet de l'annonce qui t'intéresse</p>
+      </div>
+      <div class="hiw-step">
+        <div class="hiw-icon">📄</div>
+        <h4>2. Upload ton CV</h4>
+        <p>PDF ou Word, ton CV actuel tel qu'il est</p>
+      </div>
+      <div class="hiw-step">
+        <div class="hiw-icon">💳</div>
+        <h4>3. Paie 1€</h4>
+        <p>Micro-paiement sécurisé, sans abonnement</p>
+      </div>
+      <div class="hiw-step">
+        <div class="hiw-icon">⚡</div>
+        <h4>4. Reçois ton CV</h4>
+        <p>Optimisé, ATS-ready, prêt à envoyer</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ STATS BANNER ════ -->
+  <div class="stats-banner">
+    <div class="stat-item">
+      <div class="stat-num">75%</div>
+      <div class="stat-label">des CV filtrés avant un humain</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">95%</div>
+      <div class="stat-label">des grandes entreprises utilisent un ATS</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">1€</div>
+      <div class="stat-label">pour augmenter ses chances</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">&lt;30s</div>
+      <div class="stat-label">pour un résultat complet</div>
+    </div>
+  </div>
+
+  <!-- ════ ATS EXPLAINER ════ -->
+  <section class="explainer" id="ats">
+    <div class="explainer-bg">
+      <svg viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg">
+        <defs><pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+          <path d="M 60 0 L 0 0 0 60" fill="none" stroke="white" stroke-width="0.5"/>
+        </pattern></defs>
+        <rect width="1200" height="600" fill="url(#grid)"/>
+      </svg>
+    </div>
+
+    <div class="section-eyebrow">Pourquoi c'est crucial</div>
+    <h2 class="section-h2">Les ATS filtrent avant les humains</h2>
+    <p class="section-desc">Comprendre comment fonctionnent ces systèmes, c'est déjà prendre une longueur d'avance sur 80% des candidats.</p>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="card-num">01</div>
+        <span class="card-icon-large">🤖</span>
+        <h3>C'est quoi un ATS ?</h3>
+        <p>
+          Un <strong style="color:rgba(255,255,255,.75)">Applicant Tracking System</strong> est un logiciel RH qui scanne 
+          automatiquement les CV reçus. Il cherche des mots-clés précis, analyse la structure, 
+          attribue un score — avant qu'un recruteur humain ne lise quoi que ce soit.
+        </p>
+        <span class="card-stat-pill">Workday, Taleo, Greenhouse, Lever…</span>
+      </div>
+
+      <div class="info-card">
+        <div class="card-num">02</div>
+        <span class="card-icon-large">🚫</span>
+        <h3>Pourquoi ton CV est rejeté</h3>
+        <p>
+          Même un profil brillant peut être éliminé : mots-clés manquants, mauvais format (colonnes, 
+          tableaux, infographies illisibles par les robots), polices trop originales, 
+          ou simplement un titre de poste différent de celui de l'offre.
+        </p>
+        <span class="card-stat-pill">75% des candidatures éliminées avant lecture</span>
+      </div>
+
+      <div class="info-card">
+        <div class="card-num">03</div>
+        <span class="card-icon-large">💡</span>
+        <h3>Pourquoi cv-ats-ready</h3>
+        <p>
+          On a tous fait ça : aller sur ChatGPT, coller son CV, expliquer l'offre en long prompt… 
+          <strong style="color:rgba(255,255,255,.75)">cv-ats-ready automatise exactement ça, sans effort.</strong> 
+          Tu viens, tu déposes — l'agent s'occupe du reste. Honnêtement, sans fioritures.
+        </p>
+        <span class="card-stat-pill">1€ · Zéro prompt · 30 secondes</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ FAQ ════ -->
+  <section class="faq-section">
+    <div class="section-eyebrow">Questions fréquentes</div>
+    <h2 class="section-h2">Tout ce que tu veux savoir</h2>
+
+    <div class="faq-grid">
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Est-ce que l'IA va mentir sur mon profil ? <span class="arrow">▾</span></div>
+        <div class="faq-a"><p>Non, jamais. L'ADN de cv-ats-ready est l'honnêteté. L'agent optimise la <em>présentation</em> de tes vraies compétences, reformule, met en valeur — sans inventer. Si tu veux qu'on mette en avant quelque chose de spécifique, tu peux l'indiquer dans le champ libre.</p></div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Mon CV est-il sécurisé ? <span class="arrow">▾</span></div>
+        <div class="faq-a"><p>Ton CV est traité uniquement pour générer ton résultat et n'est pas stocké ni revendu. Le traitement est éphémère — on ne garde aucune donnée personnelle au-delà du délai de génération.</p></div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Quels formats de CV sont acceptés ? <span class="arrow">▾</span></div>
+        <div class="faq-a"><p>Tu peux uploader ton CV en PDF, .DOC ou .DOCX. La taille maximum est de 5 Mo. On recommande le PDF pour une extraction de texte propre.</p></div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Pourquoi 1€ et pas gratuit ? <span class="arrow">▾</span></div>
+        <div class="faq-a"><p>1€ couvre le coût de l'IA et permet de maintenir le service. C'est délibérément accessible — pas d'abonnement, pas d'engagement. Tu paies à l'utilisation, uniquement quand tu en as besoin.</p></div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">La lettre de motivation est-elle vraiment personnalisée ? <span class="arrow">▾</span></div>
+        <div class="faq-a"><p>Oui — elle est générée à partir de l'offre ET de ton CV, donc contextualisée. Tu choisis le style (motivé, expert, débutant…) et tu peux ajouter une précision libre pour qu'elle colle parfaitement à ta situation.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ FOOTER ════ -->
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <span class="footer-logo-text">cv-ats-<span>ready</span></span>
+        <div class="footer-tagline">L'agent IA qui optimise ton CV pour passer les filtres ATS et décrocher l'entretien que tu mérites.</div>
+      </div>
+      <div class="footer-links-col">
+        <h5>Produit</h5>
+        <a href="#">Comment ça marche</a>
+        <a href="#">Tarifs</a>
+        <a href="#">FAQ</a>
+        <a href="#">Témoignages</a>
+      </div>
+      <div class="footer-links-col">
+        <h5>C'est quoi un ATS ?</h5>
+        <a href="#">Guide complet ATS</a>
+        <a href="#">Conseils CV 2025</a>
+        <a href="#">Mots-clés par secteur</a>
+      </div>
+      <div class="footer-links-col">
+        <h5>Légal</h5>
+        <a href="#">Mentions légales</a>
+        <a href="#">CGU</a>
+        <a href="#">Politique de confidentialité</a>
+        <a href="#">Contact</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 cv-ats-ready.fr — Tous droits réservés</div>
+      <div class="footer-made">Fait avec <span>❤️</span> pour les demandeurs d'emploi</div>
+    </div>
+  </footer>
+
+  <!-- Scroll to top -->
+  <button class="scroll-top" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+  <!-- ════ JAVASCRIPT ════ -->
+  <!-- Stripe.js — chargé depuis le CDN officiel Stripe -->
+  <script src="https://js.stripe.com/v3/"></script>
+
+  <script>
+    /* ════════════════════════════════════════════════════
+        CONFIGURATION
+        → Remplace ces deux valeurs avant de déployer
+    ════════════════════════════════════════════════════ */
+    const API_BASE   = 'http://localhost:8000';          // URL de ton backend FastAPI
+    const STRIPE_PK  = 'pk_test_REMPLACE_PAR_TA_CLE_PUBLISHABLE'; // Clé publique Stripe
+
+    const stripe = Stripe(STRIPE_PK);
+
+    /* ════════════════════════════════════════════════════
+        STATE
+    ════════════════════════════════════════════════════ */
+    const state = {
+      jobOffer      : '',
+      cvFile        : null,
+      paid          : false,
+      paymentIntentId: '',   // ID Stripe du paiement confirmé
+      freeToken     : '',    // Token généré pour code promo 100%
+      optimizedCV   : '',    // Résultat brut de l'IA (texte)
+      selectedStyle : null,
+      wantsLM       : null,
+      selectedFormat: null,
+    };
+
+    /* ════════════════════════════════════════════════════
+        SCROLL & NAV
+    ════════════════════════════════════════════════════ */
+    window.addEventListener('scroll', () => {
+      document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 60);
+      document.getElementById('scrollTopBtn').classList.toggle('visible', window.scrollY > 400);
+    });
+
+    function scrollToApp() {
+      document.getElementById('app-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    /* ════════════════════════════════════════════════════
+        UPLOAD CV — drag & drop + clic
+    ════════════════════════════════════════════════════ */
+    const cvFileInput = document.getElementById('cvFile');
+    const uploadZone  = document.getElementById('uploadZone');
+    const fileSelected = document.getElementById('fileSelected');
+
+    cvFileInput.addEventListener('change', (e) => {
+      if (e.target.files[0]) handleFile(e.target.files[0]);
+    });
+    uploadZone.addEventListener('dragover',  e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+    uploadZone.addEventListener('drop', e => {
+      e.preventDefault(); uploadZone.classList.remove('drag-over');
+      if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+    });
+
+    function handleFile(file) {
+      const MAX_MB = 5;
+      if (file.size > MAX_MB * 1024 * 1024) {
+        showToast(`❌ Fichier trop lourd (max ${MAX_MB} Mo)`, 'error'); return;
+      }
+      const allowed = ['.pdf','.doc','.docx'];
+      const ext = '.' + file.name.split('.').pop().toLowerCase();
+      if (!allowed.includes(ext)) {
+        showToast('❌ Format non supporté. Utilise PDF ou Word.', 'error'); return;
+      }
+      state.cvFile = file;
+      document.getElementById('fileName').textContent = file.name;
+      fileSelected.classList.add('show');
+      checkReady();
+    }
+
+    /* ════════════════════════════════════════════════════
+        OFFRE D'EMPLOI
+    ════════════════════════════════════════════════════ */
+    document.getElementById('jobOffer').addEventListener('input', (e) => {
+      state.jobOffer = e.target.value;
+      checkReady();
+    });
+
+    function checkReady() {
+      document.getElementById('btnOptimize').disabled =
+        !(state.jobOffer.trim().length > 30 && state.cvFile && state.paid);
+    }
+
+    /* ════════════════════════════════════════════════════
+        US-03 — PAIEMENT STRIPE RÉEL
+    ════════════════════════════════════════════════════ */
+    async function pay() {
+      const btn     = document.getElementById('btnPay');
+      const promoEl = document.getElementById('promoCode');
+      const promoCode = promoEl ? promoEl.value.trim() : '';
+
+      btn.disabled = true;
+      btn.innerHTML = '⏳ Vérification…';
+
+      try {
+        // 1. Demande un PaymentIntent au backend (avec éventuel code promo)
+        const fd = new FormData();
+        fd.append('promo_code', promoCode);
+        const res  = await fetch(`${API_BASE}/api/create-payment-intent`, { method: 'POST', body: fd });
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.detail || 'Erreur serveur');
+
+        // Affiche message promo si présent
+        if (data.promo_valid) showPromoFeedback(data.promo_message, true);
+
+        // 2a. Code promo 100% → accès gratuit direct
+        if (data.free) {
+          state.freeToken = data.free_token;
+          _confirmPayment();
+          return;
+        }
+
+        // 2b. Paiement Stripe normal → ouvre le payment sheet
+        const { error, paymentIntent } = await stripe.confirmCardPayment(data.client_secret, {
+          payment_method: { card: stripeCardElement },
+        });
+
+        if (error) throw new Error(error.message);
+        if (paymentIntent.status === 'succeeded') {
+          state.paymentIntentId = paymentIntent.id;
+          _confirmPayment();
+        }
+
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = '🔒 Payer avec Stripe';
+        showToast(`❌ ${err.message}`, 'error');
+      }
+    }
+
+    function _confirmPayment() {
+      state.paid = true;
+      const btn = document.getElementById('btnPay');
+      btn.innerHTML = '✅ Paiement confirmé';
+      btn.classList.add('paid');
+      document.getElementById('s3').classList.add('done');
+      document.getElementById('c2').classList.add('done');
+      checkReady();
+      showToast('✅ Paiement validé ! Tu peux maintenant optimiser ton CV.', 'success');
+    }
+
+    function showPromoFeedback(msg, valid) {
+      let el = document.getElementById('promoFeedback');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'promoFeedback';
+        el.style.cssText = 'margin-top:8px;font-size:.8rem;font-weight:600;padding:6px 12px;border-radius:8px;';
+        document.getElementById('promoCode').parentNode.appendChild(el);
+      }
+      el.style.background = valid ? 'rgba(34,197,94,.1)' : 'rgba(239,68,68,.1)';
+      el.style.color = valid ? '#16a34a' : '#ef4444';
+      el.textContent = msg;
+    }
+
+    /* ════════════════════════════════════════════════════
+        Stripe Elements — montage de la carte de paiement
+        (s'affiche uniquement si pas de code promo 100%)
+    ════════════════════════════════════════════════════ */
+    let stripeCardElement = null;
+
+    function mountStripeCard() {
+      const container = document.getElementById('stripe-card-container');
+      if (!container || stripeCardElement) return;
+      const elements = stripe.elements();
+      stripeCardElement = elements.create('card', {
+        style: {
+          base: { fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#1A1A1A' },
+        },
+        hidePostalCode: true,
+      });
+      stripeCardElement.mount('#stripe-card-element');
+      stripeCardElement.on('change', (event) => {
+        document.getElementById('stripe-card-errors').textContent = event.error ? event.error.message : '';
+      });
+    }
+
+    // Monte la carte quand la page est prête
+    document.addEventListener('DOMContentLoaded', mountStripeCard);
+
+    /* ════════════════════════════════════════════════════
+        ANIMATION DE PROGRESSION (pendant l'appel API)
+    ════════════════════════════════════════════════════ */
+    let progressInterval = null;
+
+    function startProgressAnimation(onDone) {
+      const modal = document.getElementById('processingModal');
+      modal.classList.add('show');
+
+      const steps  = ['ms1','ms2','ms3','ms4'];
+      const labels = [
+        'Analyse de l\'offre et extraction des mots-clés…',
+        'Lecture et compréhension de ton CV…',
+        'Réécriture ATS en cours — patience ☕…',
+        'Vérification finale et mise en forme…',
+      ];
+      const bar   = document.getElementById('progressBar');
+      const label = document.getElementById('progressLabel');
+      let current = 0;
+
+      // Avance les 3 premières étapes toutes les ~5s (l'API prend ~15-25s)
+      progressInterval = setInterval(() => {
+        if (current > 0) {
+          document.getElementById(steps[current-1]).classList.remove('active');
+          document.getElementById(steps[current-1]).classList.add('done');
+          document.getElementById(steps[current-1]).querySelector('.modal-step-icon').textContent = '✓';
+        }
+        if (current < steps.length - 1) {   // s'arrête à l'avant-dernière
+          document.getElementById(steps[current]).classList.add('active');
+          bar.style.width = ((current + 1) / steps.length * 85) + '%'; // max 85% pendant l'attente
+          label.textContent = labels[current];
+          current++;
+        }
+      }, 5000);
+
+      // Retourne une fonction finish(callback) appelée quand le fetch se termine
+      return function(callback) {
+        clearInterval(progressInterval);
+        // Complète la dernière étape
+        steps.forEach((id, i) => {
+          const el = document.getElementById(id);
+          el.classList.remove('active');
+          el.classList.add('done');
+          el.querySelector('.modal-step-icon').textContent = '✓';
+        });
+        bar.style.width = '100%';
+        label.textContent = 'Terminé ! 🎉';
+        setTimeout(() => {
+          modal.classList.remove('show');
+          if (typeof callback === 'function') callback();
+        }, 700);
+      };
+    }
+
+    /* ════════════════════════════════════════════════════
+        US-05 — APPEL BACKEND : OPTIMISATION CV
+    ════════════════════════════════════════════════════ */
+    async function startOptimization() {
+      if (!state.jobOffer.trim() || !state.cvFile || !state.paid) return;
+
+      const btn = document.getElementById('btnOptimize');
+      btn.disabled = true;
+      btn.classList.add('loading');
+
+      const finishProgress = startProgressAnimation();
+
+      try {
+        const fd = new FormData();
+        fd.append('job_offer',          state.jobOffer);
+        fd.append('cv_file',            state.cvFile);
+        fd.append('payment_intent_id',  state.paymentIntentId);
+        fd.append('free_token',         state.freeToken);
+        fd.append('wants_cover_letter', 'false'); // on demandera après
+        fd.append('export_format',      'texte'); // toujours texte à cette étape
+
+        const res  = await fetch(`${API_BASE}/api/optimize`, { method: 'POST', body: fd });
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.detail || 'Erreur lors de l\'optimisation');
+
+        state.optimizedCV = data.cv_optimized || '';
+        finishProgress(() => showResult());
+
+      } catch (err) {
+        clearInterval(progressInterval);
+        document.getElementById('processingModal').classList.remove('show');
+        btn.disabled = false;
+        btn.classList.remove('loading');
+        showToast(`❌ ${err.message}`, 'error');
+      }
+    }
+
+    /* ════════════════════════════════════════════════════
+        AFFICHAGE DU RÉSULTAT
+    ════════════════════════════════════════════════════ */
+    function showResult() {
+      document.getElementById('s4').classList.add('active');
+      document.getElementById('c3').classList.add('done');
+      document.getElementById('cvOutput').textContent = state.optimizedCV;
+      document.getElementById('resultSection').classList.add('show');
+      setTimeout(() => {
+        document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 200);
+    }
+
+    /* ════════════════════════════════════════════════════
+        TÂCHE 2 — LETTRE DE MOTIVATION
+    ════════════════════════════════════════════════════ */
+    function toggleLM(yes) {
+      state.wantsLM = yes;
+      document.getElementById('lmYes').classList.toggle('selected', yes);
+      document.getElementById('lmNo').classList.toggle('selected', !yes);
+      document.getElementById('lmNo').classList.toggle('selected-no', !yes);
+      document.getElementById('lmBlock').classList.toggle('open', yes);
+      updateDownloadBtn();
+    }
+
+    function selectStyle(el, style) {
+      document.querySelectorAll('.options-grid .option-btn').forEach(b => b.classList.remove('selected'));
+      el.classList.add('selected');
+      state.selectedStyle = style;
+      updateDownloadBtn();
+    }
+
+    /* ════════════════════════════════════════════════════
+        TÂCHE 3 — FORMAT DE SORTIE
+    ════════════════════════════════════════════════════ */
+    function selectFormat(el, fmt) {
+      document.querySelectorAll('.format-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      state.selectedFormat = fmt;
+      updateDownloadBtn();
+    }
+
+    function updateDownloadBtn() {
+      const formatOk = !!state.selectedFormat;
+      const lmOk = state.wantsLM === false || (state.wantsLM === true && state.selectedStyle);
+      document.getElementById('btnDownload').disabled = !(formatOk && state.wantsLM !== null && lmOk);
+    }
+
+    /* ════════════════════════════════════════════════════
+        US-10 — GÉNÉRATION FINALE + TÉLÉCHARGEMENT
+    ════════════════════════════════════════════════════ */
+    async function generateFinal() {
+      const btn = document.getElementById('btnDownload');
+      btn.disabled = true;
+      btn.textContent = '⏳ Génération en cours…';
+
+      try {
+        const fd = new FormData();
+        fd.append('job_offer',             state.jobOffer);
+        fd.append('cv_file',               state.cvFile);
+        fd.append('payment_intent_id',     state.paymentIntentId);
+        fd.append('free_token',            state.freeToken);
+        fd.append('wants_cover_letter',    state.wantsLM ? 'true' : 'false');
+        fd.append('cover_letter_style',    state.selectedStyle || '');
+        fd.append('cover_letter_precision', document.getElementById('lmPrecision')?.value || '');
+        fd.append('export_format',         state.selectedFormat);
+
+        const res = await fetch(`${API_BASE}/api/optimize`, { method: 'POST', body: fd });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || 'Erreur lors de la génération');
+        }
+
+        // Format texte → affichage direct dans la page
+        if (state.selectedFormat === 'texte') {
+          const data = await res.json();
+          _showTextResult(data);
+          return;
+        }
+
+        // Format PDF ou Word → téléchargement du fichier binaire
+        const blob     = await res.blob();
+        const ext      = state.selectedFormat === 'pdf' ? 'pdf' : 'docx';
+        const filename = `cv-ats-ready.${ext}`;
+        const url      = URL.createObjectURL(blob);
+        const a        = document.createElement('a');
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        btn.textContent = `✅ ${filename} téléchargé !`;
+        btn.style.background = 'linear-gradient(135deg,#16a34a,#22C55E)';
+        showToast('🎉 Tes fichiers sont prêts ! Bonne chance pour ta candidature.', 'success');
+
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = '🎁 Générer et télécharger mes fichiers';
+        showToast(`❌ ${err.message}`, 'error');
+      }
+    }
+
+    function _showTextResult(data) {
+      // Affiche le texte brut dans une modale/zone dédiée sous le bouton
+      let zone = document.getElementById('textResultZone');
+      if (!zone) {
+        zone = document.createElement('div');
+        zone.id = 'textResultZone';
+        zone.style.cssText = `
+          margin-top:24px; background:var(--night-1); border:1px solid var(--night-border);
+          border-radius:var(--r-lg); padding:28px; color:rgba(255,255,255,.75);
+          font-size:.88rem; line-height:1.8; white-space:pre-wrap;
+          max-height:500px; overflow-y:auto;
+        `;
+        document.getElementById('btnDownload').insertAdjacentElement('afterend', zone);
+      }
+      const lmBlock = data.cover_letter
+        ? `\n\n${'═'.repeat(50)}\nLETTRE DE MOTIVATION\n${'═'.repeat(50)}\n\n${data.cover_letter}`
+        : '';
+      zone.textContent = data.cv_optimized + lmBlock;
+
+      // Bouton copier
+      const copyBtn = document.createElement('button');
+      copyBtn.textContent = '📋 Copier tout';
+      copyBtn.style.cssText = `
+        margin-top:14px; padding:10px 20px; background:var(--orange);
+        color:#fff; border:none; border-radius:8px; cursor:pointer;
+        font-family:'Syne',sans-serif; font-weight:700; font-size:.85rem;
+      `;
+      copyBtn.onclick = () => {
+        navigator.clipboard.writeText(zone.textContent);
+        copyBtn.textContent = '✅ Copié !';
+        setTimeout(() => copyBtn.textContent = '📋 Copier tout', 2000);
+      };
+      zone.insertAdjacentElement('afterend', copyBtn);
+
+      const btn = document.getElementById('btnDownload');
+      btn.textContent = '✅ Résultat affiché ci-dessous';
+      btn.style.background = 'linear-gradient(135deg,#16a34a,#22C55E)';
+      showToast('🎉 Tes fichiers sont prêts ! Bonne chance pour ta candidature.', 'success');
+    }
+
+    /* ════════════════════════════════════════════════════
+        TOAST NOTIFICATIONS
+    ════════════════════════════════════════════════════ */
+    function showToast(msg, type = 'success') {
+      const colors = {
+        success: { bg: '#16a34a', shadow: 'rgba(34,197,94,.4)' },
+        error:   { bg: '#dc2626', shadow: 'rgba(220,38,38,.4)' },
+        info:    { bg: '#2563eb', shadow: 'rgba(37,99,235,.4)' },
+      };
+      const c = colors[type] || colors.success;
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);
+        background:${c.bg};color:#fff;padding:14px 28px;border-radius:12px;
+        font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;
+        box-shadow:0 8px 28px ${c.shadow};z-index:9999;
+        animation:fadeUp .35s ease forwards; max-width:90vw; text-align:center;
+      `;
+      toast.textContent = msg;
+      document.body.appendChild(toast);
+      setTimeout(() => { toast.style.opacity='0'; toast.style.transition='opacity .3s'; }, 3600);
+      setTimeout(() => toast.remove(), 4000);
+    }
+
+    /* ════════════════════════════════════════════════════
+        FAQ
+    ════════════════════════════════════════════════════ */
+    function toggleFaq(item) {
+      item.classList.toggle('open');
+    }
+  </script>
+
+</body>
+</html>
