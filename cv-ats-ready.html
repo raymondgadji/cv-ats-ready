@@ -9,7 +9,7 @@
 
   <style>
     /* ════════════════════════════════
-        DESIGN TOKENS
+       DESIGN TOKENS
     ════════════════════════════════ */
     :root {
       --orange:        #FF6B00;
@@ -46,7 +46,7 @@
     }
 
     /* ════════════════════════════════
-        RESET & BASE
+       RESET & BASE
     ════════════════════════════════ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; font-size: 16px; }
@@ -64,7 +64,7 @@
     ::-webkit-scrollbar-thumb { background: var(--orange); border-radius: 3px; }
 
     /* ════════════════════════════════
-        NAV
+       NAV
     ════════════════════════════════ */
     nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 200;
@@ -133,7 +133,7 @@
     .nav-cta:hover { background: var(--orange-dark); transform: translateY(-1px); }
 
     /* ════════════════════════════════
-        HERO SECTION
+       HERO SECTION
     ════════════════════════════════ */
     .hero {
       min-height: 100vh;
@@ -231,7 +231,7 @@
     }
 
     /* ════════════════════════════════
-        MAIN CARD — L'outil
+       MAIN CARD — L'outil
     ════════════════════════════════ */
     .main-card {
       background: #fff;
@@ -448,7 +448,7 @@
     .trust-item .check { color: var(--success); font-weight: 700; }
 
     /* ════════════════════════════════
-        PROCESSING MODAL / OVERLAY
+       PROCESSING MODAL / OVERLAY
     ════════════════════════════════ */
     .modal-overlay {
       display: none; position: fixed; inset: 0; z-index: 300;
@@ -516,7 +516,7 @@
     }
 
     /* ════════════════════════════════
-        RESULT SECTION (Questions Tâche 2 & 3)
+       RESULT SECTION (Questions Tâche 2 & 3)
     ════════════════════════════════ */
     .result-section {
       display: none; padding: 80px 24px;
@@ -662,7 +662,7 @@
     .btn-download:disabled { opacity: .5; cursor: not-allowed; transform: none; }
 
     /* ════════════════════════════════
-        ATS EXPLAINER SECTION
+       ATS EXPLAINER SECTION
     ════════════════════════════════ */
     .explainer {
       padding: 110px 40px;
@@ -740,7 +740,7 @@
     }
 
     /* ════════════════════════════════
-        HOW IT WORKS STRIP
+       HOW IT WORKS STRIP
     ════════════════════════════════ */
     .how-it-works {
       padding: 90px 40px;
@@ -777,7 +777,7 @@
     .hiw-step p { font-size: .78rem; color: var(--text-muted); line-height: 1.5; }
 
     /* ════════════════════════════════
-        SOCIAL PROOF / STATS BANNER
+       SOCIAL PROOF / STATS BANNER
     ════════════════════════════════ */
     .stats-banner {
       background: linear-gradient(135deg, var(--orange), var(--orange-dark));
@@ -799,7 +799,7 @@
     .stat-label { font-size: .85rem; color: rgba(255,255,255,.75); }
 
     /* ════════════════════════════════
-        FAQ
+       FAQ
     ════════════════════════════════ */
     .faq-section {
       padding: 90px 40px;
@@ -830,7 +830,7 @@
     .faq-a p { padding-top: 12px; font-size: .88rem; color: rgba(255,255,255,.5); line-height: 1.75; }
 
     /* ════════════════════════════════
-        FOOTER
+       FOOTER
     ════════════════════════════════ */
     footer {
       background: var(--night);
@@ -868,8 +868,42 @@
     .footer-made { font-size: .75rem; color: rgba(255,255,255,.2); }
     .footer-made span { color: var(--orange); }
 
+    /* SCORE ATS */
+    .ats-score-block{background:var(--night-1);border:1px solid var(--night-border);
+      border-radius:var(--r-lg);padding:28px 32px;margin-bottom:32px;position:relative;overflow:hidden}
+    .ats-score-block::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,var(--orange),var(--success))}
+    .ats-score-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;
+      color:#fff;display:flex;align-items:center;gap:8px;margin-bottom:24px}
+    .ats-compare{display:flex;align-items:center;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+    .ats-score-pill{display:flex;flex-direction:column;align-items:center;
+      padding:10px 20px;border-radius:var(--r-md);min-width:80px}
+    .ats-score-pill.avant{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3)}
+    .ats-score-pill.apres{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3)}
+    .ats-score-num{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;line-height:1}
+    .ats-score-pill.avant .ats-score-num{color:#f87171}
+    .ats-score-pill.apres .ats-score-num{color:var(--success)}
+    .ats-score-sub{font-size:.72rem;color:rgba(255,255,255,.4);margin-top:3px}
+    .ats-arrow{font-size:1.5rem;color:var(--orange)}
+    .ats-categories{display:flex;flex-direction:column;gap:14px}
+    .ats-cat-row{display:flex;flex-direction:column;gap:5px}
+    .ats-cat-label{display:flex;justify-content:space-between;font-size:.8rem;font-weight:600}
+    .ats-cat-label span:first-child{color:rgba(255,255,255,.7)}
+    .ats-cat-scores{color:rgba(255,255,255,.4);font-size:.75rem}
+    .ats-bar-track{height:8px;background:rgba(255,255,255,.07);border-radius:999px;overflow:hidden;position:relative}
+    .ats-bar-avant{position:absolute;top:0;left:0;height:100%;background:rgba(239,68,68,.4);
+      border-radius:999px;transition:width 1s cubic-bezier(.4,0,.2,1);width:0%}
+    .ats-bar-apres{position:absolute;top:0;left:0;height:100%;
+      background:linear-gradient(90deg,var(--orange),var(--success));
+      border-radius:999px;transition:width 1.2s cubic-bezier(.4,0,.2,1);width:0%}
+    .modal-score-reveal{display:none;margin-top:20px;background:rgba(34,197,94,.08);
+      border:1px solid rgba(34,197,94,.2);border-radius:var(--r-md);padding:16px 20px;text-align:center}
+    .modal-score-reveal.show{display:block}
+    .modal-score-big{font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:800;color:var(--success);line-height:1}
+    .modal-score-label{font-size:.8rem;color:var(--text-muted);margin-top:4px}
+
     /* ════════════════════════════════
-        SCROLL TO TOP
+       SCROLL TO TOP
     ════════════════════════════════ */
     .scroll-top {
       position: fixed; bottom: 28px; right: 28px; z-index: 100;
@@ -887,7 +921,7 @@
     .scroll-top:hover { background: var(--orange-dark); }
 
     /* ════════════════════════════════
-        RESPONSIVE
+       RESPONSIVE
     ════════════════════════════════ */
     @media (max-width: 640px) {
       nav { padding: 0 20px; }
@@ -1011,36 +1045,19 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
         <div class="divider">puis</div>
 
         <!-- Zone 3: Paiement -->
-        <div class="payment-strip" id="paymentStrip" style="flex-direction:column;align-items:stretch;">
-          <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:8px;">
-            <span class="price-main">1€</span>
-            <span class="price-label">seulement</span>
-          </div>
-          <div class="price-desc" style="margin-bottom:16px;">
-            <b>Accès complet :</b> CV ATS optimisé · Lettre de motivation · Export PDF/Word
-          </div>
-
-          <!-- Champ code promo -->
-          <div style="display:flex;gap:8px;margin-bottom:12px;">
-            <input type="text" id="promoCode"
-              placeholder="🎟️ Code promo (ex : TEST_CV_ATS_READY)"
-              style="flex:1;padding:10px 14px;font-size:.83rem;border-radius:var(--r-sm);
-                      border:1.5px solid rgba(255,107,0,.3);background:var(--white);
-                      font-family:DM Sans,sans-serif;outline:none;"
-            />
-          </div>
-
-          <!-- Stripe Card Element -->
-          <div id="stripe-card-container" style="margin-bottom:12px;">
-            <div id="stripe-card-element" style="
-              border:1.5px solid rgba(255,107,0,.25);border-radius:var(--r-sm);
-              padding:12px 14px;background:var(--white);">
+        <div class="payment-strip" id="paymentStrip">
+          <div>
+            <div class="price-group">
+              <span class="price-main">1€</span>
+              <span class="price-label">HT seulement (1.20€ TTC)</span>
             </div>
-            <div id="stripe-card-errors" style="color:#ef4444;font-size:.78rem;margin-top:5px;"></div>
+            <div class="price-desc">
+              <b>Accès complet :</b> CV ATS optimisé · Lettre de motivation · Export PDF/Word
+            </div>
           </div>
-
           <button class="btn-stripe" id="btnPay" onclick="pay()" style="align-self:flex-start;">
-            🔒 Payer 1€ avec Stripe
+            🔒 Payer 1€ HT (1.20€ TTC) avec Stripe
+            <span class="stripe-logo">stripe</span>
           </button>
         </div>
 
@@ -1077,8 +1094,7 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
       <ul class="modal-steps">
         <li class="modal-step" id="ms1">
           <div class="modal-step-icon">1</div>
-          Analyse de l'offre d'emploi ou de stage 🔍
-          et extraction des mots-clés
+          Analyse de l'offre d'emploi ou de stage 🔍 et extraction des mots-clés
         </li>
         <li class="modal-step" id="ms2">
           <div class="modal-step-icon">2</div>
@@ -1093,6 +1109,11 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
           Vérification finale et mise en forme
         </li>
       </ul>
+      <!-- Score reveal dans modal -->
+      <div class="modal-score-reveal" id="modalScoreReveal">
+        <div class="modal-score-big" id="modalScoreBig">—</div>
+        <div class="modal-score-label">Score ATS après optimisation 🎯</div>
+      </div>
     </div>
   </div>
 
@@ -1104,6 +1125,23 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
         <div class="eyebrow" style="margin-bottom:16px;">✅ Tâche 1 accomplie</div>
         <h2>Ton CV ATS-ready est prêt 🎉</h2>
         <p>Il a été réécrit et optimisé pour matcher l'offre. Maintenant, quelques questions pour finaliser ta candidature.</p>
+      </div>
+
+      <!-- SCORE ATS -->
+      <div class="ats-score-block" id="atsScoreBlock" style="display:none;">
+        <div class="ats-score-title">🎯 Score ATS — Avant / Après optimisation</div>
+        <div class="ats-compare">
+          <div class="ats-score-pill avant">
+            <div class="ats-score-num" id="scoreAvant">—</div>
+            <div class="ats-score-sub">Avant</div>
+          </div>
+          <div class="ats-arrow">→</div>
+          <div class="ats-score-pill apres">
+            <div class="ats-score-num" id="scoreApres">—</div>
+            <div class="ats-score-sub">Après</div>
+          </div>
+        </div>
+        <div class="ats-categories" id="atsCategories"></div>
       </div>
 
       <!-- CV Preview -->
@@ -1200,7 +1238,7 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
       </div>
       <div class="hiw-step">
         <div class="hiw-icon">💳</div>
-        <h4>3. Paie 1€ HT (1.20€ TTC) </h4>
+        <h4>3. Paie 1€</h4>
         <p>Micro-paiement sécurisé, sans abonnement</p>
       </div>
       <div class="hiw-step">
@@ -1222,7 +1260,7 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
       <div class="stat-label">des grandes entreprises utilisent un ATS</div>
     </div>
     <div class="stat-item">
-      <div class="stat-num">1€ HT</div>
+      <div class="stat-num">1€</div>
       <div class="stat-label">pour augmenter ses chances</div>
     </div>
     <div class="stat-item">
@@ -1276,11 +1314,11 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
         <span class="card-icon-large">💡</span>
         <h3>Pourquoi cv-ats-ready</h3>
         <p>
-          On a tous fait ça : aller sur ChatGPT, coller notre CV, expliquer l'offre en long prompt… 
+          On a tous fait ça : aller sur ChatGPT, coller notre CV, expliquer l'offre en long prompt avant de candidater… 
           <strong style="color:rgba(255,255,255,.75)">cv-ats-ready automatise exactement ça, sans effort.</strong> 
-          Tu viens, tu déposes ton cv — l'agent s'occupe du reste. Honnêtement, sans fioritures.
+          Tu viens, tu déposes — l'agent s'occupe du reste. Honnêtement, sans fioritures.
         </p>
-        <span class="card-stat-pill">1€ HT · Zéro prompt · 30 secondes</span>
+        <span class="card-stat-pill">1€ · Zéro prompt · 30 secondes</span>
       </div>
     </div>
   </section>
@@ -1305,7 +1343,7 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
       </div>
       <div class="faq-item" onclick="toggleFaq(this)">
         <div class="faq-q">Pourquoi 1€ HT et pas gratuit ? <span class="arrow">▾</span></div>
-        <div class="faq-a"><p>1€ HT couvre le coût de l'IA et permet de maintenir le service. C'est délibérément accessible — pas d'abonnement, pas d'engagement. Tu paies à l'utilisation, uniquement quand tu en as besoin.</p></div>
+        <div class="faq-a"><p>1€ couvre le coût de l'IA et permet de maintenir le service. C'est délibérément accessible — pas d'abonnement, pas d'engagement. Tu paies à l'utilisation, uniquement quand tu en as besoin.</p></div>
       </div>
       <div class="faq-item" onclick="toggleFaq(this)">
         <div class="faq-q">La lettre de motivation est-elle vraiment personnalisée ? <span class="arrow">▾</span></div>
@@ -1331,7 +1369,7 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
       <div class="footer-links-col">
         <h5>C'est quoi un ATS ?</h5>
         <a href="#">Guide complet ATS</a>
-        <a href="#">Conseils CV 2025</a>
+        <a href="#">Conseils CV 2026</a>
         <a href="#">Mots-clés par secteur</a>
       </div>
       <div class="footer-links-col">
@@ -1344,7 +1382,7 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
     </div>
     <div class="footer-bottom">
       <div class="footer-copy">© 2026 cv-ats-ready.fr — Tous droits réservés</div>
-      <div class="footer-made">Fait avec <span>❤️</span> pour les demandeurs d'emploi</div>
+      <div class="footer-made">Fait avec <span>❤️</span> pour les chercheurs d'emploi</div>
     </div>
   </footer>
 
@@ -1352,57 +1390,49 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
   <button class="scroll-top" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
   <!-- ════ JAVASCRIPT ════ -->
-  <!-- Stripe.js — chargé depuis le CDN officiel Stripe -->
-  <script src="https://js.stripe.com/v3/"></script>
-
   <script>
-    /* ════════════════════════════════════════════════════
-        CONFIGURATION
-        → Remplace ces deux valeurs avant de déployer
-    ════════════════════════════════════════════════════ */
-    const API_BASE   = 'https://web-production-ec873.up.railway.app';          // URL de ton backend FastAPI
-    const STRIPE_PK  = 'pk_test_51TA7vD3FagSOekU9ijCuGDrJAcGHfkOPStJeKkfmhr2e2B5oL38xW92IWDH9HG9dYcCqPx8Xck4P8zsOpGeAIFbd00vR3E9BDN'; // Clé publique Stripe
-
+    /* ── CONFIG ── */
+    const API_BASE  = 'https://web-production-ec873.up.railway.app';
+    const STRIPE_PK = 'pk_test_51TA7vD3FagSOekU9ijCuGDrJAcGHfkOPStJeKkfmhr2e2B5oL38xW92IWDH9HG9dYcCqPx8Xck4P8zsOpGeAIFbd00vR3E9BDN';
     const stripe = Stripe(STRIPE_PK);
 
-    /* ════════════════════════════════════════════════════
-        STATE
-    ════════════════════════════════════════════════════ */
+    /* ── State ── */
     const state = {
-      jobOffer      : '',
-      cvFile        : null,
-      paid          : false,
-      paymentIntentId: '',   // ID Stripe du paiement confirmé
-      freeToken     : '',    // Token généré pour code promo 100%
-      optimizedCV   : '',    // Résultat brut de l'IA (texte)
-      selectedStyle : null,
-      wantsLM       : null,
+      jobOffer: '',
+      cvFile: null,
+      paid: false,
+      paymentIntentId: '',
+      freeToken: '',
+      optimizedCV: '',
+      atsScore: null,
+      selectedStyles: [],
+      selectedStyle: null,
+      wantsLM: null,
       selectedFormat: null,
     };
 
-    /* ════════════════════════════════════════════════════
-        SCROLL & NAV
-    ════════════════════════════════════════════════════ */
+    /* ── Scroll effects ── */
     window.addEventListener('scroll', () => {
-      document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 60);
-      document.getElementById('scrollTopBtn').classList.toggle('visible', window.scrollY > 400);
+      const nav = document.getElementById('navbar');
+      const scrollBtn = document.getElementById('scrollTopBtn');
+      if (window.scrollY > 60) nav.classList.add('scrolled'); else nav.classList.remove('scrolled');
+      if (window.scrollY > 400) scrollBtn.classList.add('visible'); else scrollBtn.classList.remove('visible');
     });
 
     function scrollToApp() {
       document.getElementById('app-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    /* ════════════════════════════════════════════════════
-        UPLOAD CV — drag & drop + clic
-    ════════════════════════════════════════════════════ */
+    /* ── File upload ── */
     const cvFileInput = document.getElementById('cvFile');
-    const uploadZone  = document.getElementById('uploadZone');
+    const uploadZone = document.getElementById('uploadZone');
     const fileSelected = document.getElementById('fileSelected');
 
     cvFileInput.addEventListener('change', (e) => {
       if (e.target.files[0]) handleFile(e.target.files[0]);
     });
-    uploadZone.addEventListener('dragover',  e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+
+    uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
     uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
     uploadZone.addEventListener('drop', e => {
       e.preventDefault(); uploadZone.classList.remove('drag-over');
@@ -1410,78 +1440,65 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
     });
 
     function handleFile(file) {
-      const MAX_MB = 5;
-      if (file.size > MAX_MB * 1024 * 1024) {
-        showToast(`❌ Fichier trop lourd (max ${MAX_MB} Mo)`, 'error'); return;
-      }
-      const allowed = ['.pdf','.doc','.docx'];
-      const ext = '.' + file.name.split('.').pop().toLowerCase();
-      if (!allowed.includes(ext)) {
-        showToast('❌ Format non supporté. Utilise PDF ou Word.', 'error'); return;
-      }
       state.cvFile = file;
       document.getElementById('fileName').textContent = file.name;
       fileSelected.classList.add('show');
       checkReady();
     }
 
-    /* ════════════════════════════════════════════════════
-        OFFRE D'EMPLOI
-    ════════════════════════════════════════════════════ */
+    /* ── Job offer watcher ── */
     document.getElementById('jobOffer').addEventListener('input', (e) => {
       state.jobOffer = e.target.value;
       checkReady();
     });
 
+    /* ── Check if CTA should enable ── */
     function checkReady() {
-      document.getElementById('btnOptimize').disabled =
-        !(state.jobOffer.trim().length > 30 && state.cvFile && state.paid);
+      const btn = document.getElementById('btnOptimize');
+      btn.disabled = !(state.jobOffer.trim().length > 30 && state.cvFile && state.paid);
     }
 
-    /* ════════════════════════════════════════════════════
-        US-03 — PAIEMENT STRIPE RÉEL
-    ════════════════════════════════════════════════════ */
-    async function pay() {
-      const btn     = document.getElementById('btnPay');
-      const promoEl = document.getElementById('promoCode');
-      const promoCode = promoEl ? promoEl.value.trim() : '';
+    /* ── Paiement Stripe réel ── */
+    let stripeCardElement = null;
 
+    function mountStripeCard() {
+      if (!document.getElementById('stripe-card-container') || stripeCardElement) return;
+      const elements = stripe.elements();
+      stripeCardElement = elements.create('card', {
+        style: { base: { fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#1A1A1A' } },
+        hidePostalCode: true,
+      });
+      stripeCardElement.mount('#stripe-card-element');
+      stripeCardElement.on('change', e => {
+        document.getElementById('stripe-card-errors').textContent = e.error ? e.error.message : '';
+      });
+    }
+    document.addEventListener('DOMContentLoaded', mountStripeCard);
+
+    async function pay() {
+      const btn = document.getElementById('btnPay');
+      const promoCode = document.getElementById('promoCode')?.value.trim() || '';
       btn.disabled = true;
       btn.innerHTML = '⏳ Vérification…';
-
       try {
-        // 1. Demande un PaymentIntent au backend (avec éventuel code promo)
         const fd = new FormData();
         fd.append('promo_code', promoCode);
         const res  = await fetch(`${API_BASE}/api/create-payment-intent`, { method: 'POST', body: fd });
         const data = await res.json();
-
         if (!res.ok) throw new Error(data.detail || 'Erreur serveur');
-
-        // Affiche message promo si présent
         if (data.promo_valid) showPromoFeedback(data.promo_message, true);
-
-        // 2a. Code promo 100% → accès gratuit direct
-        if (data.free) {
-          state.freeToken = data.free_token;
-          _confirmPayment();
-          return;
-        }
-
-        // 2b. Paiement Stripe normal → ouvre le payment sheet
+        if (data.free) { state.freeToken = data.free_token; _confirmPayment(); return; }
         const { error, paymentIntent } = await stripe.confirmCardPayment(data.client_secret, {
-          payment_method: { card: stripeCardElement },
+          payment_method: { card: stripeCardElement }
         });
-
         if (error) throw new Error(error.message);
         if (paymentIntent.status === 'succeeded') {
           state.paymentIntentId = paymentIntent.id;
           _confirmPayment();
         }
-
       } catch (err) {
         btn.disabled = false;
-        btn.innerHTML = '🔒 Payer avec Stripe';
+        btn.innerHTML = '🔒 Payer 1€ HT (1.20€ TTC) avec Stripe';
         showToast(`❌ ${err.message}`, 'error');
       }
     }
@@ -1500,8 +1517,7 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
     function showPromoFeedback(msg, valid) {
       let el = document.getElementById('promoFeedback');
       if (!el) {
-        el = document.createElement('div');
-        el.id = 'promoFeedback';
+        el = document.createElement('div'); el.id = 'promoFeedback';
         el.style.cssText = 'margin-top:8px;font-size:.8rem;font-weight:600;padding:6px 12px;border-radius:8px;';
         document.getElementById('promoCode').parentNode.appendChild(el);
       }
@@ -1510,37 +1526,14 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
       el.textContent = msg;
     }
 
-    /* ════════════════════════════════════════════════════
-        Stripe Elements — montage de la carte de paiement
-        (s'affiche uniquement si pas de code promo 100%)
-    ════════════════════════════════════════════════════ */
-    let stripeCardElement = null;
+    /* ── startOptimization : appel réel au backend ── */
+    async function startOptimization() {
+      if (!state.jobOffer.trim() || !state.cvFile || !state.paid) return;
 
-    function mountStripeCard() {
-      const container = document.getElementById('stripe-card-container');
-      if (!container || stripeCardElement) return;
-      const elements = stripe.elements();
-      stripeCardElement = elements.create('card', {
-        style: {
-          base: { fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#1A1A1A' },
-        },
-        hidePostalCode: true,
-      });
-      stripeCardElement.mount('#stripe-card-element');
-      stripeCardElement.on('change', (event) => {
-        document.getElementById('stripe-card-errors').textContent = event.error ? event.error.message : '';
-      });
-    }
+      const btn = document.getElementById('btnOptimize');
+      btn.disabled = true;
+      btn.classList.add('loading');
 
-    // Monte la carte quand la page est prête
-    document.addEventListener('DOMContentLoaded', mountStripeCard);
-
-    /* ════════════════════════════════════════════════════
-        ANIMATION DE PROGRESSION (pendant l'appel API)
-    ════════════════════════════════════════════════════ */
-    let progressInterval = null;
-
-    function startProgressAnimation(onDone) {
       const modal = document.getElementById('processingModal');
       modal.classList.add('show');
 
@@ -1549,57 +1542,25 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
         'Analyse de l\'offre et extraction des mots-clés…',
         'Lecture et compréhension de ton CV…',
         'Réécriture ATS en cours — patience ☕…',
-        'Vérification finale et mise en forme…',
+        'Calcul du score ATS & vérification finale…',
       ];
       const bar   = document.getElementById('progressBar');
       const label = document.getElementById('progressLabel');
       let current = 0;
 
-      // Avance les 3 premières étapes toutes les ~5s (l'API prend ~15-25s)
-      progressInterval = setInterval(() => {
+      const interval = setInterval(() => {
         if (current > 0) {
           document.getElementById(steps[current-1]).classList.remove('active');
           document.getElementById(steps[current-1]).classList.add('done');
           document.getElementById(steps[current-1]).querySelector('.modal-step-icon').textContent = '✓';
         }
-        if (current < steps.length - 1) {   // s'arrête à l'avant-dernière
+        if (current < steps.length - 1) {
           document.getElementById(steps[current]).classList.add('active');
-          bar.style.width = ((current + 1) / steps.length * 85) + '%'; // max 85% pendant l'attente
+          bar.style.width = ((current+1) / steps.length * 85) + '%';
           label.textContent = labels[current];
           current++;
         }
       }, 5000);
-
-      // Retourne une fonction finish(callback) appelée quand le fetch se termine
-      return function(callback) {
-        clearInterval(progressInterval);
-        // Complète la dernière étape
-        steps.forEach((id, i) => {
-          const el = document.getElementById(id);
-          el.classList.remove('active');
-          el.classList.add('done');
-          el.querySelector('.modal-step-icon').textContent = '✓';
-        });
-        bar.style.width = '100%';
-        label.textContent = 'Terminé ! 🎉';
-        setTimeout(() => {
-          modal.classList.remove('show');
-          if (typeof callback === 'function') callback();
-        }, 700);
-      };
-    }
-
-    /* ════════════════════════════════════════════════════
-        US-05 — APPEL BACKEND : OPTIMISATION CV
-    ════════════════════════════════════════════════════ */
-    async function startOptimization() {
-      if (!state.jobOffer.trim() || !state.cvFile || !state.paid) return;
-
-      const btn = document.getElementById('btnOptimize');
-      btn.disabled = true;
-      btn.classList.add('loading');
-
-      const finishProgress = startProgressAnimation();
 
       try {
         const fd = new FormData();
@@ -1607,61 +1568,118 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
         fd.append('cv_file',            state.cvFile);
         fd.append('payment_intent_id',  state.paymentIntentId);
         fd.append('free_token',         state.freeToken);
-        fd.append('wants_cover_letter', 'false'); // on demandera après
-        fd.append('export_format',      'texte'); // toujours texte à cette étape
+        fd.append('wants_cover_letter', 'false');
+        fd.append('export_format',      'texte');
 
         const res  = await fetch(`${API_BASE}/api/optimize`, { method: 'POST', body: fd });
         const data = await res.json();
 
         if (!res.ok) throw new Error(data.detail || 'Erreur lors de l\'optimisation');
 
+        clearInterval(interval);
         state.optimizedCV = data.cv_optimized || '';
-        finishProgress(() => showResult());
+        state.atsScore    = data.ats_score    || null;
+
+        // Affiche le score dans la modal
+        if (state.atsScore) {
+          document.getElementById('modalScoreBig').textContent = state.atsScore.score_apres + '%';
+          document.getElementById('modalScoreReveal').classList.add('show');
+        }
+
+        // Complète toutes les étapes
+        steps.forEach(id => {
+          const el = document.getElementById(id);
+          el.classList.remove('active'); el.classList.add('done');
+          el.querySelector('.modal-step-icon').textContent = '✓';
+        });
+        bar.style.width = '100%';
+        label.textContent = 'Terminé ! 🎉';
+
+        setTimeout(() => {
+          modal.classList.remove('show');
+          showResult();
+        }, 900);
 
       } catch (err) {
-        clearInterval(progressInterval);
-        document.getElementById('processingModal').classList.remove('show');
+        clearInterval(interval);
+        modal.classList.remove('show');
         btn.disabled = false;
         btn.classList.remove('loading');
         showToast(`❌ ${err.message}`, 'error');
       }
     }
 
-    /* ════════════════════════════════════════════════════
-        AFFICHAGE DU RÉSULTAT
-    ════════════════════════════════════════════════════ */
+    /* ── showResult ── */
     function showResult() {
       document.getElementById('s4').classList.add('active');
       document.getElementById('c3').classList.add('done');
       document.getElementById('cvOutput').textContent = state.optimizedCV;
+      if (state.atsScore) displayAtsScore(state.atsScore);
       document.getElementById('resultSection').classList.add('show');
       setTimeout(() => {
         document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 200);
     }
 
-    /* ════════════════════════════════════════════════════
-        TÂCHE 2 — LETTRE DE MOTIVATION
-    ════════════════════════════════════════════════════ */
+    /* ── displayAtsScore ── */
+    function displayAtsScore(atsScore) {
+      if (!atsScore) return;
+      const block = document.getElementById('atsScoreBlock');
+      block.style.display = 'block';
+      document.getElementById('scoreAvant').textContent = atsScore.score_avant + '%';
+      document.getElementById('scoreApres').textContent = atsScore.score_apres + '%';
+      const cats = atsScore.categories || {};
+      const container = document.getElementById('atsCategories');
+      container.innerHTML = '';
+      Object.values(cats).forEach(cat => {
+        const row = document.createElement('div');
+        row.className = 'ats-cat-row';
+        row.innerHTML = `
+          <div class="ats-cat-label">
+            <span>${cat.label}</span>
+            <span class="ats-cat-scores">${cat.avant}% → <strong style="color:var(--success)">${cat.apres}%</strong></span>
+          </div>
+          <div class="ats-bar-track">
+            <div class="ats-bar-avant" data-width="${cat.avant}"></div>
+            <div class="ats-bar-apres" data-width="${cat.apres}"></div>
+          </div>`;
+        container.appendChild(row);
+      });
+      setTimeout(() => {
+        container.querySelectorAll('.ats-bar-avant').forEach(b => b.style.width = b.dataset.width + '%');
+        setTimeout(() => {
+          container.querySelectorAll('.ats-bar-apres').forEach(b => b.style.width = b.dataset.width + '%');
+        }, 300);
+      }, 100);
+    }
+
+    /* ── Tâche 2 : Lettre de motivation ── */
     function toggleLM(yes) {
       state.wantsLM = yes;
       document.getElementById('lmYes').classList.toggle('selected', yes);
-      document.getElementById('lmNo').classList.toggle('selected', !yes);
       document.getElementById('lmNo').classList.toggle('selected-no', !yes);
+      document.getElementById('lmNo').classList.toggle('selected', !yes);
       document.getElementById('lmBlock').classList.toggle('open', yes);
       updateDownloadBtn();
     }
 
     function selectStyle(el, style) {
-      document.querySelectorAll('.options-grid .option-btn').forEach(b => b.classList.remove('selected'));
-      el.classList.add('selected');
-      state.selectedStyle = style;
+      const idx = state.selectedStyles.indexOf(style);
+      if (idx === -1) { state.selectedStyles.push(style); el.classList.add('selected'); }
+      else { state.selectedStyles.splice(idx, 1); el.classList.remove('selected'); }
+      state.selectedStyle = state.selectedStyles[0] || null;
+      const count = state.selectedStyles.length;
+      let hint = document.getElementById('styleCount');
+      if (!hint) {
+        hint = document.createElement('div'); hint.id = 'styleCount';
+        hint.style.cssText = 'font-size:.78rem;color:var(--orange-dark);font-weight:600;margin-top:8px;';
+        el.closest('.options-grid').insertAdjacentElement('afterend', hint);
+      }
+      hint.textContent = count > 0 ? `✓ ${count} style${count>1?'s':''} sélectionné${count>1?'s':''} — l'IA les combinera` : '';
       updateDownloadBtn();
     }
 
-    /* ════════════════════════════════════════════════════
-        TÂCHE 3 — FORMAT DE SORTIE
-    ════════════════════════════════════════════════════ */
+    /* ── Tâche 3 : Format ── */
     function selectFormat(el, fmt) {
       document.querySelectorAll('.format-card').forEach(c => c.classList.remove('selected'));
       el.classList.add('selected');
@@ -1671,13 +1689,11 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
 
     function updateDownloadBtn() {
       const formatOk = !!state.selectedFormat;
-      const lmOk = state.wantsLM === false || (state.wantsLM === true && state.selectedStyle);
+      const lmOk = state.wantsLM === false || (state.wantsLM === true && state.selectedStyles.length > 0);
       document.getElementById('btnDownload').disabled = !(formatOk && state.wantsLM !== null && lmOk);
     }
 
-    /* ════════════════════════════════════════════════════
-        US-10 — GÉNÉRATION FINALE + TÉLÉCHARGEMENT
-    ════════════════════════════════════════════════════ */
+    /* ── Génération finale ── */
     async function generateFinal() {
       const btn = document.getElementById('btnDownload');
       btn.disabled = true;
@@ -1685,41 +1701,38 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
 
       try {
         const fd = new FormData();
-        fd.append('job_offer',             state.jobOffer);
-        fd.append('cv_file',               state.cvFile);
-        fd.append('payment_intent_id',     state.paymentIntentId);
-        fd.append('free_token',            state.freeToken);
-        fd.append('wants_cover_letter',    state.wantsLM ? 'true' : 'false');
-        fd.append('cover_letter_style',    state.selectedStyle || '');
+        fd.append('job_offer',              state.jobOffer);
+        fd.append('cv_file',                state.cvFile);
+        fd.append('payment_intent_id',      state.paymentIntentId);
+        fd.append('free_token',             state.freeToken);
+        fd.append('wants_cover_letter',     state.wantsLM ? 'true' : 'false');
+        fd.append('cover_letter_style',     state.selectedStyles.join(' + ') || '');
         fd.append('cover_letter_precision', document.getElementById('lmPrecision')?.value || '');
-        fd.append('export_format',         state.selectedFormat);
+        fd.append('export_format',          state.selectedFormat);
 
         const res = await fetch(`${API_BASE}/api/optimize`, { method: 'POST', body: fd });
 
         if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.detail || 'Erreur lors de la génération');
+          const e = await res.json();
+          throw new Error(e.detail || 'Erreur lors de la génération');
         }
 
-        // Format texte → affichage direct dans la page
         if (state.selectedFormat === 'texte') {
           const data = await res.json();
           _showTextResult(data);
           return;
         }
 
-        // Format PDF ou Word → téléchargement du fichier binaire
-        const blob     = await res.blob();
-        const ext      = state.selectedFormat === 'pdf' ? 'pdf' : 'docx';
-        const filename = `cv-ats-ready.${ext}`;
-        const url      = URL.createObjectURL(blob);
-        const a        = document.createElement('a');
-        a.href = url; a.download = filename;
+        const blob = await res.blob();
+        const ext  = state.selectedFormat === 'pdf' ? 'pdf' : 'docx';
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href = url; a.download = `cv-ats-ready.${ext}`;
         document.body.appendChild(a); a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
 
-        btn.textContent = `✅ ${filename} téléchargé !`;
+        btn.textContent = `✅ cv-ats-ready.${ext} téléchargé !`;
         btn.style.background = 'linear-gradient(135deg,#16a34a,#22C55E)';
         showToast('🎉 Tes fichiers sont prêts ! Bonne chance pour ta candidature.', 'success');
 
@@ -1731,72 +1744,43 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
     }
 
     function _showTextResult(data) {
-      // Affiche le texte brut dans une modale/zone dédiée sous le bouton
       let zone = document.getElementById('textResultZone');
       if (!zone) {
-        zone = document.createElement('div');
-        zone.id = 'textResultZone';
-        zone.style.cssText = `
-          margin-top:24px; background:var(--night-1); border:1px solid var(--night-border);
-          border-radius:var(--r-lg); padding:28px; color:rgba(255,255,255,.75);
-          font-size:.88rem; line-height:1.8; white-space:pre-wrap;
-          max-height:500px; overflow-y:auto;
-        `;
+        zone = document.createElement('div'); zone.id = 'textResultZone';
+        zone.style.cssText = 'margin-top:24px;background:var(--night-1);border:1px solid var(--night-border);border-radius:var(--r-lg);padding:28px;color:rgba(255,255,255,.75);font-size:.88rem;line-height:1.8;white-space:pre-wrap;max-height:500px;overflow-y:auto;';
         document.getElementById('btnDownload').insertAdjacentElement('afterend', zone);
       }
       const lmBlock = data.cover_letter
-        ? `\n\n${'═'.repeat(50)}\nLETTRE DE MOTIVATION\n${'═'.repeat(50)}\n\n${data.cover_letter}`
-        : '';
+        ? `\n\n${'═'.repeat(50)}\nLETTRE DE MOTIVATION\n${'═'.repeat(50)}\n\n${data.cover_letter}` : '';
       zone.textContent = data.cv_optimized + lmBlock;
-
-      // Bouton copier
+      if (data.ats_score) displayAtsScore(data.ats_score);
       const copyBtn = document.createElement('button');
       copyBtn.textContent = '📋 Copier tout';
-      copyBtn.style.cssText = `
-        margin-top:14px; padding:10px 20px; background:var(--orange);
-        color:#fff; border:none; border-radius:8px; cursor:pointer;
-        font-family:'Syne',sans-serif; font-weight:700; font-size:.85rem;
-      `;
-      copyBtn.onclick = () => {
-        navigator.clipboard.writeText(zone.textContent);
-        copyBtn.textContent = '✅ Copié !';
-        setTimeout(() => copyBtn.textContent = '📋 Copier tout', 2000);
-      };
+      copyBtn.style.cssText = 'margin-top:14px;padding:10px 20px;background:var(--orange);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:Syne,sans-serif;font-weight:700;font-size:.85rem;';
+      copyBtn.onclick = () => { navigator.clipboard.writeText(zone.textContent); copyBtn.textContent = '✅ Copié !'; setTimeout(() => copyBtn.textContent = '📋 Copier tout', 2000); };
       zone.insertAdjacentElement('afterend', copyBtn);
-
       const btn = document.getElementById('btnDownload');
       btn.textContent = '✅ Résultat affiché ci-dessous';
       btn.style.background = 'linear-gradient(135deg,#16a34a,#22C55E)';
       showToast('🎉 Tes fichiers sont prêts ! Bonne chance pour ta candidature.', 'success');
     }
 
-    /* ════════════════════════════════════════════════════
-        TOAST NOTIFICATIONS
-    ════════════════════════════════════════════════════ */
+    /* ── Toast ── */
     function showToast(msg, type = 'success') {
       const colors = {
         success: { bg: '#16a34a', shadow: 'rgba(34,197,94,.4)' },
         error:   { bg: '#dc2626', shadow: 'rgba(220,38,38,.4)' },
-        info:    { bg: '#2563eb', shadow: 'rgba(37,99,235,.4)' },
       };
       const c = colors[type] || colors.success;
       const toast = document.createElement('div');
-      toast.style.cssText = `
-        position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);
-        background:${c.bg};color:#fff;padding:14px 28px;border-radius:12px;
-        font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;
-        box-shadow:0 8px 28px ${c.shadow};z-index:9999;
-        animation:fadeUp .35s ease forwards; max-width:90vw; text-align:center;
-      `;
+      toast.style.cssText = `position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:${c.bg};color:#fff;padding:14px 28px;border-radius:12px;font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;box-shadow:0 8px 28px ${c.shadow};z-index:9999;animation:fadeUp .35s ease forwards;max-width:90vw;text-align:center;`;
       toast.textContent = msg;
       document.body.appendChild(toast);
-      setTimeout(() => { toast.style.opacity='0'; toast.style.transition='opacity .3s'; }, 3600);
+      setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity .3s'; }, 3600);
       setTimeout(() => toast.remove(), 4000);
     }
 
-    /* ════════════════════════════════════════════════════
-        FAQ
-    ════════════════════════════════════════════════════ */
+    /* ── FAQ toggle ── */
     function toggleFaq(item) {
       item.classList.toggle('open');
     }
