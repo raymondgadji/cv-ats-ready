@@ -4,7 +4,7 @@
 ---
 
 ## 🎯 Vision produit
-**cv-ats-ready** (url : https://cv-ats-ready.fr)
+**cv-ats-ready** (url cible : cv-ats-ready.fr)
 Agent IA qui optimise automatiquement les CV pour les ATS (Applicant Tracking Systems).
 **Tagline** : "Tu viens, tu déposes, on s'occupe du reste."
 **Rôles** : Founder (utilisateur) + CTO (Claude)
@@ -25,20 +25,16 @@ Agent IA qui optimise automatiquement les CV pour les ATS (Applicant Tracking Sy
 | Couche | Techno |
 |--------|--------|
 | Frontend | HTML/CSS/JS — fichier unique cv-ats-ready.html |
-| Hébergement frontend | Netlify (drag & drop manuel) |
-| Backend | Python FastAPI |
-| Hébergement backend | Railway |
-| IA | Claude API — claude-haiku-4-5-20251001 |
+| Backend | Python FastAPI — dossier C:\Projects\cv_ats_ready\ |
+| IA | Claude API — claude-haiku-4-5-20251001 (rapide) |
 | Paiement | Stripe (1€/optimisation) + codes promo |
 | Export | PDF (reportlab) + DOCX (python-docx) en RAM |
 | Parser CV | pypdf (PDF) + python-docx (DOCX) |
-| Domaine | cv-ats-ready.fr (IONOS) |
 
 ---
 
-## 📁 Structure du projet
+## 📁 Structure du projet (sur le PC du Founder)
 
-### Sur le PC du Founder
 C:\Projects\cv_ats_ready\
 ├── cv-ats-ready.html          ← Frontend complet (fichier unique)
 ├── main.py                    ← Backend FastAPI
@@ -47,41 +43,20 @@ C:\Projects\cv_ats_ready\
 │   ├── ai_agent.py            ← Appels Claude API
 │   ├── cv_parser.py           ← Extraction texte PDF/DOCX (pypdf)
 │   └── exporter.py            ← Export PDF/DOCX
-├── .env                       ← Clés API (jamais committé)
-├── .gitignore                 ← venv/ __pycache__/ .env *.pyc
+├── .env                       ← Clés API (NE PAS commiter)
 ├── requirements.txt
-├── Procfile                   ← web: uvicorn main:app --host 0.0.0.0 --port $PORT
-└── runtime.txt                ← python-3.11
-
-### Sur GitHub (repo privé)
-https://github.com/raymondgadji/cv-ats-ready
+├── Procfile                   ← À CRÉER pour Railway
+├── runtime.txt                ← À CRÉER pour Railway
+└── venv/
 
 ---
 
-## 🌍 URLs de production
+## 🔑 Variables d'environnement (.env)
 
-| Service | URL |
-|---------|-----|
-| Site public | https://cv-ats-ready.fr |
-| Frontend Netlify | https://ubiquitous-conkies-4ac49f.netlify.app |
-| Backend Railway | https://web-production-ec873.up.railway.app |
-| Health check | https://web-production-ec873.up.railway.app/api/health |
-
----
-
-## 🔑 Variables d'environnement
-
-### .env local
 ANTHROPIC_API_KEY=sk-ant-api03-XXXX
 STRIPE_SECRET_KEY=sk_test_51TA7v...
 STRIPE_WEBHOOK_SECRET=
 FRONTEND_URL=http://127.0.0.1:5500
-
-### Railway (production)
-ANTHROPIC_API_KEY=sk-ant-api03-XXXX
-STRIPE_SECRET_KEY=sk_test_51TA7v...
-STRIPE_WEBHOOK_SECRET=
-FRONTEND_URL=https://cv-ats-ready.fr
 
 ---
 
@@ -104,22 +79,8 @@ venv\Scripts\activate
 uvicorn main:app --reload --port 8000
 
 Frontend : ouvrir cv-ats-ready.html avec Live Server VS Code
-URL locale : http://127.0.0.1:5500/cv-ats-ready.html
-Health check local : http://localhost:8000/api/health
-
-⚠️ Pour tester en local, mettre dans cv-ats-ready.html :
-const API_BASE = 'http://localhost:8000';
-Pour la prod, remettre :
-const API_BASE = 'https://web-production-ec873.up.railway.app';
-
----
-
-## 🚀 Déployer une mise à jour
-
-1. Modifier les fichiers en local
-2. git add . && git commit -m "description" && git push
-   → Railway redéploie automatiquement le backend
-3. Pour le frontend : reglisser cv-ats-ready.html sur Netlify (Deploy manually)
+URL : http://127.0.0.1:5500/cv-ats-ready.html
+Health check : http://localhost:8000/api/health → {"status":"ok"}
 
 ---
 
@@ -133,15 +94,13 @@ Modal de progression animée 4 étapes ✅
 CV réécrit ATS par Claude ✅
 Affichage CV optimisé ✅
 Lettre de motivation 6 styles ✅
-Multi-sélection styles lettre ✅
+Multi-sélection styles lettre ✅ (styles combinés envoyés ex: "débutant + très motivé")
 Précision libre lettre ✅
 Export PDF ✅
 Export DOCX ✅
 Export texte brut + copier ✅
 Watermark "cv-ats-ready.fr — date" ✅
 US-14 zéro donnée stockée RAM only ✅
-Déploiement Railway + Netlify ✅
-Domaine cv-ats-ready.fr ✅
 Responsive mobile ⏳ À tester
 
 ---
@@ -167,31 +126,30 @@ POST /api/webhook/stripe         → Webhook (prod uniquement)
 
 BUG 1 — onDone is not a function (CORRIGÉ dans cv-ats-ready.html ~ligne 1580)
 → startProgressAnimation() retourne maintenant function(callback)
+→ appelé : finishProgress(() => showResult())
 
 BUG 2 — PyMuPDF incompatible Windows (CORRIGÉ)
 → Remplacé par pypdf==4.3.1
+→ utils/cv_parser.py utilise uniquement "from pypdf import PdfReader"
 
 BUG 3 — proxies error Anthropic (CORRIGÉ)
 → pip install anthropic --upgrade → version 0.84.0
 
 BUG 4 — CORS / Failed to fetch (CORRIGÉ)
 → Utiliser Live Server VS Code pas file://
-→ En prod : FRONTEND_URL=https://cv-ats-ready.fr dans Railway
-
-BUG 5 — Netlify deploy via GitHub échoue (CORRIGÉ)
-→ Toujours utiliser "Deploy manually" sur Netlify (glisser-déposer le HTML)
+→ Bloqueur pub bloque r.stripe.com : désactiver sur 127.0.0.1 ou navigation privée
 
 ---
 
 ## 📋 PROCHAINES TÂCHES (dans l'ordre)
 
-### PRIORITÉ 1 — Score ATS (À IMPLÉMENTER)
+### PRIORITÉ 1 — Score ATS (À IMPLÉMENTER — décision Founder 12/03/2026)
 
 Affichage voulu : Score avant/après + détail 4 catégories
 Emplacement : DANS la modal de progression ET dans la section résultat
 
 Plan :
-1. Modifier utils/ai_agent.py → optimize_cv_ats() retourne aussi ats_score JSON :
+1. Modifier utils/ai_agent.py → nouvelle fonction analyze_ats_score() retourne JSON :
 {
   "score_avant": 23,
   "score_apres": 91,
@@ -203,28 +161,43 @@ Plan :
   }
 }
 
-2. Modifier main.py → retourner ats_score dans réponse /api/optimize
+2. Modifier main.py → retourner ats_score dans réponse /api/optimize (format texte et dans header pour PDF/DOCX)
 
 3. Modifier cv-ats-ready.html :
-   - Modal : après étape 4, afficher jauge animée qui monte jusqu'au score
-   - Section résultat : bloc "Score ATS" avant/après + 4 barres par catégorie
+   - Modal : après étape 4, afficher jauge animée qui monte jusqu'au score final
+   - Section résultat : bloc "Score ATS" avec avant/après + 4 barres de progression par catégorie
    - Style : orange pour avant, vert pour après, animations CSS
 
-### PRIORITÉ 2 — Optimisation vitesse (promesse < 30 sec non tenue)
+### PRIORITÉ 2 — Déploiement Railway + domaine
 
-Modèle actuel : claude-haiku-4-5-20251001, max_tokens=2000
-Temps constaté : encore ~60 sec → investiguer (prompt trop long ?)
-Piste : réduire le prompt système dans ai_agent.py
+Founder a : GitHub ✅ | domaine cv-ats-ready.fr : ❌ pas encore acheté
 
-### PRIORITÉ 3 — Tests mobile (US-13)
+Fichiers à créer avant push :
+Procfile    → web: uvicorn main:app --host 0.0.0.0 --port $PORT
+runtime.txt → python-3.11
+.gitignore  → venv/ __pycache__/ .env *.pyc
+
+Étapes déploiement :
+1. git init && git add . && git commit -m "MVP cv-ats-ready"
+2. Créer repo PRIVÉ sur github.com (nom: cv-ats-ready)
+3. git remote add origin + git push
+4. Railway.app → New Project → Deploy from GitHub
+5. Variables Railway : ANTHROPIC_API_KEY, STRIPE_SECRET_KEY, FRONTEND_URL=https://cv-ats-ready.fr
+6. Netlify → glisser-déposer cv-ats-ready.html
+7. Acheter cv-ats-ready.fr sur OVH (~7€/an)
+8. Connecter domaine Netlify + mettre à jour API_BASE dans le HTML
+
+### PRIORITÉ 3 — Optimisation vitesse (promesse < 30 sec non tenue)
+
+Modèle actuel dans ai_agent.py : claude-sonnet-4-20250514 → trop lent (~60-90 sec)
+À changer dans les 2 fonctions optimize_cv_ats() et generate_cover_letter() :
+  model="claude-haiku-4-5-20251001"
+  max_tokens=2000  (CV)
+  max_tokens=1000  (Lettre)
+
+### PRIORITÉ 4 — Tests mobile (US-13)
 - Tester sur iPhone/Android
 - Drag & drop peut ne pas marcher → prévoir bouton "Parcourir" alternatif
-
-### PRIORITÉ 4 — Webhook Stripe production
-- Stripe → Développeurs → Webhooks → Ajouter endpoint
-- URL : https://web-production-ec873.up.railway.app/api/webhook/stripe
-- Événement : payment_intent.succeeded
-- Copier le webhook secret → Railway STRIPE_WEBHOOK_SECRET
 
 ---
 
@@ -240,8 +213,7 @@ Crédits Anthropic chargés : 16$ (≈ 500+ optimisations)
 
 ## 🗺️ Feuille de route Station F
 
-SEMAINE 1-2  → ✅ MVP live sur cv-ats-ready.fr
-SEMAINE 2-3  → Score ATS + optimisation vitesse
+SEMAINE 1-2  → Score ATS + déploiement Railway/Netlify + domaine cv-ats-ready.fr
 SEMAINE 3    → Bêta fermée (10-20 testeurs, code TEST_CV_ATS_READY)
 SEMAINE 4    → Bêta ouverte (code BETA50 -50%)
 SEMAINE 5    → Lancement public 1€
@@ -262,4 +234,4 @@ Statut actuel : Pas encore créée — à faire avant bêta ouverte
 
 Footer tagline : "Fait avec ❤️ pour les demandeurs d'emploi"
 Copyright : © 2026 cv-ats-ready.fr
-Promesse UI : "Résultat en < 30 sec" (à tenir — PRIORITÉ 2)
+Promesse UI : "Résultat en < 30 sec" (nécessite passage à Haiku — PRIORITÉ 3)
