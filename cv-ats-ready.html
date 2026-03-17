@@ -934,7 +934,7 @@
       </h1>
 
       <p class="hero-sub">
-        Colle l'offre d'emploi. Uploade ton CV. Paie 1€.<br>
+        Colle l'offre d'emploi ou de stage. Uploade ton CV. Paie 1€.<br>
         Notre agent IA le réécrit pour <strong>passer les filtres ATS</strong> 
         et atterrir directement sur le bureau du recruteur.
       </p>
@@ -968,7 +968,7 @@
         <!-- Zone 1: Offre d'emploi -->
         <div class="field">
           <div class="field-label">
-            📋 Copie-colle l'offre d'emploi
+            📋 Copie-colle l'offre d'emploi ou de stage
             <span class="tag">Obligatoire</span>
           </div>
           <div class="field-hint">Le texte complet de l'annonce à laquelle tu postules</div>
@@ -1077,7 +1077,8 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
       <ul class="modal-steps">
         <li class="modal-step" id="ms1">
           <div class="modal-step-icon">1</div>
-          Analyse de l'offre d'emploi et extraction des mots-clés
+          Analyse de l'offre d'emploi ou de stage 🔍
+          et extraction des mots-clés
         </li>
         <li class="modal-step" id="ms2">
           <div class="modal-step-icon">2</div>
@@ -1199,7 +1200,7 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
       </div>
       <div class="hiw-step">
         <div class="hiw-icon">💳</div>
-        <h4>3. Paie 1€</h4>
+        <h4>3. Paie 1€ HT (1.20€ TTC) </h4>
         <p>Micro-paiement sécurisé, sans abonnement</p>
       </div>
       <div class="hiw-step">
@@ -1221,7 +1222,7 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
       <div class="stat-label">des grandes entreprises utilisent un ATS</div>
     </div>
     <div class="stat-item">
-      <div class="stat-num">1€</div>
+      <div class="stat-num">1€ HT</div>
       <div class="stat-label">pour augmenter ses chances</div>
     </div>
     <div class="stat-item">
@@ -1275,11 +1276,11 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
         <span class="card-icon-large">💡</span>
         <h3>Pourquoi cv-ats-ready</h3>
         <p>
-          On a tous fait ça : aller sur ChatGPT, coller son CV, expliquer l'offre en long prompt… 
+          On a tous fait ça : aller sur ChatGPT, coller notre CV, expliquer l'offre en long prompt… 
           <strong style="color:rgba(255,255,255,.75)">cv-ats-ready automatise exactement ça, sans effort.</strong> 
-          Tu viens, tu déposes — l'agent s'occupe du reste. Honnêtement, sans fioritures.
+          Tu viens, tu déposes ton cv — l'agent s'occupe du reste. Honnêtement, sans fioritures.
         </p>
-        <span class="card-stat-pill">1€ · Zéro prompt · 30 secondes</span>
+        <span class="card-stat-pill">1€ HT · Zéro prompt · 30 secondes</span>
       </div>
     </div>
   </section>
@@ -1303,8 +1304,8 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
         <div class="faq-a"><p>Tu peux uploader ton CV en PDF, .DOC ou .DOCX. La taille maximum est de 5 Mo. On recommande le PDF pour une extraction de texte propre.</p></div>
       </div>
       <div class="faq-item" onclick="toggleFaq(this)">
-        <div class="faq-q">Pourquoi 1€ et pas gratuit ? <span class="arrow">▾</span></div>
-        <div class="faq-a"><p>1€ couvre le coût de l'IA et permet de maintenir le service. C'est délibérément accessible — pas d'abonnement, pas d'engagement. Tu paies à l'utilisation, uniquement quand tu en as besoin.</p></div>
+        <div class="faq-q">Pourquoi 1€ HT et pas gratuit ? <span class="arrow">▾</span></div>
+        <div class="faq-a"><p>1€ HT couvre le coût de l'IA et permet de maintenir le service. C'est délibérément accessible — pas d'abonnement, pas d'engagement. Tu paies à l'utilisation, uniquement quand tu en as besoin.</p></div>
       </div>
       <div class="faq-item" onclick="toggleFaq(this)">
         <div class="faq-q">La lettre de motivation est-elle vraiment personnalisée ? <span class="arrow">▾</span></div>
@@ -1359,8 +1360,8 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
         CONFIGURATION
         → Remplace ces deux valeurs avant de déployer
     ════════════════════════════════════════════════════ */
-    const API_BASE   = 'http://localhost:8000';          // URL de ton backend FastAPI
-    const STRIPE_PK  = 'pk_test_REMPLACE_PAR_TA_CLE_PUBLISHABLE'; // Clé publique Stripe
+    const API_BASE   = 'https://web-production-ec873.up.railway.app';          // URL de ton backend FastAPI
+    const STRIPE_PK  = 'pk_test_51TA7vD3FagSOekU9ijCuGDrJAcGHfkOPStJeKkfmhr2e2B5oL38xW92IWDH9HG9dYcCqPx8Xck4P8zsOpGeAIFbd00vR3E9BDN'; // Clé publique Stripe
 
     const stripe = Stripe(STRIPE_PK);
 
