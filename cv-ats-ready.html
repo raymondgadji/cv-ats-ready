@@ -1045,21 +1045,38 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
         <div class="divider">puis</div>
 
         <!-- Zone 3: Paiement -->
-        <div class="payment-strip" id="paymentStrip">
-          <div>
-            <div class="price-group">
-              <span class="price-main">1€</span>
-              <span class="price-label">HT seulement (1.20€ TTC)</span>
-            </div>
-            <div class="price-desc">
-              <b>Accès complet :</b> CV ATS optimisé · Lettre de motivation · Export PDF/Word
-            </div>
-          </div>
-          <button class="btn-stripe" id="btnPay" onclick="pay()" style="align-self:flex-start;">
-            🔒 Payer 1€ HT (1.20€ TTC) avec Stripe
-            <span class="stripe-logo">stripe</span>
-          </button>
-        </div>
+<div class="payment-strip" id="paymentStrip" style="flex-direction:column;align-items:stretch;">
+  <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:8px;">
+    <span class="price-main">1€</span>
+    <span class="price-label">HT seulement (1.20€ TTC)</span>
+  </div>
+  <div class="price-desc" style="margin-bottom:16px;">
+    <b>Accès complet :</b> CV ATS optimisé · Score ATS · Lettre de motivation · Export PDF/Word
+  </div>
+
+  <!-- Champ code promo -->
+  <div style="display:flex;gap:8px;margin-bottom:12px;">
+    <input type="text" id="promoCode"
+      placeholder="🎟️ Code promo (ex : TEST_CV_ATS_READY)"
+      style="flex:1;padding:10px 14px;font-size:.83rem;border-radius:var(--r-sm);
+              border:1.5px solid rgba(255,107,0,.3);background:var(--white);
+              font-family:DM Sans,sans-serif;outline:none;"
+    />
+  </div>
+
+  <!-- Stripe Card Element -->
+  <div id="stripe-card-container" style="margin-bottom:12px;">
+    <div id="stripe-card-element" style="
+      border:1.5px solid rgba(255,107,0,.25);border-radius:var(--r-sm);
+      padding:12px 14px;background:var(--white);">
+    </div>
+    <div id="stripe-card-errors" style="color:#ef4444;font-size:.78rem;margin-top:5px;"></div>
+  </div>
+
+  <button class="btn-stripe" id="btnPay" onclick="pay()" style="align-self:flex-start;">
+    🔒 Payer 1€ HT (1.20€ TTC) avec Stripe
+  </button>
+</div>
 
         <!-- CTA -->
         <button class="btn-cta" id="btnOptimize" onclick="startOptimization()" disabled>
@@ -1784,6 +1801,7 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
     function toggleFaq(item) {
       item.classList.toggle('open');
     }
+  <script src="https://js.stripe.com/v3/"></script>
   </script>
 
 </body>
