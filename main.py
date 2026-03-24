@@ -52,6 +52,7 @@ app.add_middleware(
         "http://127.0.0.1:5500",
         "https://cv-ats-ready.fr",
         "https://www.cv-ats-ready.fr",
+        "https://cv-ats-ready.netlify.app", 
         "https://ubiquitous-conkies-4ac49f.netlify.app",
         "https://singular-profiterole-779082.netlify.app",
     ],

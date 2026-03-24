@@ -1,8 +1,8 @@
 """
 utils/ai_agent.py
 Appels Claude API :
-  - optimize_cv_ats()      → CV réécrit + score ATS avant/après
-  - generate_cover_letter() → Lettre de motivation
+    - optimize_cv_ats()      → CV réécrit + score ATS avant/après
+    - generate_cover_letter() → Lettre de motivation
 """
 
 import json
@@ -28,30 +28,30 @@ CV ACTUEL :
 
 INSTRUCTIONS :
 1. Réécris le CV complet en format texte structuré, optimisé ATS :
-   - Intègre les mots-clés exacts de l'offre naturellement
-   - Structure claire : NOM, COORDONNÉES, RÉSUMÉ PROFESSIONNEL, COMPÉTENCES, EXPÉRIENCES, FORMATION
-   - Pas de colonnes, tableaux, icônes (illisibles par les ATS)
-   - Verbes d'action forts, chiffres quand possible
-   - Ne jamais inventer de fausses informations
+    - Intègre les mots-clés exacts de l'offre naturellement
+    - Structure claire : NOM, COORDONNÉES, RÉSUMÉ PROFESSIONNEL, COMPÉTENCES, EXPÉRIENCES, FORMATION
+    - Pas de colonnes, tableaux, icônes (illisibles par les ATS)
+    - Verbes d'action forts, chiffres quand possible
+    - Ne jamais inventer de fausses informations
 
 2. Calcule les scores ATS honnêtement :
-   - score_avant : score du CV original (0-100)
-   - score_apres : score du CV réécrit (0-100)
-   - 4 catégories : mots_cles, format, experience, competences (chacune 0-100)
+    - score_avant : score du CV original (0-100)
+    - score_apres : score du CV réécrit (0-100)
+    - 4 catégories : mots_cles, format, experience, competences (chacune 0-100)
 
 RÉPONDS UNIQUEMENT avec ce JSON (rien d'autre, pas de markdown) :
 {{
-  "cv_optimized": "LE CV RÉÉCRIT COMPLET ICI",
-  "ats_score": {{
+    "cv_optimized": "LE CV RÉÉCRIT COMPLET ICI",
+    "ats_score": {{
     "score_avant": 25,
     "score_apres": 88,
     "categories": {{
-      "mots_cles": {{"avant": 20, "apres": 90, "label": "Mots-clés"}},
-      "format": {{"avant": 60, "apres": 95, "label": "Format ATS"}},
-      "experience": {{"avant": 40, "apres": 85, "label": "Expérience"}},
-      "competences": {{"avant": 30, "apres": 82, "label": "Compétences"}}
+        "mots_cles": {{"avant": 20, "apres": 90, "label": "Mots-clés"}},
+        "format": {{"avant": 60, "apres": 95, "label": "Format ATS"}},
+        "experience": {{"avant": 40, "apres": 85, "label": "Expérience"}},
+        "competences": {{"avant": 30, "apres": 82, "label": "Compétences"}}
+        }}
     }}
-  }}
 }}"""
 
     message = client.messages.create(
