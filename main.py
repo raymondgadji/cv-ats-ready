@@ -134,9 +134,16 @@ async def optimize(
     # ── 1. Vérification paiement ──────────────────────────
     paid = False
 
-    if free_token and free_token in VALID_FREE_TOKENS:
-        paid = True
-        VALID_FREE_TOKENS.discard(free_token)   # token à usage unique
+    if free_token:
+        if free_token in VALID_FREE_TOKENS:
+            # Token valide trouvé en mémoire
+            paid = True
+            VALID_FREE_TOKENS.discard(free_token)
+        else:
+            # Token non trouvé = Railway a redémarré entre les deux appels.
+            # ⚠️ BYPASS BÊTA : on accepte tout free_token non vide.
+            # À remplacer par une vraie DB (Redis/Postgres) avant le lancement public.
+            paid = True
 
     elif payment_intent_id:
         try:
