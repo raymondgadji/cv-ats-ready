@@ -1168,9 +1168,8 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
           <span style="font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;color:rgba(255,255,255,.6);">Aperçu — CV optimisé</span>
           <span class="cv-badge">✓ ATS Ready</span>
         </div>
-        <div class="cv-preview-content" id="cvOutput">
-          <!-- Filled by JS -->
-        </div>
+        <div class="edit-notice" style="display:flex;align-items:center;gap:8px;background:rgba(255,107,0,.08);border:1px solid rgba(255,107,0,.2);border-radius:8px;padding:8px 14px;font-size:.78rem;color:#D95A00;font-weight:600;margin-bottom:12px;">✏️ Tu peux modifier le texte directement avant de télécharger</div>
+        <textarea id="cvOutput" spellcheck="false" style="width:100%;min-height:320px;max-height:500px;background:transparent;border:1.5px solid rgba(255,255,255,.1);border-radius:8px;padding:16px;font-family:'DM Sans',sans-serif;font-size:.88rem;color:rgba(255,255,255,.85);line-height:1.8;resize:vertical;outline:none;" placeholder="Ton CV optimisé apparaîtra ici…"></textarea>
       </div>
 
       <!-- Tâche 2: Lettre de motivation -->
@@ -1460,7 +1459,7 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."
 
     function handleFile(file) {
       state.cvFile = file;
-      document.getElementById('fileName').textContent = file.name;
+      document.getElementById('cvOutput').value = state.optimizedCV;
       fileSelected.classList.add('show');
       checkReady();
     }
