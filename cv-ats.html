@@ -284,19 +284,109 @@
       .scroll-top.visible { opacity: 1; transform: translateY(0); pointer-events: all; }
       .scroll-top:hover { background: var(--orange-dark); }
 
-      @media (max-width: 640px) {
+      /* ════════════════════════════════
+         RESPONSIVE — TABLET (max 768px)
+      ════════════════════════════════ */
+      @media (max-width: 768px) {
         nav { padding: 0 20px; }
+        .nav-chip { display: none; }
+        .hero { padding: 90px 16px 48px; }
+        .main-card { padding: 32px 24px 28px; max-width: 100%; }
+        .steps { gap: 0; }
+        .step span { font-size: 0.72rem; }
+        .step-connector { width: 20px; }
+        .explainer { padding: 80px 24px; }
+        .how-it-works { padding: 70px 24px; }
+        .faq-section { padding: 70px 24px; }
+        .stats-banner { gap: 40px; padding: 48px 24px; }
+        .footer-top { flex-wrap: wrap; gap: 32px; }
+        .cards-grid { grid-template-columns: 1fr; }
+        .result-section { padding: 60px 16px; }
+        .question-block { padding: 20px; }
+        .cv-preview-card { padding: 20px; }
+        .ats-score-block { padding: 20px; }
+      }
+
+      /* ════════════════════════════════
+         RESPONSIVE — MOBILE (max 480px)
+      ════════════════════════════════ */
+      @media (max-width: 480px) {
+        nav { padding: 0 16px; height: 56px; }
         .nav-chip, .nav-cta { display: none; }
-        .main-card { padding: 28px 20px 24px; }
+        .logo { font-size: 1rem; }
+        .logo-mark { width: 28px; height: 28px; font-size: 0.75rem; }
+        .hero { padding: 80px 16px 40px; min-height: auto; }
+        .eyebrow { font-size: 0.68rem; padding: 5px 12px; margin-bottom: 20px; }
+        h1 { font-size: clamp(1.7rem, 8vw, 2.2rem); margin-bottom: 16px; letter-spacing: -0.02em; }
+        .hero-sub { font-size: 0.92rem; margin-bottom: 28px; padding: 0 4px; }
+        .hero-sub br { display: none; }
+        .main-card { padding: 24px 16px 20px; border-radius: 20px; }
+        .main-card::before { height: 2px; }
+        .steps { margin-bottom: 24px; }
         .step span { display: none; }
-        .payment-strip { flex-direction: column; }
-        .format-grid { grid-template-columns: 1fr; }
-        .steps-row { gap: 20px; }
-        .hiw-step::after { display: none; }
-        .stats-banner { gap: 32px; padding: 40px 24px; }
-        .footer-top { flex-direction: column; }
-        .explainer { padding: 70px 20px; }
-        .how-it-works, .faq-section, .cards-grid { padding: 60px 20px; }
+        .step-num { width: 26px; height: 26px; font-size: 0.7rem; }
+        .step-connector { width: 16px; margin: 0 2px; }
+        .field { margin-bottom: 16px; }
+        .field-label { font-size: 0.8rem; flex-wrap: wrap; gap: 6px; }
+        .field-hint { font-size: 0.75rem; }
+        textarea { min-height: 110px; font-size: 0.88rem; padding: 12px 14px; }
+        input[type="text"] { font-size: 0.88rem; padding: 12px 14px; }
+        .upload-zone { padding: 20px 14px; }
+        .upload-icon-wrap { width: 40px; height: 40px; font-size: 1.2rem; margin-bottom: 8px; }
+        .upload-text { font-size: 0.82rem; }
+        .payment-strip { flex-direction: column; align-items: stretch !important; padding: 14px 16px; gap: 10px; }
+        .price-main { font-size: 1.6rem; }
+        .price-desc { max-width: 100%; font-size: 0.78rem; }
+        .btn-stripe { width: 100%; justify-content: center; font-size: 0.82rem; padding: 11px 16px; }
+        .btn-cta { padding: 15px 18px; font-size: 0.95rem; border-radius: var(--r-md); }
+        .trust { gap: 10px; }
+        .trust-item { font-size: 0.72rem; }
+        .modal { padding: 32px 20px; border-radius: 20px; }
+        .modal-title { font-size: 1.2rem; }
+        .modal-sub { font-size: 0.85rem; margin-bottom: 20px; }
+        .modal-step { font-size: 0.82rem; padding: 8px 10px; }
+        .result-section { padding: 48px 16px; }
+        .result-header h2 { font-size: 1.5rem; }
+        .cv-preview-card { padding: 16px; border-radius: var(--r-md); }
+        .question-block { padding: 16px; border-radius: var(--r-md); }
+        .question-block h3 { font-size: 0.9rem; }
+        .toggle-group { flex-direction: column; gap: 8px; }
+        .toggle-btn { padding: 10px; font-size: 0.85rem; }
+        .options-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        .option-btn { font-size: 0.8rem; padding: 8px 10px; }
+        .format-grid { grid-template-columns: 1fr; gap: 8px; }
+        .format-card { padding: 14px 12px; display: flex; align-items: center; gap: 12px; text-align: left; }
+        .format-icon { font-size: 1.4rem; margin-bottom: 0; flex-shrink: 0; }
+        .format-name { margin-bottom: 2px; font-size: 0.85rem; }
+        .format-desc { font-size: 0.72rem; }
+        .btn-download { font-size: 0.95rem; padding: 15px; }
+        .ats-score-block { padding: 16px; }
+        .ats-score-title { font-size: 0.88rem; }
+        .ats-compare { gap: 10px; }
+        .ats-score-num { font-size: 1.4rem; }
+        .how-it-works { padding: 56px 16px; }
+        .steps-row { flex-direction: column; align-items: center; gap: 24px; margin-top: 32px; }
+        .hiw-step { max-width: 100%; width: 100%; padding: 0; display: flex; align-items: center; gap: 16px; text-align: left; }
+        .hiw-step:not(:last-child)::after { display: none; }
+        .hiw-icon { margin: 0; flex-shrink: 0; width: 48px; height: 48px; }
+        .hiw-step h4 { margin-bottom: 2px; }
+        .stats-banner { padding: 36px 16px; gap: 28px; }
+        .stat-num { font-size: 2.2rem; }
+        .stat-label { font-size: 0.78rem; }
+        .explainer { padding: 56px 16px; }
+        .section-h2 { font-size: clamp(1.5rem, 6vw, 2rem); }
+        .section-desc { font-size: 0.88rem; margin-bottom: 40px; }
+        .cards-grid { grid-template-columns: 1fr; gap: 14px; }
+        .info-card { padding: 24px 20px; border-radius: 16px; }
+        .card-num { font-size: 2rem; margin-bottom: 12px; }
+        .faq-section { padding: 56px 16px; }
+        .faq-q { font-size: 0.88rem; }
+        .faq-a p { font-size: 0.82rem; }
+        footer { padding: 40px 16px 24px; }
+        .footer-top { flex-direction: column; gap: 28px; padding-bottom: 28px; }
+        .footer-brand { max-width: 100%; }
+        .footer-bottom { flex-direction: column; align-items: flex-start; gap: 8px; }
+        .scroll-top { width: 38px; height: 38px; bottom: 16px; right: 16px; font-size: 0.9rem; }
       }
     </style>
   </head>
