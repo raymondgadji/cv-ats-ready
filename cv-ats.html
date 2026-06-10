@@ -1142,8 +1142,7 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie...">
         if (state.atsScore) displayAtsScore(state.atsScore);
         document.getElementById("resultSection").classList.add("show");
         setTimeout(() => { document.getElementById("resultSection").scrollIntoView({ behavior: "smooth", block: "start" }); }, 200);
-        // Autopilot : poser la question après le résultat
-        setTimeout(() => showAutopilotQuestion(), 1800);
+
       }
 
       function displayAtsScore(atsScore) {
@@ -1202,6 +1201,8 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie...">
           a.href = url; a.download = `cv-ats.${ext}`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
           btn.textContent = `✅ cv-ats.${ext} téléchargé !`; btn.style.background = "linear-gradient(135deg,#16a34a,#22C55E)";
           showToast("🎉 Tes fichiers sont prêts ! Bonne chance pour ta candidature.", "success");
+          // ✅ Autopilot — poser la question après téléchargement
+          setTimeout(() => showAutopilotQuestion(), 1000);
         } catch (err) { btn.disabled = false; btn.textContent = "🎁 Générer et télécharger mes fichiers"; showToast(`❌ ${err.message}`, "error"); }
       }
 
@@ -1216,6 +1217,8 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie...">
         zone.insertAdjacentElement("afterend", copyBtn);
         const btn = document.getElementById("btnDownload"); btn.textContent = "✅ Résultat affiché ci-dessous"; btn.style.background = "linear-gradient(135deg,#16a34a,#22C55E)";
         showToast("🎉 Tes fichiers sont prêts ! Bonne chance pour ta candidature.", "success");
+        // ✅ Autopilot — poser la question après affichage texte
+        setTimeout(() => showAutopilotQuestion(), 1000);
       }
 
       function showToast(msg, type = "success") {
@@ -1274,7 +1277,7 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie...">
           fd.append("job_offer",         state.jobOffer);
           fd.append("free_token",        state.freeToken);
           fd.append("payment_intent_id", state.paymentIntentId);
-          fd.append("nb_offres",         "20");
+          fd.append("nb_offres",         "3");  // 3 offres max — plan normal
 
           const res  = await fetch(`${API_BASE}/api/autopilot`, { method: "POST", body: fd });
           const data = await res.json();
