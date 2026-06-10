@@ -634,7 +634,7 @@
 
           <div class="field">
             <div class="field-label">📋 Copie-colle l'offre d'emploi ou de stage <span class="tag">Obligatoire</span></div>
-            <div class="field-hint">Colle le texte complet de l'annonce <strong style="color:var(--orange-dark)">ou l'URL de l'offre</strong> — on récupère le contenu automatiquement</div>
+            <div class="field-hint">Colle le texte de l'annonce <strong style="color:var(--orange-dark)">ou l'URL directe d'une offre</strong> (France Travail ✅ · HelloWork ✅ · Adecco ⚠️ copier-coller)</div>
             <textarea id="jobOffer" placeholder="Colle le texte de l'offre ici…
 
 Ou l'URL directe d'une offre (pas la liste) :
@@ -1104,11 +1104,14 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
           setTimeout(() => { status.style.display = "none"; }, 4000);
 
         } catch (err) {
-          status.style.background = "rgba(239,68,68,0.08)";
+          status.style.background = "rgba(239,68,68,0.06)";
           status.style.color      = "#dc2626";
           status.style.border     = "1px solid rgba(239,68,68,0.2)";
-          status.innerHTML = `❌ ${err.message}`;
-          setTimeout(() => { status.style.display = "none"; }, 5000);
+          status.style.lineHeight = "1.5";
+          // Afficher le message avec un conseil de copier-coller
+          status.innerHTML = `❌ ${err.message}<br><span style="font-weight:400;font-size:0.75rem;opacity:0.8;">💡 Astuce : sélectionne tout le texte de l'offre sur le site (Ctrl+A puis Ctrl+C) et colle-le ici.</span>`;
+          // Ne pas masquer automatiquement — laisser l'user lire
+          setTimeout(() => { status.style.display = "none"; }, 10000);
         }
       }
       function checkReady() { const btn = document.getElementById("btnOptimize"); btn.disabled = !(state.jobOffer.trim().length > 30 && state.cvFile && state.paid); }

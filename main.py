@@ -203,7 +203,14 @@ async def fetch_url(url: str = Form(...)):
             resp = await client.get(url, headers=headers)
 
         if resp.status_code == 403:
-            raise HTTPException(status_code=400, detail="Ce site bloque la récupération automatique. Copiez-collez le texte directement.")
+            # Message personnalisé selon le site
+            if "linkedin" in url:
+                detail = "LinkedIn bloque la récupération automatique. Copiez-collez le texte de l'offre directement depuis la page."
+            elif "indeed" in url:
+                detail = "Indeed bloque la récupération automatique. Copiez-collez le texte de l'offre directement depuis la page."
+            else:
+                detail = "Ce site bloque la récupération automatique. Copiez-collez le texte de l'offre directement dans le champ."
+            raise HTTPException(status_code=400, detail=detail)
         if resp.status_code != 200:
             raise HTTPException(status_code=400, detail=f"Impossible d'accéder à la page (erreur {resp.status_code}). Copiez-collez le texte.")
 
@@ -253,7 +260,18 @@ async def fetch_url(url: str = Form(...)):
                 break
 
         if len(text) < 100:
-            raise HTTPException(status_code=400, detail="Contenu trop court ou page vide. Copiez-collez le texte directement.")
+            # Détecter le site pour donner un message personnalisé
+            if "adecco" in url:
+                msg = "Adecco charge son contenu dynamiquement. Copiez-collez le texte de l'offre, ou utilisez l'URL directe du type : adecco.fr/offre-emploi/titre-du-poste-ville-..."
+            elif "linkedin" in url:
+                msg = "LinkedIn bloque la récupération automatique. Copiez-collez le texte de l'offre directement depuis la page."
+            elif "indeed" in url:
+                msg = "Indeed bloque la récupération automatique. Copiez-collez le texte de l'offre directement depuis la page."
+            elif "welcometothejungle" in url:
+                msg = "Welcome to the Jungle charge son contenu dynamiquement. Copiez-collez le texte de l'offre directement."
+            else:
+                msg = "Ce site charge son contenu dynamiquement — la récupération automatique ne fonctionne pas. Copiez-collez le texte de l'offre directement dans le champ."
+            raise HTTPException(status_code=400, detail=msg)
 
         # Limite 6000 chars — largement suffisant pour une offre
         text = text[:6000]
