@@ -21,73 +21,54 @@ ADZUNA_APP_KEY               = os.environ.get("ADZUNA_APP_KEY", "")
 
 def extract_keywords(cv_text: str, job_offer: str) -> dict:
     """
-    Extrait le poste et les mots-clés depuis l'offre d'emploi (plus fiable que le CV).
-    Le CV peut commencer par "Coordonnées", "Nom", etc. — l'offre est plus structurée.
+    Extrait le poste et mots-clés depuis l'offre d'emploi.
+    Stratégie : chercher les mots-clés métier les plus fréquents.
     """
-    # Mots parasites à ignorer absolument
+    import re
+    from collections import Counter
+
     IGNORE_WORDS = {
-        "coordonnées", "nom", "prénom", "adresse", "email", "téléphone", "tel",
-        "mobile", "linkedin", "profil", "curriculum", "vitae", "cv", "date",
-        "naissance", "nationalité", "permis", "contact", "personnel",
-        # stopwords
+        "coordonnées","nom","prénom","adresse","email","téléphone","tel",
+        "mobile","linkedin","profil","curriculum","vitae","date","naissance",
+        "nationalité","permis","contact","évoluez","vers","métier","bonjour",
+        "construisez","carrière","votre","notre","poste","offre","emploi",
         "le","la","les","un","une","des","de","du","et","en","à","au","aux",
         "pour","par","sur","avec","dans","qui","que","est","sont","nous",
         "vous","ils","elles","je","tu","il","elle","se","sa","son","ses",
-        "notre","votre","leur","leurs","cette","ce","cet","ces","mais","ou",
-        "donc","car","ni","or","puis","aussi","très","plus","tout","tous",
-        "bien","avoir","être","fait","faire","nous","vous","votre","notre",
+        "cette","ce","cet","ces","mais","aussi","très","plus","tout","tous",
+        "bien","faire","nous","votre","entre","ainsi","dont","lors","après",
+        "avant","sans","sous","lors","même","comme","plus","dans","être",
+        "avoir","nous","vous","leur","leurs","cette","afin","type","cadre",
+        "sein","nous","vous","toute","toutes","tous","chaque","autre","autres",
     }
 
-    # ── Poste depuis l'offre — cherche les patterns classiques
-    poste = ""
-    import re
-    patterns_poste = [
-        r"(?:poste|profil|intitulé|titre)\s*[:\-–]\s*([^\n]{5,60})",
-        r"(?:recrutons?|recherchons?)\s+(?:un[e]?\s+)?([^\n]{5,60})",
-        r"(?:offre|emploi|job)\s*[:\-–]\s*([^\n]{5,60})",
-    ]
-    for pattern in patterns_poste:
-        match = re.search(pattern, job_offer, re.IGNORECASE)
-        if match:
-            poste = match.group(1).strip()
-            poste = re.sub(r"[|•·–—()\[\]]", "", poste).strip()
-            break
-
-    # Si pas trouvé via pattern, prendre les premiers mots significatifs de l'offre
-    if not poste:
-        words = re.findall(r'\b[a-zA-ZÀ-ÿ]{3,}\b', job_offer)
-        meaningful = [w for w in words if w.lower() not in IGNORE_WORDS][:4]
-        poste = " ".join(meaningful)
-
-    # ── Mots-clés métier depuis l'offre (les plus discriminants)
+    # ── Mots-clés métier : les plus fréquents dans l'offre, longueur > 4
     words = re.findall(r'\b[a-zA-ZÀ-ÿ]{4,}\b', job_offer.lower())
-    keywords_list = [w for w in words if w not in IGNORE_WORDS]
-    # Garder les 3 mots les plus fréquents et pertinents
-    from collections import Counter
-    freq = Counter(keywords_list)
-    top_keywords = [w for w, _ in freq.most_common(6) if len(w) > 4][:3]
-    keywords = " ".join(top_keywords)
+    filtered = [w for w in words if w not in IGNORE_WORDS]
+    freq = Counter(filtered)
+    # Top 3 mots les plus fréquents = le cœur du métier
+    top = [w for w, _ in freq.most_common(10) if len(w) >= 5][:3]
+    keywords = " ".join(top)
 
-    # ── Localisation — cherche dans CV ET offre
+    # ── Poste : top 2 mots-clés suffisent pour une bonne query
+    poste = " ".join(top[:2]) if top else keywords[:40]
+
+    # ── Localisation dans l'offre et le CV
     localisation = ""
-    VILLES = {
-        "paris": "paris", "lyon": "lyon", "marseille": "marseille",
-        "toulouse": "toulouse", "bordeaux": "bordeaux", "nantes": "nantes",
-        "lille": "lille", "strasbourg": "strasbourg", "montpellier": "montpellier",
-        "nice": "nice", "rennes": "rennes", "grenoble": "grenoble",
-        "dijon": "dijon", "angers": "angers", "remote": "remote",
-        "télétravail": "télétravail", "france": "",
-    }
+    VILLES = [
+        "paris","lyon","marseille","toulouse","bordeaux","nantes","lille",
+        "strasbourg","montpellier","nice","rennes","grenoble","dijon","angers",
+    ]
     combined = (cv_text + " " + job_offer).lower()
-    for ville, val in VILLES.items():
-        if re.search(r'\b' + ville + r'\b', combined) and val:
-            localisation = val.capitalize()
+    for ville in VILLES:
+        if re.search(r'\b' + ville + r'\b', combined):
+            localisation = ville.capitalize()
             break
 
     print(f"🎯 Keywords extraits — poste: '{poste}' | keywords: '{keywords}' | loc: '{localisation}'")
 
     return {
-        "poste":        poste[:50] if poste else keywords[:40],
+        "poste":        poste,
         "keywords":     keywords,
         "localisation": localisation,
     }
@@ -131,8 +112,8 @@ def fetch_france_travail(keywords: dict, nb: int = 25) -> list:
     if not token:
         return []
     try:
-        # Mots-clés courts pour la recherche — max 3 mots
-        mots = (keywords["poste"] or keywords["keywords"]).split()[:3]
+        # Mots-clés courts — top 2 mots max pour France Travail
+        mots = (keywords["poste"] or keywords["keywords"]).split()[:2]
         query_ft = " ".join(mots)
 
         params = {
@@ -140,16 +121,7 @@ def fetch_france_travail(keywords: dict, nb: int = 25) -> list:
             "range":    f"0-{nb - 1}",
             "sort":     "1",
         }
-        # ✅ France Travail : localisation via département (pas commune)
-        DEPT_MAP = {
-            "paris": "75", "lyon": "69", "marseille": "13",
-            "toulouse": "31", "bordeaux": "33", "nantes": "44",
-            "lille": "59", "strasbourg": "67", "montpellier": "34",
-            "nice": "06", "rennes": "35", "grenoble": "38",
-        }
-        loc = keywords["localisation"].lower()
-        if loc in DEPT_MAP:
-            params["departement"] = DEPT_MAP[loc]
+        # ✅ Pas de filtre géographique — trop restrictif, laisse chercher France entière
 
         resp = httpx.get(
             "https://api.francetravail.io/partenaire/offresdemploi/v2/offres/search",
