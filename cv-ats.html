@@ -285,6 +285,47 @@
       .scroll-top:hover { background: var(--orange-dark); }
 
       /* ════════════════════════════════
+         AUTOPILOT — Section offres
+      ════════════════════════════════ */
+      .autopilot-section { display: none; padding: 60px 24px; background: var(--night); position: relative; }
+      .autopilot-section.show { display: block; animation: fadeUp 0.6s ease both; }
+      .autopilot-inner { max-width: 900px; margin: 0 auto; }
+      .autopilot-header { text-align: center; margin-bottom: 40px; }
+      .autopilot-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,107,0,0.12); border: 1px solid rgba(255,107,0,0.3); color: var(--orange); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 6px 14px; border-radius: 999px; margin-bottom: 16px; }
+      .autopilot-title { font-family: "Syne", sans-serif; font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 800; color: #fff; margin-bottom: 8px; }
+      .autopilot-sub { font-size: 0.9rem; color: rgba(255,255,255,0.4); }
+      .autopilot-loading { text-align: center; padding: 40px; color: rgba(255,255,255,0.5); font-size: 0.9rem; display: none; }
+      .autopilot-loading.show { display: block; }
+      .autopilot-spinner { width: 36px; height: 36px; border-radius: 50%; border: 3px solid rgba(255,107,0,0.2); border-top-color: var(--orange); animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+      .jobs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+      .job-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--r-lg); padding: 20px; transition: border-color 0.2s, transform 0.2s; cursor: pointer; text-decoration: none; display: block; }
+      .job-card:hover { border-color: rgba(255,107,0,0.4); transform: translateY(-3px); background: rgba(255,107,0,0.05); }
+      .job-source { display: inline-flex; align-items: center; gap: 5px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: 3px 8px; border-radius: 4px; margin-bottom: 10px; }
+      .job-source.france-travail { background: rgba(0,85,180,0.15); color: #60a5fa; border: 1px solid rgba(0,85,180,0.3); }
+      .job-source.adzuna { background: rgba(255,107,0,0.12); color: var(--orange-light); border: 1px solid rgba(255,107,0,0.25); }
+      .job-titre { font-family: "Syne", sans-serif; font-size: 0.9rem; font-weight: 700; color: #fff; margin-bottom: 6px; line-height: 1.3; }
+      .job-entreprise { font-size: 0.82rem; color: var(--orange); font-weight: 600; margin-bottom: 8px; }
+      .job-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+      .job-meta span { font-size: 0.75rem; color: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 4px; }
+      .job-salaire { font-size: 0.8rem; color: var(--success); font-weight: 600; margin-bottom: 10px; }
+      .job-desc { font-size: 0.78rem; color: rgba(255,255,255,0.35); line-height: 1.5; margin-bottom: 14px; display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+      .job-apply-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--orange); color: #fff; font-family: "Syne", sans-serif; font-size: 0.78rem; font-weight: 700; padding: 7px 14px; border-radius: var(--r-sm); transition: background 0.2s; }
+      .job-card:hover .job-apply-btn { background: var(--orange-dark); }
+      .autopilot-upsell { background: rgba(255,107,0,0.06); border: 1px solid rgba(255,107,0,0.2); border-radius: var(--r-lg); padding: 32px; text-align: center; margin-top: 32px; }
+      .autopilot-upsell h3 { font-family: "Syne", sans-serif; font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 8px; }
+      .autopilot-upsell p { font-size: 0.88rem; color: rgba(255,255,255,0.5); margin-bottom: 20px; }
+      .autopilot-upsell-btn { background: var(--orange); color: #fff; border: none; padding: 13px 28px; border-radius: var(--r-md); font-family: "Syne", sans-serif; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: background 0.2s, transform 0.15s; box-shadow: 0 4px 20px rgba(255,107,0,0.3); }
+      .autopilot-upsell-btn:hover { background: var(--orange-dark); transform: translateY(-2px); }
+      @media (max-width: 480px) {
+        .autopilot-section { padding: 40px 16px; }
+        .jobs-grid { grid-template-columns: 1fr; }
+        .pricing-grid { grid-template-columns: 1fr !important; }
+      }
+      @media (max-width: 768px) {
+        .pricing-grid { grid-template-columns: 1fr !important; }
+      }
+
+      /* ════════════════════════════════
          PRICING SECTION
       ════════════════════════════════ */
       .pricing-section {
@@ -742,6 +783,60 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie...">
       </div>
     </section>
 
+    <!-- AUTOPILOT — Question + Offres matchées -->
+    <section class="autopilot-section" id="autopilotSection">
+      <div class="autopilot-inner">
+
+        <!-- ÉTAPE 1 : Question Oui / Non -->
+        <div id="autopilotAsk">
+          <div class="autopilot-header">
+            <div class="autopilot-badge">✈️ Autopilot</div>
+            <div class="autopilot-title">Ton CV est prêt — on cherche les offres qui te correspondent ?</div>
+            <p class="autopilot-sub">CV ATS peut scanner France Travail + Adzuna et te montrer les annonces qui matchent ton nouveau profil.</p>
+          </div>
+          <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:28px;">
+            <button class="autopilot-upsell-btn" onclick="startAutopilot()" style="display:flex;align-items:center;gap:8px;font-size:1rem;padding:15px 32px;">
+              ✈️ Oui, trouve-moi des offres !
+            </button>
+            <button onclick="declineAutopilot()" style="background:transparent;border:1.5px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);padding:15px 28px;border-radius:var(--r-md);font-family:'Syne',sans-serif;font-size:0.92rem;font-weight:600;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='rgba(255,255,255,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)'">
+              Non merci
+            </button>
+          </div>
+        </div>
+
+        <!-- ÉTAPE 2 : Résultats -->
+        <div id="autopilotResults" style="display:none;">
+          <div class="autopilot-header">
+            <div class="autopilot-badge">✈️ Autopilot actif</div>
+            <div class="autopilot-title">Offres qui correspondent à ton profil</div>
+            <p class="autopilot-sub">Basé sur ton nouveau CV optimisé — <span id="autopilotCount">0</span> offres trouvées</p>
+          </div>
+          <div class="autopilot-loading" id="autopilotLoading">
+            <div class="autopilot-spinner"></div>
+            Recherche des offres en cours…
+          </div>
+          <div class="jobs-grid" id="jobsGrid"></div>
+          <div class="autopilot-upsell" id="autopilotUpsell" style="display:none;margin-top:32px;">
+            <h3>✈️ Tu veux encore plus d'offres et des alertes personnalisées ?</h3>
+            <p>Passe au plan Autopilot pour accéder à toutes les offres et postuler en 1 clic depuis CV ATS.</p>
+            <button class="autopilot-upsell-btn" onclick="alert('Plan Autopilot bientôt disponible !')">S'abonner à Autopilot — 19,99€/mois →</button>
+          </div>
+        </div>
+
+        <!-- ÉTAPE 3 : Refus → rappel plan -->
+        <div id="autopilotDeclined" style="display:none;">
+          <div class="autopilot-upsell">
+            <h3>✈️ Cette feature est incluse dans ton plan Autopilot</h3>
+            <p>Pour 19,99€/mois, CV ATS trouve automatiquement les offres qui matchent ton CV et tu postules en 1 clic — sans rien chercher toi-même.</p>
+            <button class="autopilot-upsell-btn" onclick="startAutopilot()" style="margin-right:12px;">
+              Finalement, je veux voir les offres →
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
     <!-- PRICING -->
     <section class="pricing-section" id="tarifs">
       <div class="section-eyebrow" style="color: var(--orange);">Tarifs</div>
@@ -793,6 +888,30 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie...">
           </ul>
           <button class="pricing-cta primary" onclick="alert('Abonnement bientôt disponible — en cours de déploiement !')">
             S'abonner pour 9,99€/mois →
+          </button>
+        </div>
+
+
+
+        <!-- PLAN AUTOPILOT -->
+        <div class="pricing-card" style="grid-column: 1 / -1; border-color: var(--orange); background: linear-gradient(160deg, #fff 60%, var(--orange-pale) 100%); box-shadow: 0 8px 40px rgba(255,107,0,0.15); max-width: 480px; margin: 0 auto;">
+          <div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--night);color:var(--orange);font-family:'Syne',sans-serif;font-size:0.72rem;font-weight:700;padding:4px 16px;border-radius:999px;white-space:nowrap;border:1px solid rgba(255,107,0,0.3);">✈️ Nouveau — Bientôt disponible</div>
+          <div class="pricing-plan-name">Autopilot</div>
+          <div class="pricing-price">
+            <span class="pricing-currency">€</span>
+            <span class="pricing-amount">19,99</span>
+            <span class="pricing-period">TTC / mois</span>
+          </div>
+          <p class="pricing-sub">L'app trouve les offres qui matchent ton nouveau CV et tu postules en 1 clic.</p>
+          <ul class="pricing-features">
+            <li><span class="pf-check orange">✓</span> <strong>Tout le plan Illimité</strong></li>
+            <li><span class="pf-check orange">✓</span> <strong>Offres matchées automatiquement</strong></li>
+            <li><span class="pf-check orange">✓</span> France Travail + Adzuna (40+ offres)</li>
+            <li><span class="pf-check orange">✓</span> Candidature en 1 clic depuis CV ATS</li>
+            <li><span class="pf-check orange">✓</span> Alertes offres personnalisées</li>
+          </ul>
+          <button class="pricing-cta primary" onclick="alert('Plan Autopilot bientôt disponible — rejoins la liste d\'attente !')">
+            Rejoindre la liste d'attente →
           </button>
         </div>
 
@@ -1023,6 +1142,8 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie...">
         if (state.atsScore) displayAtsScore(state.atsScore);
         document.getElementById("resultSection").classList.add("show");
         setTimeout(() => { document.getElementById("resultSection").scrollIntoView({ behavior: "smooth", block: "start" }); }, 200);
+        // Autopilot : poser la question après le résultat
+        setTimeout(() => showAutopilotQuestion(), 1800);
       }
 
       function displayAtsScore(atsScore) {
@@ -1107,6 +1228,97 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie...">
       }
 
       function toggleFaq(item) { item.classList.toggle("open"); }
+
+      // ── AUTOPILOT — flow Oui / Non ──
+      function showAutopilotQuestion() {
+        const section = document.getElementById("autopilotSection");
+        section.classList.add("show");
+        document.getElementById("autopilotAsk").style.display = "block";
+        document.getElementById("autopilotResults").style.display = "none";
+        document.getElementById("autopilotDeclined").style.display = "none";
+        setTimeout(() => section.scrollIntoView({ behavior: "smooth", block: "start" }), 300);
+      }
+
+      function declineAutopilot() {
+        document.getElementById("autopilotAsk").style.display = "none";
+        document.getElementById("autopilotDeclined").style.display = "block";
+      }
+
+      async function startAutopilot() {
+        document.getElementById("autopilotAsk").style.display = "none";
+        document.getElementById("autopilotDeclined").style.display = "none";
+        document.getElementById("autopilotResults").style.display = "block";
+        await loadAutopilotJobs();
+      }
+
+      async function loadAutopilotJobs() {
+        if (!state.optimizedCV || state.optimizedCV.length < 50) return;
+
+        const section = document.getElementById("autopilotSection");
+        const loading = document.getElementById("autopilotLoading");
+        const grid    = document.getElementById("jobsGrid");
+        const upsell  = document.getElementById("autopilotUpsell");
+
+        section.classList.add("show");
+        loading.classList.add("show");
+        grid.innerHTML = "";
+        upsell.style.display = "none";
+
+        setTimeout(() => {
+          section.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 300);
+
+        try {
+          const fd = new FormData();
+          fd.append("cv_optimized",      state.optimizedCV);
+          fd.append("job_offer",         state.jobOffer);
+          fd.append("free_token",        state.freeToken);
+          fd.append("payment_intent_id", state.paymentIntentId);
+          fd.append("nb_offres",         "20");
+
+          const res  = await fetch(`${API_BASE}/api/autopilot`, { method: "POST", body: fd });
+          const data = await res.json();
+          loading.classList.remove("show");
+
+          if (!res.ok || !data.offres || data.offres.length === 0) {
+            grid.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,0.3);padding:40px;">Aucune offre trouvée pour ce profil.</p>';
+            return;
+          }
+
+          document.getElementById("autopilotCount").textContent = data.total;
+
+          data.offres.forEach(offre => {
+            const sourceClass = offre.source === "France Travail" ? "france-travail" : "adzuna";
+            const sourceLabel = offre.source === "France Travail" ? "🇫🇷 France Travail" : "⚡ Adzuna";
+            const card = document.createElement("a");
+            card.className = "job-card";
+            card.href      = offre.url || "#";
+            card.target    = "_blank";
+            card.rel       = "noopener noreferrer";
+            card.innerHTML = `
+              <div class="job-source ${sourceClass}">${sourceLabel}</div>
+              <div class="job-titre">${offre.titre}</div>
+              <div class="job-entreprise">${offre.entreprise}</div>
+              <div class="job-meta">
+                ${offre.localisation ? `<span>📍 ${offre.localisation}</span>` : ""}
+                ${offre.contrat      ? `<span>📋 ${offre.contrat}</span>`      : ""}
+                ${offre.date         ? `<span>📅 ${offre.date}</span>`         : ""}
+              </div>
+              ${offre.salaire ? `<div class="job-salaire">💰 ${offre.salaire}</div>` : ""}
+              ${offre.description ? `<div class="job-desc">${offre.description}</div>` : ""}
+              <div class="job-apply-btn">Voir l'offre →</div>`;
+            grid.appendChild(card);
+          });
+
+          // Upsell si moins de 20 offres ou pas abonné
+          upsell.style.display = "block";
+
+        } catch (err) {
+          loading.classList.remove("show");
+          console.error("Autopilot error:", err);
+          grid.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,0.3);padding:40px;">Erreur lors de la recherche d\'offres.</p>';
+        }
+      }
     </script>
   </body>
 </html>
