@@ -115,7 +115,8 @@ def fetch_france_travail(keywords: dict, nb: int = 25) -> list:
             timeout=15,
         )
         print(f"🔍 France Travail search status : {resp.status_code}")
-        if resp.status_code != 200:
+        # ✅ 200 = OK, 206 = Partial Content (résultats trouvés, pagination possible)
+        if resp.status_code not in (200, 206):
             print(f"❌ France Travail search error : {resp.text[:300]}")
             return []
 
