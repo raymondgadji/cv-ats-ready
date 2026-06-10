@@ -154,7 +154,7 @@ def health():
 
 
 # ─────────────────────────────────────────
-# ENDPOINT /api/fetch-url
+# ENDPOINT /api/fetch-url — v2
 # À ajouter dans main.py après /api/health
 # ─────────────────────────────────────────
 
@@ -162,86 +162,111 @@ def health():
 async def fetch_url(url: str = Form(...)):
     """
     Récupère le texte d'une offre d'emploi depuis une URL.
-    Utilisé quand l'utilisateur colle un lien au lieu du texte.
+    Ouvert à tous les domaines emploi sauf domaines blacklistés.
     """
     import httpx
     import re
 
     # Validation URL basique
     if not url.startswith(("http://", "https://")):
-        raise HTTPException(status_code=400, detail="URL invalide.")
+        raise HTTPException(status_code=400, detail="URL invalide — elle doit commencer par https://")
 
-    # Domaines autorisés — offres d'emploi uniquement
-    ALLOWED_DOMAINS = [
-        "francetravail.fr", "pole-emploi.fr", "indeed.com", "indeed.fr",
-        "linkedin.com", "hellowork.com", "welcometothejungle.com",
-        "monster.fr", "apec.fr", "cadremploi.fr", "regionsjob.com",
-        "jobteaser.com", "talent.io", "lesjeudis.com", "adzuna.fr",
-        "meteojob.com", "jobijoba.com", "lefigaro.fr", "lemonde.fr",
+    # Domaines bloqués (réseaux sociaux perso, banking, etc.)
+    BLOCKED_DOMAINS = [
+        "facebook.com", "instagram.com", "tiktok.com", "twitter.com", "x.com",
+        "paypal.com", "stripe.com", "amazon.com", "google.com", "youtube.com",
+        "netflix.com", "pornhub.com",
     ]
+    if any(d in url for d in BLOCKED_DOMAINS):
+        raise HTTPException(status_code=400, detail="URL non supportée.")
 
-    domain_ok = any(d in url for d in ALLOWED_DOMAINS)
-    if not domain_ok:
-        raise HTTPException(
-            status_code=400,
-            detail="URL non supportée. Copiez-collez directement le texte de l'offre."
-        )
+    # Détecter les URLs de liste (pas d'offre spécifique)
+    LIST_PATTERNS = [
+        r"francetravail\.fr/offres/recherche$",
+        r"francetravail\.fr/offres/recherche\?",
+        r"indeed\.com/jobs",
+        r"linkedin\.com/jobs/search",
+        r"hellowork\.com/fr-fr/emploi$",
+        r"hellowork\.com/fr-fr/emploi\?",
+    ]
+    for pattern in LIST_PATTERNS:
+        if re.search(pattern, url):
+            raise HTTPException(
+                status_code=400,
+                detail="Cette URL pointe vers une liste d'offres. Ouvre une offre spécifique et copie son URL."
+            )
 
     try:
         headers = {
-            "User-Agent": "Mozilla/5.0 (compatible; CV-ATS-Bot/1.0)",
-            "Accept": "text/html,application/xhtml+xml",
-            "Accept-Language": "fr-FR,fr;q=0.9",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8",
+            "Accept-Encoding": "gzip, deflate",
         }
         async with httpx.AsyncClient(follow_redirects=True, timeout=15) as client:
             resp = await client.get(url, headers=headers)
 
+        if resp.status_code == 403:
+            raise HTTPException(
+                status_code=400,
+                detail="Ce site bloque la récupération automatique. Copiez-collez le texte directement."
+            )
         if resp.status_code != 200:
             raise HTTPException(
                 status_code=400,
-                detail=f"Impossible d'accéder à la page ({resp.status_code})."
+                detail=f"Impossible d'accéder à la page (erreur {resp.status_code}). Copiez-collez le texte."
             )
 
-        # Extraction texte brut depuis le HTML
-        html = resp.text
+        html_content = resp.text
 
-        # Supprimer scripts, styles, nav, footer
-        html = re.sub(r'<script[^>]*>.*?</script>', '', html, flags=re.DOTALL)
-        html = re.sub(r'<style[^>]*>.*?</style>',  '', html, flags=re.DOTALL)
-        html = re.sub(r'<nav[^>]*>.*?</nav>',       '', html, flags=re.DOTALL)
-        html = re.sub(r'<footer[^>]*>.*?</footer>', '', html, flags=re.DOTALL)
-        html = re.sub(r'<header[^>]*>.*?</header>', '', html, flags=re.DOTALL)
+        # Supprimer les blocs inutiles
+        for tag in ['script', 'style', 'nav', 'footer', 'header', 'aside',
+                    'noscript', 'iframe', 'svg', 'form']:
+            html_content = re.sub(
+                rf'<{tag}[^>]*>.*?</{tag}>', '', html_content,
+                flags=re.DOTALL | re.IGNORECASE
+            )
 
         # Supprimer toutes les balises HTML
-        text = re.sub(r'<[^>]+>', ' ', html)
+        text = re.sub(r'<[^>]+>', ' ', html_content)
 
-        # Nettoyer espaces multiples et lignes vides
-        text = re.sub(r'[ \t]+', ' ', text)
-        text = re.sub(r'\n{3,}', '\n\n', text)
-        text = re.sub(r'&nbsp;', ' ', text)
-        text = re.sub(r'&amp;',  '&', text)
-        text = re.sub(r'&lt;',   '<', text)
-        text = re.sub(r'&gt;',   '>', text)
-        text = re.sub(r'&#\d+;', ' ', text)
+        # Décoder les entités HTML
+        text = re.sub(r'&nbsp;',  ' ',  text)
+        text = re.sub(r'&amp;',   '&',  text)
+        text = re.sub(r'&lt;',    '<',  text)
+        text = re.sub(r'&gt;',    '>',  text)
+        text = re.sub(r'&quot;',  '"',  text)
+        text = re.sub(r'&#(\d+);', lambda m: chr(int(m.group(1))), text)
+
+        # Nettoyer espaces et lignes
+        text = re.sub(r'[ \t]+',  ' ',  text)
+        text = re.sub(r'\n{3,}',  '\n\n', text)
+        text = '\n'.join(line.strip() for line in text.split('\n') if line.strip())
         text = text.strip()
 
         if len(text) < 100:
             raise HTTPException(
                 status_code=400,
-                detail="Contenu trop court. Copiez-collez directement le texte de l'offre."
+                detail="Contenu trop court ou page vide. Copiez-collez le texte directement."
             )
 
-        # Limite à 8000 caractères — suffisant pour une offre
+        # Limite 8000 chars
         text = text[:8000]
 
         return {"text": text, "url": url, "length": len(text)}
 
     except httpx.TimeoutException:
-        raise HTTPException(status_code=408, detail="Timeout — page trop lente. Copiez-collez le texte directement.")
+        raise HTTPException(
+            status_code=408,
+            detail="Timeout — page trop lente. Copiez-collez le texte directement."
+        )
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erreur lors de la récupération : {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erreur : {str(e)}. Copiez-collez le texte directement."
+        )
 
 @app.post("/api/create-payment-intent")
 async def create_payment_intent(
