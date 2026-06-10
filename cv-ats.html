@@ -1066,6 +1066,11 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
         const val = e.target.value.trim();
         state.jobOffer = val;
         checkReady();
+        // Effacer le message d'erreur dès que l'user retape
+        const s = document.getElementById("urlFetchStatus");
+        if (s && val && !val.startsWith("http")) {
+          s.style.display = "none";
+        }
 
         // Détecter si c'est une URL
         if (/^https?:\/\/[^\s]{10,}$/.test(val)) {
@@ -1110,8 +1115,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
           status.style.lineHeight = "1.5";
           // Afficher le message avec un conseil de copier-coller
           status.innerHTML = `❌ ${err.message}<br><span style="font-weight:400;font-size:0.75rem;opacity:0.8;">💡 Astuce : sélectionne tout le texte de l'offre sur le site (Ctrl+A puis Ctrl+C) et colle-le ici.</span>`;
-          // Ne pas masquer automatiquement — laisser l'user lire
-          setTimeout(() => { status.style.display = "none"; }, 10000);
+          // Reste affiché jusqu'à la prochaine action de l'user
         }
       }
       function checkReady() { const btn = document.getElementById("btnOptimize"); btn.disabled = !(state.jobOffer.trim().length > 30 && state.cvFile && state.paid); }
