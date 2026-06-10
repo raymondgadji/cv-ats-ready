@@ -85,13 +85,25 @@ def fetch_france_travail(keywords: dict, nb: int = 25) -> list:
     if not token:
         return []
     try:
+        # Mots-clés courts pour la recherche — max 3 mots
+        mots = (keywords["poste"] or keywords["keywords"]).split()[:3]
+        query_ft = " ".join(mots)
+
         params = {
-            "motsCles": keywords["poste"] or keywords["keywords"],
+            "motsCles": query_ft,
             "range":    f"0-{nb - 1}",
             "sort":     "1",
         }
-        if keywords["localisation"]:
-            params["commune"] = keywords["localisation"]
+        # ✅ France Travail : localisation via département (pas commune)
+        DEPT_MAP = {
+            "paris": "75", "lyon": "69", "marseille": "13",
+            "toulouse": "31", "bordeaux": "33", "nantes": "44",
+            "lille": "59", "strasbourg": "67", "montpellier": "34",
+            "nice": "06", "rennes": "35", "grenoble": "38",
+        }
+        loc = keywords["localisation"].lower()
+        if loc in DEPT_MAP:
+            params["departement"] = DEPT_MAP[loc]
 
         resp = httpx.get(
             "https://api.francetravail.io/partenaire/offresdemploi/v2/offres/search",
@@ -138,7 +150,9 @@ def fetch_adzuna(keywords: dict, nb: int = 25) -> list:
         print(f"⚠️  Adzuna : APP_ID={bool(ADZUNA_APP_ID)} APP_KEY={bool(ADZUNA_APP_KEY)}")
         return []
     try:
-        query = keywords["poste"] or keywords["keywords"]
+        # Query courte pour Adzuna — max 3 mots clés
+        mots = (keywords["poste"] or keywords["keywords"]).split()[:3]
+        query = " ".join(mots)
         params = {
             "app_id":           ADZUNA_APP_ID,
             "app_key":          ADZUNA_APP_KEY,
