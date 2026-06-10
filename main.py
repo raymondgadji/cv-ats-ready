@@ -1,6 +1,6 @@
 """
 main.py — Backend FastAPI CV ATS
-v1.2.0 — PostgreSQL persistant (Railway)
+v1.3.0 — PostgreSQL + CORS sécurisé cv-ats.com
 """
 
 import os
@@ -115,13 +115,26 @@ def get_logs_from_db(limit: int = 500) -> list:
 # ─────────────────────────────────────────
 # APP
 # ─────────────────────────────────────────
-app = FastAPI(title="CV ATS API", version="1.2.0")
+app = FastAPI(title="CV ATS API", version="1.3.0")
+
+# ✅ CORS sécurisé — domaines autorisés uniquement
+ALLOWED_ORIGINS = [
+    "https://cv-ats.com",
+    "https://www.cv-ats.com",
+    "https://cv-ats-ready.fr",           # ancien domaine — garde pendant transition
+    "https://www.cv-ats-ready.fr",
+    "https://cv-ats-ready.netlify.app",  # Netlify preview
+    "http://localhost:3000",             # dev local
+    "http://localhost:5500",             # Live Server VS Code
+    "http://127.0.0.1:5500",
+    "http://127.0.0.1:3000",
+]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=False,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -148,15 +161,10 @@ def health():
     return {
         "status":  "ok",
         "service": "cv-ats",
-        "version": "1.2.0",
+        "version": "1.3.0",
         "db":      "postgresql ✅" if db_ok else "postgresql ❌ non connecté",
     }
 
-
-# ─────────────────────────────────────────
-# ENDPOINT /api/fetch-url — v3
-# À remplacer dans main.py
-# ─────────────────────────────────────────
 
 @app.post("/api/fetch-url")
 async def fetch_url(url: str = Form(...)):
@@ -177,7 +185,6 @@ async def fetch_url(url: str = Form(...)):
     if any(d in url for d in BLOCKED_DOMAINS):
         raise HTTPException(status_code=400, detail="URL non supportée.")
 
-    # Détecter URLs de liste (pas d'offre spécifique)
     LIST_PATTERNS = [
         r"francetravail\.fr/offres/recherche$",
         r"francetravail\.fr/offres/recherche\?",
@@ -203,7 +210,6 @@ async def fetch_url(url: str = Form(...)):
             resp = await client.get(url, headers=headers)
 
         if resp.status_code == 403:
-            # Message personnalisé selon le site
             if "linkedin" in url:
                 detail = "LinkedIn bloque la récupération automatique. Copiez-collez le texte de l'offre directement depuis la page."
             elif "indeed" in url:
@@ -211,33 +217,27 @@ async def fetch_url(url: str = Form(...)):
             else:
                 detail = "Ce site bloque la récupération automatique. Copiez-collez le texte de l'offre directement dans le champ."
             raise HTTPException(status_code=400, detail=detail)
+
         if resp.status_code != 200:
             raise HTTPException(status_code=400, detail=f"Impossible d'accéder à la page (erreur {resp.status_code}). Copiez-collez le texte.")
 
         html_content = resp.text
 
-        # Supprimer blocs inutiles
         for tag in ['script', 'style', 'nav', 'footer', 'header', 'aside', 'noscript', 'iframe', 'svg', 'form']:
             html_content = re.sub(rf'<{tag}[^>]*>.*?</{tag}>', '', html_content, flags=re.DOTALL | re.IGNORECASE)
 
-        # Supprimer toutes les balises HTML
         text = re.sub(r'<[^>]+>', ' ', html_content)
-
-        # Décoder entités HTML
         text = re.sub(r'&nbsp;',  ' ',  text)
         text = re.sub(r'&amp;',   '&',  text)
         text = re.sub(r'&lt;',    '<',  text)
         text = re.sub(r'&gt;',    '>',  text)
         text = re.sub(r'&quot;',  '"',  text)
         text = re.sub(r'&#(\d+);', lambda m: chr(int(m.group(1))), text)
-
-        # Nettoyer espaces
         text = re.sub(r'[ \t]+',  ' ',  text)
         text = re.sub(r'\n{3,}',  '\n\n', text)
         text = '\n'.join(line.strip() for line in text.split('\n') if line.strip())
         text = text.strip()
 
-        # ✅ COUPER les sections parasites (offres suggérées, aide, footer)
         CUT_MARKERS = [
             "D'autres offres peuvent vous intéresser",
             "Découvrez d'autres services",
@@ -245,14 +245,9 @@ async def fetch_url(url: str = Form(...)):
             "Voir plus de services",
             "Offres partenaires",
             "Besoin d'aide sur la recherche",
-            "Similar jobs",
-            "Jobs you might like",
-            "More jobs like this",
-            "Recommended jobs",
-            "People also viewed",
-            "Vous aimerez aussi",
-            "Offres similaires",
-            "Postes similaires",
+            "Similar jobs", "Jobs you might like", "More jobs like this",
+            "Recommended jobs", "People also viewed",
+            "Vous aimerez aussi", "Offres similaires", "Postes similaires",
         ]
         for marker in CUT_MARKERS:
             if marker in text:
@@ -260,7 +255,6 @@ async def fetch_url(url: str = Form(...)):
                 break
 
         if len(text) < 100:
-            # Détecter le site pour donner un message personnalisé
             if "adecco" in url:
                 msg = "Adecco charge son contenu dynamiquement. Copiez-collez le texte de l'offre, ou utilisez l'URL directe du type : adecco.fr/offre-emploi/titre-du-poste-ville-..."
             elif "linkedin" in url:
@@ -273,9 +267,7 @@ async def fetch_url(url: str = Form(...)):
                 msg = "Ce site charge son contenu dynamiquement — la récupération automatique ne fonctionne pas. Copiez-collez le texte de l'offre directement dans le champ."
             raise HTTPException(status_code=400, detail=msg)
 
-        # Limite 6000 chars — largement suffisant pour une offre
         text = text[:6000]
-
         return {"text": text, "url": url, "length": len(text)}
 
     except httpx.TimeoutException:
@@ -284,6 +276,7 @@ async def fetch_url(url: str = Form(...)):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur : {str(e)}. Copiez-collez le texte directement.")
+
 
 @app.post("/api/create-payment-intent")
 async def create_payment_intent(
@@ -358,14 +351,13 @@ async def optimize(
     edited_cv:              str        = Form(""),
     edited_lm:              str        = Form(""),
 ):
-    # ── 1. Vérification paiement
     paid = False
     if free_token:
         if free_token in VALID_FREE_TOKENS:
             paid = True
             VALID_FREE_TOKENS.discard(free_token)
         else:
-            paid = True  # BYPASS BÊTA — remplacer par Redis en prod
+            paid = True  # BYPASS BÊTA
     elif payment_intent_id:
         try:
             intent = stripe.PaymentIntent.retrieve(payment_intent_id)
@@ -377,7 +369,6 @@ async def optimize(
     if not paid:
         raise HTTPException(status_code=402, detail="Paiement non confirmé.")
 
-    # ── 2. Extraction texte CV
     cv_bytes = await cv_file.read()
     try:
         cv_text = extract_text_from_cv(cv_bytes, cv_file.filename)
@@ -387,7 +378,6 @@ async def optimize(
     if len(cv_text.strip()) < 50:
         raise HTTPException(status_code=400, detail="Le CV semble vide ou illisible.")
 
-    # ── 3. Optimisation CV + score ATS
     try:
         result       = optimize_cv_ats(cv_text=cv_text, job_offer=job_offer, api_key=ANTHROPIC_API_KEY)
         optimized_cv = result["cv_optimized"]
@@ -395,7 +385,6 @@ async def optimize(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur IA : {str(e)}")
 
-    # ── 4. Lettre de motivation
     cover_letter = ""
     if wants_cover_letter.lower() == "true":
         if edited_lm.strip():
@@ -426,7 +415,6 @@ async def optimize(
         "origin":      request.headers.get("origin", "unknown"),
     })
 
-    # ── 5. Export
     fmt = export_format.lower().strip()
 
     if fmt == "texte":
@@ -457,26 +445,15 @@ async def optimize(
         raise HTTPException(status_code=400, detail=f"Format non supporté : {fmt}")
 
 
-# AUTOPILOT ENDPOINT
-# ─────────────────────────────────────────
-# ENDPOINT AUTOPILOT — Job Matching
-# À ajouter dans main.py après /api/optimize
-# ─────────────────────────────────────────
-
 @app.post("/api/autopilot")
 async def autopilot(
-    request:          Request,
-    cv_optimized:     str = Form(...),   # Le CV généré par /api/optimize
-    job_offer:        str = Form(...),   # L'offre originale
-    payment_intent_id:str = Form(""),
-    free_token:       str = Form(""),
-    nb_offres:        int = Form(40),    # Nombre d'offres à retourner
+    request:           Request,
+    cv_optimized:      str = Form(...),
+    job_offer:         str = Form(...),
+    payment_intent_id: str = Form(""),
+    free_token:        str = Form(""),
+    nb_offres:         int = Form(40),
 ):
-    """
-    Autopilot — trouve les offres qui matchent le CV optimisé.
-    Réservé au plan Autopilot (19,99€/mois) ou token gratuit.
-    """
-    # Vérification paiement (même logique que /api/optimize)
     paid = False
     if free_token:
         if free_token in VALID_FREE_TOKENS:
@@ -493,10 +470,7 @@ async def autopilot(
             pass
 
     if not paid:
-        raise HTTPException(
-            status_code=402,
-            detail="Plan Autopilot requis. Abonnez-vous pour 19,99€/mois."
-        )
+        raise HTTPException(status_code=402, detail="Plan Autopilot requis. Abonnez-vous pour 19,99€/mois.")
 
     if len(cv_optimized.strip()) < 50:
         raise HTTPException(status_code=400, detail="CV optimisé invalide.")
@@ -506,26 +480,23 @@ async def autopilot(
         results = find_matching_jobs(
             cv_optimized=cv_optimized,
             job_offer=job_offer,
-            nb_total=min(nb_offres, 60),  # max 60
+            nb_total=min(nb_offres, 60),
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur Autopilot : {str(e)}")
 
     write_log("autopilot", {
-        "total_offres":    results["total"],
-        "france_travail":  results["france_travail"],
-        "adzuna":          results["adzuna"],
-        "poste_detecte":   results["keywords"]["poste"],
-        "localisation":    results["keywords"]["localisation"],
-        "ip":              request.client.host if request.client else "unknown",
-        "origin":          request.headers.get("origin", "unknown"),
+        "total_offres":   results["total"],
+        "france_travail": results["france_travail"],
+        "adzuna":         results["adzuna"],
+        "poste_detecte":  results["keywords"]["poste"],
+        "localisation":   results["keywords"]["localisation"],
+        "ip":             request.client.host if request.client else "unknown",
+        "origin":         request.headers.get("origin", "unknown"),
     })
 
     return JSONResponse(results)
 
-# ─────────────────────────────────────────
-# ANALYTICS — PostgreSQL persistant ✅
-# ─────────────────────────────────────────
 
 @app.get("/api/admin/logs")
 async def get_logs(secret: str = ""):
@@ -564,10 +535,6 @@ async def get_logs(secret: str = ""):
         "derniers_logs": logs[:50],
     })
 
-
-# ─────────────────────────────────────────
-# WEBHOOK STRIPE
-# ─────────────────────────────────────────
 
 @app.post("/api/webhook/stripe")
 async def stripe_webhook(request: Request):
