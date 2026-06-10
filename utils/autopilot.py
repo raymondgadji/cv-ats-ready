@@ -20,28 +20,74 @@ ADZUNA_APP_KEY               = os.environ.get("ADZUNA_APP_KEY", "")
 # ─────────────────────────────────────────
 
 def extract_keywords(cv_text: str, job_offer: str) -> dict:
-    lines = [l.strip() for l in cv_text.split("\n") if l.strip()]
-    poste = lines[1] if len(lines) > 1 else lines[0] if lines else ""
-    poste = re.sub(r"[|•·–—]", "", poste).strip()
-    if len(poste) > 60:
-        poste = poste[:60]
+    """
+    Extrait le poste et les mots-clés depuis l'offre d'emploi (plus fiable que le CV).
+    Le CV peut commencer par "Coordonnées", "Nom", etc. — l'offre est plus structurée.
+    """
+    # Mots parasites à ignorer absolument
+    IGNORE_WORDS = {
+        "coordonnées", "nom", "prénom", "adresse", "email", "téléphone", "tel",
+        "mobile", "linkedin", "profil", "curriculum", "vitae", "cv", "date",
+        "naissance", "nationalité", "permis", "contact", "personnel",
+        # stopwords
+        "le","la","les","un","une","des","de","du","et","en","à","au","aux",
+        "pour","par","sur","avec","dans","qui","que","est","sont","nous",
+        "vous","ils","elles","je","tu","il","elle","se","sa","son","ses",
+        "notre","votre","leur","leurs","cette","ce","cet","ces","mais","ou",
+        "donc","car","ni","or","puis","aussi","très","plus","tout","tous",
+        "bien","avoir","être","fait","faire","nous","vous","votre","notre",
+    }
 
-    localisation = ""
-    match = re.search(
-        r"\b(Paris|Lyon|Marseille|Toulouse|Bordeaux|Nantes|Lille|Strasbourg|"
-        r"Montpellier|Nice|Rennes|Grenoble|Dijon|Angers|remote|télétravail)\b",
-        cv_text + " " + job_offer, re.IGNORECASE
-    )
-    if match:
-        localisation = match.group(1)
+    # ── Poste depuis l'offre — cherche les patterns classiques
+    poste = ""
+    import re
+    patterns_poste = [
+        r"(?:poste|profil|intitulé|titre)\s*[:\-–]\s*([^\n]{5,60})",
+        r"(?:recrutons?|recherchons?)\s+(?:un[e]?\s+)?([^\n]{5,60})",
+        r"(?:offre|emploi|job)\s*[:\-–]\s*([^\n]{5,60})",
+    ]
+    for pattern in patterns_poste:
+        match = re.search(pattern, job_offer, re.IGNORECASE)
+        if match:
+            poste = match.group(1).strip()
+            poste = re.sub(r"[|•·–—()\[\]]", "", poste).strip()
+            break
 
-    stopwords = {"le","la","les","un","une","des","de","du","et","en","à","au",
-                 "pour","par","sur","avec","dans","qui","que","est","sont"}
+    # Si pas trouvé via pattern, prendre les premiers mots significatifs de l'offre
+    if not poste:
+        words = re.findall(r'\b[a-zA-ZÀ-ÿ]{3,}\b', job_offer)
+        meaningful = [w for w in words if w.lower() not in IGNORE_WORDS][:4]
+        poste = " ".join(meaningful)
+
+    # ── Mots-clés métier depuis l'offre (les plus discriminants)
     words = re.findall(r'\b[a-zA-ZÀ-ÿ]{4,}\b', job_offer.lower())
-    keywords = " ".join([w for w in words if w not in stopwords][:8])
+    keywords_list = [w for w in words if w not in IGNORE_WORDS]
+    # Garder les 3 mots les plus fréquents et pertinents
+    from collections import Counter
+    freq = Counter(keywords_list)
+    top_keywords = [w for w, _ in freq.most_common(6) if len(w) > 4][:3]
+    keywords = " ".join(top_keywords)
+
+    # ── Localisation — cherche dans CV ET offre
+    localisation = ""
+    VILLES = {
+        "paris": "paris", "lyon": "lyon", "marseille": "marseille",
+        "toulouse": "toulouse", "bordeaux": "bordeaux", "nantes": "nantes",
+        "lille": "lille", "strasbourg": "strasbourg", "montpellier": "montpellier",
+        "nice": "nice", "rennes": "rennes", "grenoble": "grenoble",
+        "dijon": "dijon", "angers": "angers", "remote": "remote",
+        "télétravail": "télétravail", "france": "",
+    }
+    combined = (cv_text + " " + job_offer).lower()
+    for ville, val in VILLES.items():
+        if re.search(r'\b' + ville + r'\b', combined) and val:
+            localisation = val.capitalize()
+            break
+
+    print(f"🎯 Keywords extraits — poste: '{poste}' | keywords: '{keywords}' | loc: '{localisation}'")
 
     return {
-        "poste":        poste or keywords[:40],
+        "poste":        poste[:50] if poste else keywords[:40],
         "keywords":     keywords,
         "localisation": localisation,
     }
@@ -116,6 +162,9 @@ def fetch_france_travail(keywords: dict, nb: int = 25) -> list:
         )
         print(f"🔍 France Travail search status : {resp.status_code}")
         # ✅ 200 = OK, 206 = Partial Content (résultats trouvés, pagination possible)
+        if resp.status_code == 204:
+            print(f"⚠️  France Travail : aucun résultat (204)")
+            return []
         if resp.status_code not in (200, 206):
             print(f"❌ France Travail search error : {resp.text[:300]}")
             return []
