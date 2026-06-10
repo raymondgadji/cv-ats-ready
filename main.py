@@ -154,39 +154,36 @@ def health():
 
 
 # ─────────────────────────────────────────
-# ENDPOINT /api/fetch-url — v2
-# À ajouter dans main.py après /api/health
+# ENDPOINT /api/fetch-url — v3
+# À remplacer dans main.py
 # ─────────────────────────────────────────
 
 @app.post("/api/fetch-url")
 async def fetch_url(url: str = Form(...)):
     """
     Récupère le texte d'une offre d'emploi depuis une URL.
-    Ouvert à tous les domaines emploi sauf domaines blacklistés.
+    Extrait uniquement l'offre principale, ignore les suggestions.
     """
     import httpx
     import re
 
-    # Validation URL basique
     if not url.startswith(("http://", "https://")):
         raise HTTPException(status_code=400, detail="URL invalide — elle doit commencer par https://")
 
-    # Domaines bloqués (réseaux sociaux perso, banking, etc.)
     BLOCKED_DOMAINS = [
         "facebook.com", "instagram.com", "tiktok.com", "twitter.com", "x.com",
         "paypal.com", "stripe.com", "amazon.com", "google.com", "youtube.com",
-        "netflix.com", "pornhub.com",
     ]
     if any(d in url for d in BLOCKED_DOMAINS):
         raise HTTPException(status_code=400, detail="URL non supportée.")
 
-    # Détecter les URLs de liste (pas d'offre spécifique)
+    # Détecter URLs de liste (pas d'offre spécifique)
     LIST_PATTERNS = [
         r"francetravail\.fr/offres/recherche$",
         r"francetravail\.fr/offres/recherche\?",
-        r"indeed\.com/jobs",
+        r"indeed\.[a-z]+/jobs[^/]",
         r"linkedin\.com/jobs/search",
-        r"hellowork\.com/fr-fr/emploi$",
+        r"hellowork\.com/fr-fr/emploi/?$",
         r"hellowork\.com/fr-fr/emploi\?",
     ]
     for pattern in LIST_PATTERNS:
@@ -201,36 +198,25 @@ async def fetch_url(url: str = Form(...)):
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
             "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8",
-            "Accept-Encoding": "gzip, deflate",
         }
         async with httpx.AsyncClient(follow_redirects=True, timeout=15) as client:
             resp = await client.get(url, headers=headers)
 
         if resp.status_code == 403:
-            raise HTTPException(
-                status_code=400,
-                detail="Ce site bloque la récupération automatique. Copiez-collez le texte directement."
-            )
+            raise HTTPException(status_code=400, detail="Ce site bloque la récupération automatique. Copiez-collez le texte directement.")
         if resp.status_code != 200:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Impossible d'accéder à la page (erreur {resp.status_code}). Copiez-collez le texte."
-            )
+            raise HTTPException(status_code=400, detail=f"Impossible d'accéder à la page (erreur {resp.status_code}). Copiez-collez le texte.")
 
         html_content = resp.text
 
-        # Supprimer les blocs inutiles
-        for tag in ['script', 'style', 'nav', 'footer', 'header', 'aside',
-                    'noscript', 'iframe', 'svg', 'form']:
-            html_content = re.sub(
-                rf'<{tag}[^>]*>.*?</{tag}>', '', html_content,
-                flags=re.DOTALL | re.IGNORECASE
-            )
+        # Supprimer blocs inutiles
+        for tag in ['script', 'style', 'nav', 'footer', 'header', 'aside', 'noscript', 'iframe', 'svg', 'form']:
+            html_content = re.sub(rf'<{tag}[^>]*>.*?</{tag}>', '', html_content, flags=re.DOTALL | re.IGNORECASE)
 
         # Supprimer toutes les balises HTML
         text = re.sub(r'<[^>]+>', ' ', html_content)
 
-        # Décoder les entités HTML
+        # Décoder entités HTML
         text = re.sub(r'&nbsp;',  ' ',  text)
         text = re.sub(r'&amp;',   '&',  text)
         text = re.sub(r'&lt;',    '<',  text)
@@ -238,35 +224,48 @@ async def fetch_url(url: str = Form(...)):
         text = re.sub(r'&quot;',  '"',  text)
         text = re.sub(r'&#(\d+);', lambda m: chr(int(m.group(1))), text)
 
-        # Nettoyer espaces et lignes
+        # Nettoyer espaces
         text = re.sub(r'[ \t]+',  ' ',  text)
         text = re.sub(r'\n{3,}',  '\n\n', text)
         text = '\n'.join(line.strip() for line in text.split('\n') if line.strip())
         text = text.strip()
 
-        if len(text) < 100:
-            raise HTTPException(
-                status_code=400,
-                detail="Contenu trop court ou page vide. Copiez-collez le texte directement."
-            )
+        # ✅ COUPER les sections parasites (offres suggérées, aide, footer)
+        CUT_MARKERS = [
+            "D'autres offres peuvent vous intéresser",
+            "Découvrez d'autres services",
+            "Afficher plus d'offres",
+            "Voir plus de services",
+            "Offres partenaires",
+            "Besoin d'aide sur la recherche",
+            "Similar jobs",
+            "Jobs you might like",
+            "More jobs like this",
+            "Recommended jobs",
+            "People also viewed",
+            "Vous aimerez aussi",
+            "Offres similaires",
+            "Postes similaires",
+        ]
+        for marker in CUT_MARKERS:
+            if marker in text:
+                text = text[:text.index(marker)].strip()
+                break
 
-        # Limite 8000 chars
-        text = text[:8000]
+        if len(text) < 100:
+            raise HTTPException(status_code=400, detail="Contenu trop court ou page vide. Copiez-collez le texte directement.")
+
+        # Limite 6000 chars — largement suffisant pour une offre
+        text = text[:6000]
 
         return {"text": text, "url": url, "length": len(text)}
 
     except httpx.TimeoutException:
-        raise HTTPException(
-            status_code=408,
-            detail="Timeout — page trop lente. Copiez-collez le texte directement."
-        )
+        raise HTTPException(status_code=408, detail="Timeout — page trop lente. Copiez-collez le texte directement.")
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Erreur : {str(e)}. Copiez-collez le texte directement."
-        )
+        raise HTTPException(status_code=500, detail=f"Erreur : {str(e)}. Copiez-collez le texte directement.")
 
 @app.post("/api/create-payment-intent")
 async def create_payment_intent(
