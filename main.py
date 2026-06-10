@@ -325,6 +325,72 @@ async def optimize(
         raise HTTPException(status_code=400, detail=f"Format non supporté : {fmt}")
 
 
+# AUTOPILOT ENDPOINT
+# ─────────────────────────────────────────
+# ENDPOINT AUTOPILOT — Job Matching
+# À ajouter dans main.py après /api/optimize
+# ─────────────────────────────────────────
+
+@app.post("/api/autopilot")
+async def autopilot(
+    request:          Request,
+    cv_optimized:     str = Form(...),   # Le CV généré par /api/optimize
+    job_offer:        str = Form(...),   # L'offre originale
+    payment_intent_id:str = Form(""),
+    free_token:       str = Form(""),
+    nb_offres:        int = Form(40),    # Nombre d'offres à retourner
+):
+    """
+    Autopilot — trouve les offres qui matchent le CV optimisé.
+    Réservé au plan Autopilot (19,99€/mois) ou token gratuit.
+    """
+    # Vérification paiement (même logique que /api/optimize)
+    paid = False
+    if free_token:
+        if free_token in VALID_FREE_TOKENS:
+            paid = True
+            VALID_FREE_TOKENS.discard(free_token)
+        else:
+            paid = True  # BYPASS BÊTA
+    elif payment_intent_id:
+        try:
+            intent = stripe.PaymentIntent.retrieve(payment_intent_id)
+            if intent.status == "succeeded":
+                paid = True
+        except stripe.error.StripeError:
+            pass
+
+    if not paid:
+        raise HTTPException(
+            status_code=402,
+            detail="Plan Autopilot requis. Abonnez-vous pour 19,99€/mois."
+        )
+
+    if len(cv_optimized.strip()) < 50:
+        raise HTTPException(status_code=400, detail="CV optimisé invalide.")
+
+    try:
+        from utils.autopilot import find_matching_jobs
+        results = find_matching_jobs(
+            cv_optimized=cv_optimized,
+            job_offer=job_offer,
+            nb_total=min(nb_offres, 60),  # max 60
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur Autopilot : {str(e)}")
+
+    write_log("autopilot", {
+        "total_offres":    results["total"],
+        "france_travail":  results["france_travail"],
+        "adzuna":          results["adzuna"],
+        "poste_detecte":   results["keywords"]["poste"],
+        "localisation":    results["keywords"]["localisation"],
+        "ip":              request.client.host if request.client else "unknown",
+        "origin":          request.headers.get("origin", "unknown"),
+    })
+
+    return JSONResponse(results)
+
 # ─────────────────────────────────────────
 # ANALYTICS — PostgreSQL persistant ✅
 # ─────────────────────────────────────────
