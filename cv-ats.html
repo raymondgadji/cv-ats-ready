@@ -634,12 +634,14 @@
 
           <div class="field">
             <div class="field-label">📋 Copie-colle l'offre d'emploi ou de stage <span class="tag">Obligatoire</span></div>
-            <div class="field-hint">Le texte complet de l'annonce à laquelle tu postules</div>
-            <textarea id="jobOffer" placeholder="Ex : Nous recherchons un(e) Développeur Full-Stack pour rejoindre notre équipe...
+            <div class="field-hint">Colle le texte complet de l'annonce <strong style="color:var(--orange-dark)">ou l'URL de l'offre</strong> — on récupère le contenu automatiquement</div>
+            <textarea id="jobOffer" placeholder="Colle le texte de l'offre ici…
 
-Compétences requises : React, Node.js, TypeScript, SQL, méthodologie Agile...
-
-Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie..."></textarea>
+Ou directement l'URL :
+https://www.francetravail.fr/offres/recherche/detail/...
+https://www.linkedin.com/jobs/view/...
+https://www.hellowork.com/fr-fr/emploi/..."></textarea>
+          <div id="urlFetchStatus" style="display:none;margin-top:8px;font-size:0.8rem;font-weight:600;padding:8px 12px;border-radius:8px;"></div>
           </div>
 
           <div class="field">
@@ -1058,7 +1060,57 @@ Profil souhaité : 3 ans d'expérience minimum, esprit d'équipe, autonomie...">
       uploadZone.addEventListener("dragleave", () => uploadZone.classList.remove("drag-over"));
       uploadZone.addEventListener("drop", (e) => { e.preventDefault(); uploadZone.classList.remove("drag-over"); if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
       function handleFile(file) { state.cvFile = file; document.getElementById("fileName").textContent = file.name; fileSelected.classList.add("show"); checkReady(); }
-      document.getElementById("jobOffer").addEventListener("input", (e) => { state.jobOffer = e.target.value; checkReady(); });
+      // ── Détection URL dans le champ offre d'emploi
+      let urlFetchTimeout = null;
+      document.getElementById("jobOffer").addEventListener("input", (e) => {
+        const val = e.target.value.trim();
+        state.jobOffer = val;
+        checkReady();
+
+        // Détecter si c'est une URL
+        if (/^https?:\/\/[^\s]{10,}$/.test(val)) {
+          clearTimeout(urlFetchTimeout);
+          urlFetchTimeout = setTimeout(() => fetchJobOfferFromUrl(val), 600);
+        }
+      });
+
+      async function fetchJobOfferFromUrl(url) {
+        const status = document.getElementById("urlFetchStatus");
+        const textarea = document.getElementById("jobOffer");
+
+        status.style.display = "block";
+        status.style.background = "rgba(255,107,0,0.08)";
+        status.style.color = "var(--orange-dark)";
+        status.style.border = "1px solid rgba(255,107,0,0.2)";
+        status.innerHTML = "⏳ Récupération de l'offre en cours…";
+
+        try {
+          const fd = new FormData();
+          fd.append("url", url);
+          const res = await fetch(`${API_BASE}/api/fetch-url`, { method: "POST", body: fd });
+          const data = await res.json();
+
+          if (!res.ok) throw new Error(data.detail || "Erreur");
+
+          // Remplacer l'URL par le texte extrait
+          textarea.value = data.text;
+          state.jobOffer  = data.text;
+          checkReady();
+
+          status.style.background = "rgba(34,197,94,0.08)";
+          status.style.color      = "#16a34a";
+          status.style.border     = "1px solid rgba(34,197,94,0.2)";
+          status.innerHTML = `✅ Offre récupérée — ${data.length} caractères extraits`;
+          setTimeout(() => { status.style.display = "none"; }, 4000);
+
+        } catch (err) {
+          status.style.background = "rgba(239,68,68,0.08)";
+          status.style.color      = "#dc2626";
+          status.style.border     = "1px solid rgba(239,68,68,0.2)";
+          status.innerHTML = `❌ ${err.message}`;
+          setTimeout(() => { status.style.display = "none"; }, 5000);
+        }
+      }
       function checkReady() { const btn = document.getElementById("btnOptimize"); btn.disabled = !(state.jobOffer.trim().length > 30 && state.cvFile && state.paid); }
 
       let stripeCardElement = null;
