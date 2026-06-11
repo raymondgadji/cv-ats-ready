@@ -615,10 +615,12 @@
         </h1>
 
         <p class="hero-sub">
-          Colle l'offre d'emploi ou de stage. Uploade ton CV. Paie 1€ HT (1.20€ TTC).<br />
-          Notre agent IA le réécrit pour <strong>passer les filtres ATS</strong>
+          Notre agent IA réécrit ton CV pour <strong>passer les filtres ATS</strong>
           et atterrir directement sur le bureau du recruteur.
         </p>
+        <div style="display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,rgba(239,68,68,0.12),rgba(220,38,38,0.08));border:2px solid rgba(239,68,68,0.35);color:#dc2626;font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;padding:12px 28px;border-radius:999px;margin-bottom:28px;animation:fadeUp 0.65s 0.2s ease both;box-shadow:0 4px 16px rgba(239,68,68,0.15);">
+          🎉 Offre lancement <span style="text-decoration:line-through;opacity:0.6;margin:0 4px;">3,99€</span> 1€ HT — limité aux 500 premiers
+        </div>
 
         <!-- MAIN APP CARD -->
         <div class="main-card" id="app-card">
@@ -662,9 +664,17 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
           <div class="divider">puis</div>
 
           <div class="payment-strip" id="paymentStrip" style="flex-direction: column; align-items: stretch">
-            <div style="display: flex; align-items: baseline; gap: 6px; margin-bottom: 8px;">
+            <!-- Badge urgence -->
+            <div style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;font-family:'Syne',sans-serif;font-size:0.72rem;font-weight:700;padding:4px 12px;border-radius:999px;margin-bottom:12px;box-shadow:0 2px 8px rgba(239,68,68,0.3);">
+              🔥 Offre lancement — <span id="spotsLeft">487</span> places restantes sur 500
+            </div>
+            <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px;">
+              <span style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:700;color:var(--text-muted);text-decoration:line-through;opacity:0.6;">3,99€</span>
               <span class="price-main">1€</span>
-              <span class="price-label">HT seulement (1.20€ TTC)</span>
+              <span class="price-label">HT (1.20€ TTC)</span>
+            </div>
+            <div style="font-size:0.75rem;color:var(--success);font-weight:600;margin-bottom:12px;">
+              ✅ Tu économises 2,99€ · Prix lancement limité
             </div>
             <div class="price-desc" style="margin-bottom: 16px;">
               <b>Accès complet :</b> CV ATS optimisé · Score ATS · Lettre de motivation · Export PDF/Word
@@ -854,12 +864,21 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
         <!-- PLAN PAY AS YOU GO -->
         <div class="pricing-card">
           <div class="pricing-plan-name">Pay as you go</div>
-          <div class="pricing-price">
-            <span class="pricing-currency">€</span>
-            <span class="pricing-amount">1</span>
-            <span class="pricing-period">HT / optimisation<br><small style="font-size:0.75rem;color:var(--text-muted)">(1,20€ TTC)</small></span>
+          <!-- Badge promo -->
+          <div style="display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;font-family:'Syne',sans-serif;font-size:0.68rem;font-weight:700;padding:3px 10px;border-radius:999px;margin-bottom:12px;">
+            🔥 Prix lancement — 487 places restantes
           </div>
-          <p class="pricing-sub">Tu paies uniquement quand tu en as besoin. Zéro abonnement.</p>
+          <div class="pricing-price" style="align-items:center;gap:10px;">
+            <div style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;">
+              <span style="font-size:0.85rem;color:var(--text-muted);text-decoration:line-through;font-weight:600;">3,99€ HT</span>
+              <div style="display:flex;align-items:baseline;gap:4px;">
+                <span class="pricing-currency">€</span>
+                <span class="pricing-amount">1</span>
+                <span class="pricing-period">HT / optimisation<br><small style="font-size:0.75rem;color:var(--text-muted)">(1,20€ TTC)</small></span>
+              </div>
+            </div>
+          </div>
+          <p class="pricing-sub">Prix lancement réservé aux 500 premiers utilisateurs. Zéro abonnement.</p>
           <ul class="pricing-features">
             <li><span class="pf-check">✓</span> CV optimisé ATS par IA</li>
             <li><span class="pf-check">✓</span> Score ATS avant / après</li>
@@ -928,7 +947,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
       <div class="steps-row">
         <div class="hiw-step"><div class="hiw-icon">📋</div><h4>1. Colle l'offre</h4><p>Le texte complet de l'annonce qui t'intéresse</p></div>
         <div class="hiw-step"><div class="hiw-icon">📄</div><h4>2. Upload ton CV</h4><p>PDF ou Word, ton CV actuel tel qu'il est</p></div>
-        <div class="hiw-step"><div class="hiw-icon">💳</div><h4>3. Paie 1€ HT</h4><p>Micro-paiement sécurisé, sans abonnement</p></div>
+        <div class="hiw-step"><div class="hiw-icon">💳</div><h4>3. Paie 1€ HT <span style="font-size:0.7rem;background:#ef4444;color:#fff;padding:2px 6px;border-radius:4px;vertical-align:middle;">Promo</span></h4><p>Au lieu de 3,99€ — offre limitée aux 500 premiers</p></div>
         <div class="hiw-step"><div class="hiw-icon">⚡</div><h4>4. Reçois ton CV</h4><p>Optimisé, ATS-ready, prêt à envoyer</p></div>
       </div>
     </section>
@@ -937,7 +956,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
     <div class="stats-banner">
       <div class="stat-item"><div class="stat-num">75%</div><div class="stat-label">des CV filtrés avant un humain</div></div>
       <div class="stat-item"><div class="stat-num">95%</div><div class="stat-label">des grandes entreprises utilisent un ATS</div></div>
-      <div class="stat-item"><div class="stat-num">1€ HT</div><div class="stat-label">pour augmenter ses chances</div></div>
+      <div class="stat-item"><div class="stat-num">1€<span style="font-size:1rem;text-decoration:line-through;opacity:0.6;margin-left:6px;">3,99€</span></div><div class="stat-label">prix lancement — 500 places</div></div>
       <div class="stat-item"><div class="stat-num">&lt;30s</div><div class="stat-label">pour un résultat complet</div></div>
     </div>
 
@@ -990,8 +1009,8 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
           <div class="faq-a"><p>Tu peux uploader ton CV en PDF, .DOC ou .DOCX. La taille maximum est de 5 Mo. On recommande le PDF pour une extraction de texte propre.</p></div>
         </div>
         <div class="faq-item" onclick="toggleFaq(this)">
-          <div class="faq-q">Pourquoi 1€ HT et pas gratuit ? <span class="arrow">▾</span></div>
-          <div class="faq-a"><p>1€ HT couvre le coût de l'IA et permet de maintenir le service. Pas d'abonnement, pas d'engagement. Tu paies à l'utilisation, uniquement quand tu en as besoin.</p></div>
+          <div class="faq-q">Pourquoi 1€ HT au lieu de 3,99€ ? <span class="arrow">▾</span></div>
+          <div class="faq-a"><p>Le prix normal de CV ATS est 3,99€ HT par optimisation. Pour célébrer le lancement, on offre 80% de réduction aux 500 premiers utilisateurs. Ce prix est limité dans le temps — profites-en !</p></div>
         </div>
         <div class="faq-item" onclick="toggleFaq(this)">
           <div class="faq-q">La lettre de motivation est-elle vraiment personnalisée ? <span class="arrow">▾</span></div>
