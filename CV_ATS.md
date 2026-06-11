@@ -1,5 +1,5 @@
 # CV_ATS.md
-> Mémoire projet complète. À coller en début de chaque nouvelle session.
+> Mémoire projet complète. À coller en début de chaque nouvelle session avec RAYMOND_GADJI.md
 > Anciennement : cv-ats-ready
 
 ---
@@ -11,25 +11,6 @@ Agent IA qui optimise automatiquement les CV pour les ATS (Applicant Tracking Sy
 **Tagline** : "Ton CV optimisé pour les recruteurs"
 **Slogan / Hook** : "À chaque candidature son CV"
 **Rôles** : Founder (Raymond Gadji) + CTO (Claude)
-
----
-
-## 👤 Profil Founder
-
-- **Raymond Gadji** — gadjiraymond7@gmail.com
-- Passionné IA, data science, entrepreneuriat
-- Bootcamp data analyse + certification Hugging Face (smol agents)
-- Stack : HTML/CSS/JS (intermédiaire), Python (débutant)
-- Réseau : EmLyon Paris (formation Développeur — La Toile)
-
-### 🏆 Distinctions — MENTIONNER EN PREMIER
-- **🚀 Sélectionné Station F — Fighters Program — Mai 2026**
-  - Kick-off 29 Mai 2026 — 2ème semaine en cours (juin 2026)
-- **Lauréat Challenge Open Data data.gouv.fr 2026**
-- **🏆 Candidature STIC 2026 — Sahal Tech Innovation Challenge** (deadline 20 juin 2026)
-  - "AI Solutions for Africa" — domaine FinTech & Automatisation
-  - Dossier PDF soumis : STIC2026_CVATS_Candidature.pdf
-  - Formulaire : https://docs.google.com/forms/d/e/1FAIpQLSda3SfDegE2CxhcTPVFmsLXZTPT2AtBVvx62znYsNNCUs4xPg/viewform
 
 ---
 
@@ -70,6 +51,9 @@ Agent IA qui optimise automatiquement les CV pour les ATS (Applicant Tracking Sy
 ```
 C:\Projects\cv_ats_ready\
 ├── cv-ats.html              ← FICHIER PRINCIPAL (déployé comme index.html sur Netlify)
+├── og-image.png             ← Image OG 1200x630 pour partage LinkedIn/WhatsApp
+├── og-image.svg             ← Source SVG de l'image OG
+├── netlify.toml             ← Config Netlify site statique
 ├── main.py                  ← v1.3.0
 ├── utils/
 │   ├── __init__.py
@@ -77,10 +61,10 @@ C:\Projects\cv_ats_ready\
 │   ├── autopilot.py         ← Job matching France Travail + Adzuna
 │   ├── cv_parser.py
 │   └── exporter.py
-├── .env
-├── .gitignore
-├── requirements.txt
-└── Procfile
+├── .env                     ← NE JAMAIS PUSHER SUR GITHUB ⚠️
+├── .gitignore               ← .env inclus ✅
+├── requirements.txt         ← Pour Railway uniquement
+└── Procfile                 ← Pour Railway uniquement
 ```
 
 ---
@@ -89,11 +73,15 @@ C:\Projects\cv_ats_ready\
 
 | Composant | Service | URL |
 |-----------|---------|-----|
-| Frontend | Netlify | https://cv-ats.com |
+| Frontend | Netlify (drag & drop manuel) | https://cv-ats.com |
 | Backend | Railway EU West | https://web-production-ec873.up.railway.app |
 | Analytics admin | Railway endpoint | https://web-production-ec873.up.railway.app/api/admin/logs?secret=cv-ats-admin-2026 |
 | API Health | Railway | https://web-production-ec873.up.railway.app/api/health |
 | API Docs | Railway Swagger | https://web-production-ec873.up.railway.app/docs |
+
+**⚠️ Déploiement Netlify — DRAG & DROP uniquement**
+Ne pas connecter GitHub à Netlify — le repo contient requirements.txt et Procfile qui font planter le build Netlify.
+Procédure : créer un dossier `deploy/` avec `index.html` + `og-image.png` → glisser sur Netlify.
 
 ---
 
@@ -108,16 +96,13 @@ Frontend : Live Server → `http://127.0.0.1:5500`
 
 ---
 
-## 📋 Déploiement
+## 📋 Déploiement Netlify (drag & drop)
 
-```bash
-# Push GitHub → Railway auto-deploy backend
-git add .
-git commit -m "..."
-git push origin main
-
-# Frontend → Netlify drag & drop
-# app.netlify.com → ton site → Deploys → glisse index.html
+```
+1. Crée un dossier deploy/ sur le bureau
+2. Copie cv-ats.html → renomme en index.html
+3. Copie og-image.png
+4. app.netlify.com → ton site → Deploys → glisse le dossier deploy/
 ```
 
 ---
@@ -154,7 +139,7 @@ Typo titres : Syne 800 | Typo corps : DM Sans
 
 | Plan | Prix | Détail | Statut |
 |------|------|--------|--------|
-| Pay as you go | ~~3,99€~~ **1€ HT** (1,20€ TTC) | Par optimisation — prix lancement 500 premiers users | ✅ Opérationnel |
+| Pay as you go | ~~3,99€~~ **1€ HT** (1,20€ TTC) | Prix lancement — 500 premiers users | ✅ Opérationnel |
 | Illimité | 9,99€ TTC/mois | CV illimités | ⏳ Stripe à brancher |
 | Autopilot | 19,99€ TTC/mois | CV illimités + offres matchées + 1 clic | ⏳ Stripe à brancher |
 
@@ -212,20 +197,25 @@ POST /api/webhook/stripe
 | main.py v1.3.0 | ✅ | Sprint juin |
 | Pricing lancement ~~3,99€~~ → 1€ + badge urgence 500 places | ✅ | Sprint juin |
 | Hero réordonné — slogan / pitch / badge / app | ✅ | Sprint juin |
+| **SEO complet** — canonical, og, twitter card, robots, favicon | ✅ | Sprint juin |
+| **GEO Schema.org** — WebApplication + FAQPage JSON-LD | ✅ | Sprint juin |
+| **og-image.png** 1200x630 — preview LinkedIn/WhatsApp | ✅ | Sprint juin |
+| **Perplexity indexe déjà cv-ats.com** | ✅ | Sprint juin |
 
 ---
 
 ## ⏳ Backlog — prochaines sessions
 
 ### 🔴 Priorité haute
-- [ ] **Soumettre candidature STIC 2026** avant le 20 juin — formulaire + PDF prêts ✅
-- [ ] **Abonnements Stripe** 9,99€ + 19,99€ récurrents (attente création société)
-- [ ] **Améliorer Autopilot** — France Travail retourne parfois 204 (affiner les mots-clés)
+- [x] **Candidature STIC 2026 soumise** ✅ — juin 2026
+- [ ] **Abonnements Stripe** 9,99€ + 19,99€ récurrents (attente création société + passeport)
+- [ ] **Améliorer Autopilot** — France Travail retourne parfois 204
 
 ### 🟡 Priorité moyenne
 - [ ] Redirection cv-ats-ready.fr → cv-ats.com (fichier `_redirects` Netlify)
 - [ ] Configurer Stripe webhook secret en prod
-- [ ] Dashboard utilisateur (historique des CVs)
+- [ ] Soumettre sitemap sur Google Search Console
+- [ ] Retester GEO dans 1 semaine — Perplexity doit citer le prix 1€
 
 ### 🟢 Idées futures
 - [ ] Fusion avec Link2Job
@@ -240,6 +230,8 @@ POST /api/webhook/stripe
 - **BYPASS BÊTA** dans `/api/optimize` et `/api/autopilot` — les free_tokens non reconnus sont acceptés. À remplacer par Redis avant lancement public payant.
 - **Stripe webhook secret** → à configurer en prod
 - **Abonnements Stripe** → en attente création société
+- **GitHub** → NE JAMAIS pusher `.env` — toujours vérifier avec `git status` avant commit
+- **Netlify** → NE PAS connecter GitHub — faire drag & drop manuel uniquement
 
 ---
 
@@ -248,6 +240,16 @@ POST /api/webhook/stripe
 - **Umami** : cloud.umami.is — Website ID : `1475d8a0-94a1-420c-ad21-4f3b5698430b`
 - **Dashboard logs** : `https://web-production-ec873.up.railway.app/api/admin/logs?secret=cv-ats-admin-2026`
 - ✅ Données persistantes depuis PostgreSQL Railway
+
+---
+
+## 🏆 Concours & Distinctions
+
+### STIC 2026 — Sahal Tech Innovation Challenge
+- Deadline : 20 juin 2026
+- Domaine : FinTech & Automatisation
+- Dossier PDF prêt : STIC2026_CVATS_Candidature.pdf
+- Formulaire : https://docs.google.com/forms/d/e/1FAIpQLSda3SfDegE2CxhcTPVFmsLXZTPT2AtBVvx62znYsNNCUs4xPg/viewform
 
 ---
 
