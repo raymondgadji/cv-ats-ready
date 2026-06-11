@@ -1,0 +1,84 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0C0C18"/>
+      <stop offset="100%" style="stop-color:#1f1f3a"/>
+    </linearGradient>
+    <linearGradient id="orange" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FF6B00"/>
+      <stop offset="100%" style="stop-color:#FFB347"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="20" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Orb glow effet -->
+  <circle cx="1050" cy="120" r="280" fill="rgba(255,107,0,0.08)" filter="url(#glow)"/>
+  <circle cx="150" cy="500" r="200" fill="rgba(255,107,0,0.05)" filter="url(#glow)"/>
+
+  <!-- Ligne top orange -->
+  <rect x="0" y="0" width="1200" height="4" fill="url(#orange)"/>
+
+  <!-- Logo mark -->
+  <rect x="80" y="80" width="56" height="56" rx="14" fill="#FF6B00"/>
+  <text x="108" y="118" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="white" text-anchor="middle">⚡</text>
+
+  <!-- Nom app -->
+  <text x="156" y="120" font-family="Arial Black, sans-serif" font-size="32" font-weight="900" fill="white" letter-spacing="-1">CV ATS</text>
+
+  <!-- Badge Station F -->
+  <rect x="80" y="160" width="280" height="32" rx="16" fill="rgba(255,107,0,0.15)" stroke="rgba(255,107,0,0.4)" stroke-width="1"/>
+  <text x="220" y="181" font-family="Arial, sans-serif" font-size="13" font-weight="600" fill="#FF6B00" text-anchor="middle" letter-spacing="0.5">🚀 Station F Fighters 2026</text>
+
+  <!-- Titre principal -->
+  <text x="80" y="290" font-family="Arial Black, sans-serif" font-size="72" font-weight="900" fill="white" letter-spacing="-3">À chaque</text>
+  <text x="80" y="375" font-family="Arial Black, sans-serif" font-size="72" font-weight="900" fill="white" letter-spacing="-3">candidature</text>
+
+  <!-- "son CV" en orange -->
+  <text x="80" y="460" font-family="Arial Black, sans-serif" font-size="72" font-weight="900" fill="url(#orange)" letter-spacing="-3">son CV.</text>
+
+  <!-- Ligne décorative sous le titre -->
+  <rect x="80" y="480" width="200" height="4" rx="2" fill="url(#orange)"/>
+
+  <!-- Description -->
+  <text x="80" y="540" font-family="Arial, sans-serif" font-size="22" fill="rgba(255,255,255,0.55)" letter-spacing="0">Agent IA · Score ATS · Lettre de motivation · Job matching</text>
+
+  <!-- Prix badge -->
+  <rect x="80" y="565" width="320" height="44" rx="10" fill="rgba(239,68,68,0.15)" stroke="rgba(239,68,68,0.4)" stroke-width="1.5"/>
+  <text x="115" y="593" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#ef4444">🎉 Offre lancement</text>
+  <text x="265" y="593" font-family="Arial, sans-serif" font-size="16" fill="rgba(239,68,68,0.6)" text-decoration="line-through">3,99€</text>
+  <text x="310" y="593" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#ef4444">→ 1€ HT</text>
+
+  <!-- Visual droite — Score ATS card -->
+  <rect x="720" y="100" width="400" height="420" rx="24" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>
+  <rect x="720" y="100" width="400" height="4" rx="2" fill="url(#orange)"/>
+
+  <!-- Score avant -->
+  <text x="820" y="180" font-family="Arial, sans-serif" font-size="14" fill="rgba(255,255,255,0.4)" text-anchor="middle" letter-spacing="1">AVANT</text>
+  <text x="820" y="260" font-family="Arial Black, sans-serif" font-size="80" font-weight="900" fill="#f87171" text-anchor="middle">28%</text>
+
+  <!-- Flèche -->
+  <text x="920" y="245" font-family="Arial, sans-serif" font-size="40" fill="#FF6B00" text-anchor="middle">→</text>
+
+  <!-- Score après -->
+  <text x="1020" y="180" font-family="Arial, sans-serif" font-size="14" fill="rgba(255,255,255,0.4)" text-anchor="middle" letter-spacing="1">APRÈS</text>
+  <text x="1020" y="260" font-family="Arial Black, sans-serif" font-size="80" font-weight="900" fill="#22c55e" text-anchor="middle">86%</text>
+
+  <!-- Barre de progression -->
+  <rect x="760" y="300" width="320" height="8" rx="4" fill="rgba(255,255,255,0.07)"/>
+  <rect x="760" y="300" width="275" height="8" rx="4" fill="url(#orange)"/>
+
+  <!-- Features list -->
+  <text x="760" y="350" font-family="Arial, sans-serif" font-size="16" fill="rgba(255,255,255,0.6)">✓  Optimisation en 30 secondes</text>
+  <text x="760" y="385" font-family="Arial, sans-serif" font-size="16" fill="rgba(255,255,255,0.6)">✓  Lettre de motivation IA</text>
+  <text x="760" y="420" font-family="Arial, sans-serif" font-size="16" fill="rgba(255,255,255,0.6)">✓  Job matching Autopilot</text>
+  <text x="760" y="455" font-family="Arial, sans-serif" font-size="16" fill="rgba(255,255,255,0.6)">✓  Export PDF · Word · Texte</text>
+
+  <!-- URL -->
+  <text x="1080" y="590" font-family="Arial, sans-serif" font-size="18" font-weight="600" fill="rgba(255,107,0,0.7)" text-anchor="end">cv-ats.com</text>
+</svg>

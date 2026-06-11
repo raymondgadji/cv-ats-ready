@@ -5,3 +5,21 @@ Mais ces outils aussi pratiques qu'ils soient pour les entreprises, peuvent éca
 Simplement parce que le vc n'est pas optimisé pour passer leurs filtres
 (Le magasine [çà c'est de moi donc tu peux prendre çà]) Forbes révèle d'ailleurs qu'environ 75%
 des cv sont écartés automatiquement par les ATS en raison d'erreurs de formatage ou de contenu non adapté
+
+TEST_CV_ATS_READY c'est le code promo que je t'offre pour que tu testes la nouvelle application que je viens de coder "CV ATS READY", accessible ici https://cv-ats-ready.fr/
+
+Problématique ? => Recherche d'emploi, optimisation du cv, compatibilité ATS
+J'en avais assez d'aller sur les LLM (ChatGPT, Gemini, Mistral, Grok, Claude etc), d'écrire un prompt pour qu'il optimise mon cv, afin que celui-ci soit compatible ATS, et qu'il attérisse directement sur le bureau du recruteur. Ensuite je dois encore écrire un autre prompt pour lui demander une lettre de motivation pour l'annonce à laquelle je postule, si tu cherches ou a déjà cherché un CDI, CDD, stage, alternance etc tu sais de quoi je parle ...
+
+Solution ? => J'ai crée un agent IA qui automatise tout ce processus
+
+Vidéo de la démo ici https://www.loom.com/share/cd72943a07e548838664b808373148f1
+
+Jusqu'au 12 avril 2026, je te l'offre pour faire les premiers test grandeur nature avec le code promo écrit en majuscule TEST_CV_ATS_READY
+Après cette date, chaque itération coûtera 1 euro HT (1,20 TTC) ce qui couvre le coût de l'IA et permet de maintenir le service. C'est délibérément accessible — pas d'abonnement, pas d'engagement. Tu paies à l'utilisation, uniquement quand tu en as besoin. 
+
+Je t'invite à le tester, à le faire tester à ta famille, à tes amis tes connaissances etc et reviens me faire un feedback pour que j'améliore l'app, DM ou par email contact@cv-ats-ready.fr
+
+Merci beaucoup 😀
+
+RLS roll ler sécurité row level security 
