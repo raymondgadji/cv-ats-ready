@@ -80,7 +80,7 @@ C:\Projects\cv_ats_ready\
 | API Docs | Railway Swagger | https://web-production-ec873.up.railway.app/docs |
 
 **⚠️ Déploiement Netlify — DRAG & DROP uniquement**
-Ne pas connecter GitHub à Netlify — le repo contient requirements.txt et Procfile qui font planter le build Netlify.
+Ne pas connecter GitHub à Netlify — le repo contient requirements.txt et Procfile qui font planter le build.
 Procédure : créer un dossier `deploy/` avec `index.html` + `og-image.png` → glisser sur Netlify.
 
 ---
@@ -140,7 +140,7 @@ Typo titres : Syne 800 | Typo corps : DM Sans
 | Plan | Prix | Détail | Statut |
 |------|------|--------|--------|
 | Pay as you go | ~~3,99€~~ **1€ HT** (1,20€ TTC) | Prix lancement — 500 premiers users | ✅ Opérationnel |
-| Illimité | 9,99€ TTC/mois | CV illimités | ⏳ Stripe à brancher |
+| Illimité | 9,99€ TTC/mois | CV illimités — rentabilisé dès la 3ème opti | ⏳ Stripe à brancher |
 | Autopilot | 19,99€ TTC/mois | CV illimités + offres matchées + 1 clic | ⏳ Stripe à brancher |
 
 ---
@@ -191,16 +191,20 @@ POST /api/webhook/stripe
 | Flow Oui/Non Autopilot après téléchargement | ✅ | Sprint juin |
 | 3 offres max plan normal + upsell 19,99€ | ✅ | Sprint juin |
 | Fetch URL offre emploi automatique | ✅ | Sprint juin |
-| Message erreur statique fetch-url | ✅ | Sprint juin |
 | cv-ats.com domaine principal | ✅ | Sprint juin |
 | CORS sécurisé cv-ats.com | ✅ | Sprint juin |
 | main.py v1.3.0 | ✅ | Sprint juin |
 | Pricing lancement ~~3,99€~~ → 1€ + badge urgence 500 places | ✅ | Sprint juin |
 | Hero réordonné — slogan / pitch / badge / app | ✅ | Sprint juin |
-| **SEO complet** — canonical, og, twitter card, robots, favicon | ✅ | Sprint juin |
-| **GEO Schema.org** — WebApplication + FAQPage JSON-LD | ✅ | Sprint juin |
-| **og-image.png** 1200x630 — preview LinkedIn/WhatsApp | ✅ | Sprint juin |
-| **Perplexity indexe déjà cv-ats.com** | ✅ | Sprint juin |
+| SEO complet — canonical, og, twitter card, robots, favicon | ✅ | Sprint juin |
+| GEO Schema.org — WebApplication + FAQPage JSON-LD | ✅ | Sprint juin |
+| og-image.png 1200x630 — preview LinkedIn/WhatsApp | ✅ | Sprint juin |
+| Perplexity indexe déjà cv-ats.com | ✅ | Sprint juin |
+| Section Social Proof — Station F + Fighters + partenaires | ✅ | Sprint juin |
+| Logos base64 — France Travail, Adzuna, Claude, Stripe | ✅ | Sprint juin |
+| Pricing — "Rentabilisé dès la 3ème optimisation" | ✅ | Sprint juin |
+| FAQ — "Que signifie ATS en français ?" | ✅ | Sprint juin |
+| Explainer card — traduction ATS en français | ✅ | Sprint juin |
 
 ---
 
@@ -212,6 +216,7 @@ POST /api/webhook/stripe
 - [ ] **Améliorer Autopilot** — France Travail retourne parfois 204
 
 ### 🟡 Priorité moyenne
+- [ ] Feedbacks users sur section Social Proof — agrandir logos si nécessaire
 - [ ] Redirection cv-ats-ready.fr → cv-ats.com (fichier `_redirects` Netlify)
 - [ ] Configurer Stripe webhook secret en prod
 - [ ] Soumettre sitemap sur Google Search Console
@@ -229,9 +234,10 @@ POST /api/webhook/stripe
 
 - **BYPASS BÊTA** dans `/api/optimize` et `/api/autopilot` — les free_tokens non reconnus sont acceptés. À remplacer par Redis avant lancement public payant.
 - **Stripe webhook secret** → à configurer en prod
-- **Abonnements Stripe** → en attente création société
-- **GitHub** → NE JAMAIS pusher `.env` — toujours vérifier avec `git status` avant commit
-- **Netlify** → NE PAS connecter GitHub — faire drag & drop manuel uniquement
+- **Abonnements Stripe** → en attente création société + passeport
+- **GitHub** → NE JAMAIS pusher `.env` — toujours `git status` avant commit
+- **Netlify** → NE PAS connecter GitHub — drag & drop manuel uniquement
+- **Clés API** → régénérées suite incident GitGuardian juin 2026 ✅
 
 ---
 
@@ -240,15 +246,16 @@ POST /api/webhook/stripe
 - **Umami** : cloud.umami.is — Website ID : `1475d8a0-94a1-420c-ad21-4f3b5698430b`
 - **Dashboard logs** : `https://web-production-ec873.up.railway.app/api/admin/logs?secret=cv-ats-admin-2026`
 - ✅ Données persistantes depuis PostgreSQL Railway
+- Stats juin 2026 : 15 optimisations · score moyen 86.5% · 7 lettres générées
 
 ---
 
 ## 🏆 Concours & Distinctions
 
-### STIC 2026 — Sahal Tech Innovation Challenge
-- Deadline : 20 juin 2026
+### STIC 2026 — Sahal Tech Innovation Challenge ✅ SOUMIS
+- Candidature soumise — juin 2026
 - Domaine : FinTech & Automatisation
-- Dossier PDF prêt : STIC2026_CVATS_Candidature.pdf
+- Dossier PDF : STIC2026_CVATS_Candidature.pdf
 - Formulaire : https://docs.google.com/forms/d/e/1FAIpQLSda3SfDegE2CxhcTPVFmsLXZTPT2AtBVvx62znYsNNCUs4xPg/viewform
 
 ---
