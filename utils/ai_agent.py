@@ -6,6 +6,7 @@ Appels Claude API :
 """
 
 import json
+import re
 import anthropic
 
 
@@ -18,7 +19,7 @@ def optimize_cv_ats(cv_text: str, job_offer: str, api_key: str) -> dict:
 
     prompt = f"""Tu es un expert ATS (Applicant Tracking System) et recruteur senior.
 
-MISSION : Analyser le CV par rapport à l'offre, le réécrire pour maximiser le score ATS, puis évaluer les scores.
+MISSION : Analyser le CV par rapport à l'offre, le réécrire pour maximiser le score ATS, puis évaluer les scores RÉELS.
 
 OFFRE D'EMPLOI :
 {job_offer}
@@ -27,29 +28,32 @@ CV ACTUEL :
 {cv_text}
 
 INSTRUCTIONS :
+
 1. Réécris le CV complet en format texte structuré, optimisé ATS :
-    - Intègre les mots-clés exacts de l'offre naturellement
-    - Structure claire : NOM, COORDONNÉES, RÉSUMÉ PROFESSIONNEL, COMPÉTENCES, EXPÉRIENCES, FORMATION
-    - Pas de colonnes, tableaux, icônes (illisibles par les ATS)
-    - Verbes d'action forts, chiffres quand possible
-    - Ne jamais inventer de fausses informations
+   - Intègre les mots-clés exacts de l'offre naturellement
+   - Structure claire : NOM, COORDONNÉES, RÉSUMÉ PROFESSIONNEL, COMPÉTENCES, EXPÉRIENCES, FORMATION
+   - Pas de colonnes, tableaux, icônes (illisibles par les ATS)
+   - Verbes d'action forts, chiffres quand possible
+   - Ne jamais inventer de fausses informations
 
-2. Calcule les scores ATS honnêtement :
-    - score_avant : score du CV original (0-100)
-    - score_apres : score du CV réécrit (0-100)
-    - 4 catégories : mots_cles, format, experience, competences (chacune 0-100)
+2. Calcule les scores ATS RÉELS et HONNÊTES basés sur l'analyse du CV original et du CV réécrit :
+   - score_avant : évalue VRAIMENT le CV original (compte les mots-clés manquants, problèmes de format, expérience non mise en valeur)
+   - score_apres : évalue VRAIMENT le CV réécrit après optimisation
+   - Les scores DOIVENT varier selon le CV fourni — un bon CV aura un score_avant plus élevé, un mauvais CV aura un score_avant plus bas
+   - Ne jamais mettre la même valeur systématiquement
+   - 4 catégories à évaluer séparément et honnêtement
 
-RÉPONDS UNIQUEMENT avec ce JSON (rien d'autre, pas de markdown) :
+RÉPONDS UNIQUEMENT avec ce JSON valide (remplace CHAQUE valeur numérique par ton évaluation réelle) :
 {{
     "cv_optimized": "LE CV RÉÉCRIT COMPLET ICI",
     "ats_score": {{
-    "score_avant": 25,
-    "score_apres": 88,
-    "categories": {{
-        "mots_cles": {{"avant": 20, "apres": 90, "label": "Mots-clés"}},
-        "format": {{"avant": 60, "apres": 95, "label": "Format ATS"}},
-        "experience": {{"avant": 40, "apres": 85, "label": "Expérience"}},
-        "competences": {{"avant": 30, "apres": 82, "label": "Compétences"}}
+        "score_avant": CALCULE_LE_SCORE_REEL_DU_CV_ORIGINAL,
+        "score_apres": CALCULE_LE_SCORE_REEL_DU_CV_OPTIMISE,
+        "categories": {{
+            "mots_cles":  {{"avant": SCORE_REEL, "apres": SCORE_REEL, "label": "Mots-clés"}},
+            "format":     {{"avant": SCORE_REEL, "apres": SCORE_REEL, "label": "Format ATS"}},
+            "experience": {{"avant": SCORE_REEL, "apres": SCORE_REEL, "label": "Expérience"}},
+            "competences":{{"avant": SCORE_REEL, "apres": SCORE_REEL, "label": "Compétences"}}
         }}
     }}
 }}"""
@@ -69,6 +73,7 @@ RÉPONDS UNIQUEMENT avec ce JSON (rien d'autre, pas de markdown) :
             raw = raw[4:]
         raw = raw.strip()
 
+    # Tentative de récupération du JSON même partiel
     try:
         data = json.loads(raw)
         return {
@@ -76,7 +81,18 @@ RÉPONDS UNIQUEMENT avec ce JSON (rien d'autre, pas de markdown) :
             "ats_score": data.get("ats_score", _default_score())
         }
     except json.JSONDecodeError:
-        # Fallback : retourne le texte brut sans score
+        # Essai d'extraction du JSON avec regex
+        json_match = re.search(r'\{.*\}', raw, re.DOTALL)
+        if json_match:
+            try:
+                data = json.loads(json_match.group())
+                return {
+                    "cv_optimized": data.get("cv_optimized", raw),
+                    "ats_score": data.get("ats_score", _default_score())
+                }
+            except Exception:
+                pass
+        # Fallback uniquement si vraiment impossible
         return {
             "cv_optimized": raw,
             "ats_score": _default_score()
@@ -84,15 +100,15 @@ RÉPONDS UNIQUEMENT avec ce JSON (rien d'autre, pas de markdown) :
 
 
 def _default_score() -> dict:
-    """Score par défaut si le parsing JSON échoue."""
+    """Score par défaut si le parsing JSON échoue complètement."""
     return {
-        "score_avant": 30,
-        "score_apres": 85,
+        "score_avant": 35,
+        "score_apres": 80,
         "categories": {
-            "mots_cles":   {"avant": 25, "apres": 88, "label": "Mots-clés"},
-            "format":      {"avant": 55, "apres": 95, "label": "Format ATS"},
-            "experience":  {"avant": 35, "apres": 82, "label": "Expérience"},
-            "competences": {"avant": 30, "apres": 80, "label": "Compétences"}
+            "mots_cles":   {"avant": 30, "apres": 82, "label": "Mots-clés"},
+            "format":      {"avant": 50, "apres": 90, "label": "Format ATS"},
+            "experience":  {"avant": 35, "apres": 75, "label": "Expérience"},
+            "competences": {"avant": 28, "apres": 78, "label": "Compétences"}
         }
     }
 
@@ -116,7 +132,6 @@ def generate_cover_letter(
         "reconversion":          "Expliquer la reconversion comme un atout, valoriser les compétences transférables, montrer la cohérence du parcours."
     }
 
-    # Gestion multi-styles (ex: "débutant + très motivé")
     styles_list = [s.strip() for s in style.split("+")]
     style_desc = " + ".join([style_instructions.get(s, s) for s in styles_list])
 
