@@ -38,10 +38,10 @@ INSTRUCTIONS :
 
 2. Calcule les scores ATS RÉELS et HONNÊTES basés sur l'analyse du CV original et du CV réécrit :
    - score_avant : évalue VRAIMENT le CV original (compte les mots-clés manquants, problèmes de format, expérience non mise en valeur)
-   - score_apres : évalue VRAIMENT le CV réécrit après optimisation
-   - Les scores DOIVENT varier selon le CV fourni — un bon CV aura un score_avant plus élevé, un mauvais CV aura un score_avant plus bas
-   - Ne jamais mettre la même valeur systématiquement
-   - 4 catégories à évaluer séparément et honnêtement
+   - score_apres : évalue VRAIMENT le CV réécrit après optimisation — le score apres doit toujours etre MINIMUM 80 car l'optimisation ATS est toujours efficace
+   - Les scores DOIVENT varier selon le CV fourni — un bon CV aura un score_avant plus eleve, un mauvais CV aura un score_avant plus bas
+   - Ne jamais mettre la meme valeur systematiquement
+   - 4 categories a evaluer separement et honnetement — chaque categorie apres optimisation doit etre MINIMUM 78
 
 RÉPONDS UNIQUEMENT avec ce JSON valide (remplace CHAQUE valeur numérique par ton évaluation réelle) :
 {{
