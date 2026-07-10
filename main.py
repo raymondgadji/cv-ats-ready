@@ -337,6 +337,229 @@ async def create_payment_intent(
     }
 
 
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.colors import HexColor, white
+from reportlab.lib.units import cm
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.enums import TA_LEFT, TA_JUSTIFY
+from reportlab.platypus import Flowable
+
+
+def hex_to_color(hex_str: str):
+    """Convertit un code hex en couleur ReportLab."""
+    hex_str = hex_str.strip()
+    if not hex_str.startswith("#"):
+        hex_str = "#" + hex_str
+    try:
+        return HexColor(hex_str)
+    except Exception:
+        return HexColor("#FF6B00")
+
+
+def _parse_cv_sections(cv_text: str) -> dict:
+    """Parse le texte du CV en sections."""
+    sections = {"header": [], "experience": [], "formation": [], "competences": [], "autres": []}
+    current = "header"
+    lines = cv_text.strip().split("\n")
+    section_map = {
+        "expérience": "experience", "experience": "experience",
+        "formation": "formation", "éducation": "formation", "education": "formation",
+        "compétences": "competences", "competences": "competences", "skills": "competences",
+    }
+    for line in lines:
+        line_clean = line.strip()
+        if not line_clean:
+            continue
+        lower = line_clean.lower()
+        matched = False
+        for key, sec in section_map.items():
+            if key in lower and len(line_clean) < 60:
+                current = sec
+                matched = True
+                break
+        if not matched:
+            sections[current].append(line_clean)
+    return sections
+
+
+def export_to_pdf_template(
+    cv_text: str,
+    cover_letter: str = "",
+    template: str = "moderne",
+    color: str = "#FF6B00",
+    bg_color: str = "#0C0C18",
+) -> bytes:
+    """Génère un PDF avec template visuel (moderne ou classique)."""
+    buffer = io.BytesIO()
+    accent = hex_to_color(color)
+    bg = hex_to_color(bg_color)
+    sections = _parse_cv_sections(cv_text)
+    styles = getSampleStyleSheet()
+
+    if template == "moderne":
+        # ── TEMPLATE MODERNE — Sidebar colorée gauche + fond sombre droite
+        doc = SimpleDocTemplate(buffer, pagesize=A4,
+            rightMargin=1.5*cm, leftMargin=1.5*cm,
+            topMargin=1.5*cm, bottomMargin=1.5*cm)
+
+        story = []
+        body = ParagraphStyle('body', parent=styles['Normal'], fontSize=9,
+            textColor=white, fontName='Helvetica', leading=13, spaceAfter=4)
+        title = ParagraphStyle('title', parent=styles['Normal'], fontSize=11,
+            textColor=accent, fontName='Helvetica-Bold', leading=14, spaceBefore=8, spaceAfter=4)
+        name_style = ParagraphStyle('name', parent=styles['Normal'], fontSize=16,
+            textColor=white, fontName='Helvetica-Bold', leading=18)
+
+        # Header
+        header_text = "\n".join(sections["header"][:3]) if sections["header"] else "CV Optimisé"
+        name_line = sections["header"][0] if sections["header"] else "Candidat"
+
+        header_data = [[
+            Paragraph(name_line, name_style),
+        ]]
+        header_table = Table(header_data, colWidths=[17*cm])
+        header_table.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,-1), bg),
+            ('TOPPADDING', (0,0), (-1,-1), 14),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 14),
+            ('LEFTPADDING', (0,0), (-1,-1), 16),
+            ('ROUNDEDCORNERS', [8,8,0,0]),
+        ]))
+        story.append(header_table)
+
+        # Body — sidebar gauche (accent) + contenu droite
+        def make_section(title_text, lines):
+            if not lines:
+                return None
+            left_content = Paragraph(title_text.upper(), ParagraphStyle('st',
+                parent=styles['Normal'], fontSize=8, textColor=white,
+                fontName='Helvetica-Bold', leading=10))
+            right_lines = [Paragraph(l, body) for l in lines if l]
+            right_content = right_lines if right_lines else [Paragraph("—", body)]
+            row = [[left_content, right_content[0] if len(right_content) == 1 else
+                    Table([[r] for r in right_content], colWidths=[12.5*cm])]]
+            t = Table(row, colWidths=[4*cm, 13*cm])
+            t.setStyle(TableStyle([
+                ('BACKGROUND', (0,0), (0,-1), accent),
+                ('BACKGROUND', (1,0), (1,-1), bg),
+                ('VALIGN', (0,0), (-1,-1), 'TOP'),
+                ('TOPPADDING', (0,0), (-1,-1), 8),
+                ('BOTTOMPADDING', (0,0), (-1,-1), 8),
+                ('LEFTPADDING', (0,0), (-1,-1), 10),
+                ('LINEBELOW', (0,0), (-1,-1), 0.5, HexColor('#333344')),
+            ]))
+            return t
+
+        for sec_title, sec_key in [
+            ("Expérience", "experience"),
+            ("Formation", "formation"),
+            ("Compétences", "competences"),
+            ("Autres", "autres"),
+        ]:
+            t = make_section(sec_title, sections[sec_key])
+            if t:
+                story.append(t)
+
+        # Footer
+        footer_data = [[Paragraph("CV généré par CV-ATS.COM", ParagraphStyle('ft',
+            parent=styles['Normal'], fontSize=7, textColor=HexColor('#888899'),
+            fontName='Helvetica', alignment=1))]]
+        footer_table = Table(footer_data, colWidths=[17*cm])
+        footer_table.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,-1), bg),
+            ('TOPPADDING', (0,0), (-1,-1), 8),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 8),
+            ('ROUNDEDCORNERS', [0,0,8,8]),
+        ]))
+        story.append(footer_table)
+
+        # Lettre de motivation si présente
+        if cover_letter.strip():
+            story.append(Spacer(1, 16))
+            lm_title = Paragraph("LETTRE DE MOTIVATION", ParagraphStyle('lmt',
+                parent=styles['Normal'], fontSize=12, textColor=accent,
+                fontName='Helvetica-Bold', spaceBefore=10, spaceAfter=8))
+            story.append(lm_title)
+            for line in cover_letter.split("\n"):
+                if line.strip():
+                    story.append(Paragraph(line.strip(), ParagraphStyle('lmb',
+                        parent=styles['Normal'], fontSize=9, textColor=white,
+                        fontName='Helvetica', leading=14, spaceAfter=4,
+                        alignment=TA_JUSTIFY)))
+
+        doc.build(story)
+
+    else:
+        # ── TEMPLATE CLASSIQUE — Fond blanc, ligne accent, typo sobre
+        doc = SimpleDocTemplate(buffer, pagesize=A4,
+            rightMargin=2*cm, leftMargin=2*cm,
+            topMargin=2*cm, bottomMargin=2*cm)
+
+        story = []
+        DARK = HexColor('#1a1a1a')
+        body_cl = ParagraphStyle('body_cl', parent=styles['Normal'], fontSize=10,
+            textColor=DARK, fontName='Helvetica', leading=14, spaceAfter=4,
+            alignment=TA_JUSTIFY)
+        title_cl = ParagraphStyle('title_cl', parent=styles['Normal'], fontSize=11,
+            textColor=accent, fontName='Helvetica-Bold', leading=14,
+            spaceBefore=12, spaceAfter=4)
+        name_cl = ParagraphStyle('name_cl', parent=styles['Normal'], fontSize=18,
+            textColor=DARK, fontName='Helvetica-Bold', leading=20, spaceAfter=2)
+
+        # Nom
+        name_line = sections["header"][0] if sections["header"] else "Candidat"
+        story.append(Paragraph(name_line, name_cl))
+
+        # Ligne accent
+        from reportlab.platypus import HRFlowable
+        story.append(HRFlowable(width="100%", thickness=2, color=accent, spaceAfter=6))
+
+        # Infos contact
+        for line in sections["header"][1:4]:
+            story.append(Paragraph(line, ParagraphStyle('contact',
+                parent=styles['Normal'], fontSize=9, textColor=HexColor('#555555'),
+                fontName='Helvetica', leading=12)))
+
+        story.append(Spacer(1, 8))
+
+        # Sections
+        for sec_title, sec_key in [
+            ("Expérience Professionnelle", "experience"),
+            ("Formation", "formation"),
+            ("Compétences", "competences"),
+            ("Autres", "autres"),
+        ]:
+            if not sections[sec_key]:
+                continue
+            story.append(Paragraph(sec_title.upper(), title_cl))
+            story.append(HRFlowable(width="100%", thickness=1, color=accent, spaceAfter=6))
+            for line in sections[sec_key]:
+                if line.strip():
+                    story.append(Paragraph(line, body_cl))
+
+        # Lettre de motivation
+        if cover_letter.strip():
+            story.append(Spacer(1, 16))
+            story.append(Paragraph("LETTRE DE MOTIVATION", title_cl))
+            story.append(HRFlowable(width="100%", thickness=1, color=accent, spaceAfter=6))
+            for line in cover_letter.split("\n"):
+                if line.strip():
+                    story.append(Paragraph(line.strip(), body_cl))
+
+        # Footer
+        story.append(Spacer(1, 12))
+        story.append(HRFlowable(width="100%", thickness=0.5, color=HexColor('#cccccc'), spaceAfter=4))
+        story.append(Paragraph("CV généré par CV-ATS.COM", ParagraphStyle('ft',
+            parent=styles['Normal'], fontSize=7, textColor=HexColor('#aaaaaa'),
+            fontName='Helvetica', alignment=1)))
+
+        doc.build(story)
+
+    buffer.seek(0)
+    return buffer.read()
+
+
 @app.post("/api/optimize")
 async def optimize(
     request: Request,
@@ -350,6 +573,9 @@ async def optimize(
     export_format:          str        = Form("texte"),
     edited_cv:              str        = Form(""),
     edited_lm:              str        = Form(""),
+    cv_template:            str        = Form("aucun"),
+    cv_template_color:      str        = Form("#FF6B00"),
+    cv_template_bg:         str        = Form("#0C0C18"),
 ):
     paid = False
     if free_token:
@@ -416,11 +642,22 @@ async def optimize(
     })
 
     fmt = export_format.lower().strip()
+    tpl = cv_template.lower().strip()
 
     if fmt == "texte":
         return JSONResponse({"cv_optimized": final_cv, "cover_letter": cover_letter, "ats_score": ats_score})
     elif fmt == "pdf":
-        pdf_bytes = export_to_pdf(final_cv, cover_letter)
+        # Générer PDF avec template si demandé
+        if tpl in ("moderne", "classique"):
+            pdf_bytes = export_to_pdf_template(
+                cv_text=final_cv,
+                cover_letter=cover_letter,
+                template=tpl,
+                color=cv_template_color,
+                bg_color=cv_template_bg,
+            )
+        else:
+            pdf_bytes = export_to_pdf(final_cv, cover_letter)
         return StreamingResponse(
             io.BytesIO(pdf_bytes),
             media_type="application/pdf",
