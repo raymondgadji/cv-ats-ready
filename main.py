@@ -341,7 +341,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.colors import HexColor, white
 from reportlab.lib.units import cm
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
 from reportlab.lib.enums import TA_LEFT, TA_JUSTIFY
 from reportlab.platypus import Flowable
 
@@ -512,7 +512,6 @@ def export_to_pdf_template(
         story.append(Paragraph(name_line, name_cl))
 
         # Ligne accent
-        from reportlab.platypus import HRFlowable
         story.append(HRFlowable(width="100%", thickness=2, color=accent, spaceAfter=6))
 
         # Infos contact

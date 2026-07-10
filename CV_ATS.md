@@ -211,6 +211,52 @@ POST /api/webhook/stripe
 | **Score ATS après optimisation minimum 80%** | ✅ | Sprint juin |
 | **Pitch CCI PDF 5 pages** — 3 pitchs oraux + support visuel | ✅ | Sprint juin |
 | **Dossier Round 2 Station F** — Pitch Deck + Preuve produit + Preuve marché + Annexe | ✅ | Sprint juillet |
+| **GEO ChatGPT fix** — 3 blocs JSON-LD séparés + SoftwareApplication + knowsAbout + section statique | ✅ | Sprint juillet |
+| **Sprint Templates CV** — Q3 "Veux-tu un CV mis en page ?" + 2 color pickers live + preview en direct | ✅ | Sprint juillet |
+
+---
+
+## 🌍 PIPELINE COMMERCIAL AFRIQUE
+
+### Contacts actifs
+
+| Contact | Société | Statut | Action |
+|---------|---------|--------|--------|
+| **Mahdia FOUSSENI** | ODAH (odah.pro) — réseau pro Afrique | ✅ Call fait — proposition API/widget en cours | Préparer pilot 30 jours |
+| **Sébastien N'Goran KOUASSI** | EmploiRapide.Net + FAVITECH | ⏳ Pas de réponse | Relancer message court |
+| **Yannick Gnaman** | Agence Emploi Jeune CIV | ⏳ Pas de réponse | Relancer message court |
+
+### Notes call ODAH (Mahdia) — ✅ Call réalisé
+
+**Contexte ODAH :**
+- 300+ utilisateurs sur odah.pro
+- Les utilisateurs s'inscrivent, uploadent leur CV, postulent aux offres
+- Fonctionnement similaire à Indeed — profil + CV + candidature
+- Problème constaté : CVs très mal conçus, étudiants utilisent le même CV pour toutes les offres
+
+**Ce qu'elle veut intégrer dans ODAH :**
+- Optimiser/réadapter le CV à chaque offre d'emploi spécifique
+- **Garder la mise en forme initiale du CV uploadé** ← feedback fort
+- Ou proposer un beau template avec options de personnalisation (couleur, police)
+- Le dev est basé en Côte d'Ivoire — il faudra une doc API claire
+
+**⚠️ Feedback produit majeur (confirmé par Station F aussi) :**
+Plusieurs personnes indépendantes demandent de **conserver la mise en forme du CV original**.
+C'est un vrai signal produit — à prioriser dans le backlog.
+
+**Décision partenariat :**
+- ❌ Pas de troc services (CV ATS vs marketing digital) — rester pro
+- ✅ Intégration technique uniquement : API ou widget
+- ✅ Pilot gratuit 30 jours à proposer
+- ✅ Doc API à préparer pour le dev ivoirien
+
+**Prochaine étape :** Préparer une proposition technique + pilot pour Mahdia
+
+### Message de relance (pour Sébastien et Yannick)
+> Bonjour Mr. [Nom], je me permets de revenir vers vous concernant mon message du [date].
+> Avez-vous eu l'occasion de tester CV ATS avec le code TEST_CV_ATS_READY ?
+> Je serais ravi d'échanger 15 minutes à votre convenance.
+> Cordialement, Raymond Gadji — cv-ats.com
 
 ---
 
@@ -218,6 +264,10 @@ POST /api/webhook/stripe
 
 ### 🔴 Priorité haute
 - [x] **Candidature STIC 2026 soumise** ✅ — juin 2026
+- [x] **Sprint Templates CV frontend** ✅ — Q3/Q4 réorganisés, 3 templates, 2 color pickers live, preview en direct
+- [ ] **Sprint Templates CV backend** — générer le PDF dans le vrai template (Moderne/Classique) avec ReportLab + couleurs choisies → mettre à jour main.py
+- [ ] **Doc API** — documenter l'API CV ATS pour intégration externe (dev ivoirien ODAH)
+- [ ] **Pilot ODAH** — préparer proposition technique + 30 jours gratuits pour Mahdia
 - [x] **Rendez-vous CCI** ✅ — 3 entretiens avec Philip Dietrich (CCI75) — 16/06, 22/06, 02/07/2026
 - [x] **Dossier Round 2 Station F soumis** ✅ — juillet 2026
 - [ ] **Abonnements Stripe** 9,99€ + 19,99€ récurrents (attente création société + passeport)
@@ -231,6 +281,7 @@ POST /api/webhook/stripe
 - [ ] Retester GEO dans 1 semaine — Perplexity doit citer le prix 1€
 
 ### 🟢 Idées futures
+- [ ] **MCP Server CV ATS** — exposer l'API aux agents IA (inspiré post Sokhna Seck / Convoy AI — étapes 02 et 03 "Agent Ready")
 - [ ] **Scoring fit candidat/offre dans Autopilot** — noter chaque offre matchée avec un score de compatibilité (ex: 87% de fit) basé sur le CV optimisé vs l'offre. Tendance qui va devenir la norme dans 6 mois (cf. CVLab Jobs / Zineddine Gomri sur LinkedIn). Être en avance.
 - [ ] Fusion avec Link2Job
 - [ ] Mode freemium — 1 optimisation gratuite/mois

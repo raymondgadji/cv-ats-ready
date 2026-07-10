@@ -200,8 +200,32 @@
       .format-desc { font-size: 0.75rem; color: var(--text-muted); line-height: 1.3; }
       .btn-download { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin-top: 28px; background: linear-gradient(135deg, var(--success), #16a34a); color: #fff; border: none; border-radius: var(--r-md); padding: 18px; font-family: "Syne", sans-serif; font-size: 1.05rem; font-weight: 700; cursor: pointer; box-shadow: 0 8px 28px rgba(34, 197, 94, 0.3); transition: all 0.25s; }
       .btn-download:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(34, 197, 94, 0.4); }
-      .btn-download:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+      .btn-download:disabled { opacity: 0.45; cursor: not-allowed; transform: none; background: linear-gradient(135deg, #9ca3af, #6b7280); box-shadow: none; }
 
+
+      /* ════════════════════════════════
+         SPRINT TEMPLATES CV
+      ════════════════════════════════ */
+      .template-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
+      .template-card { border: 1.5px solid var(--border); border-radius: var(--r-md); padding: 14px 10px; text-align: center; cursor: pointer; background: var(--white); transition: all 0.2s; }
+      .template-card:hover { border-color: var(--orange); transform: translateY(-2px); }
+      .template-card.selected { border-color: var(--orange); background: #FFF4EC; box-shadow: 0 0 0 3px rgba(255,107,0,0.12); }
+      .template-preview { width: 100%; height: 72px; border-radius: 6px; margin-bottom: 8px; position: relative; overflow: hidden; }
+      .template-name { font-family: "Syne", sans-serif; font-size: 0.78rem; font-weight: 700; color: var(--text); }
+      .template-badge { font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; }
+      .preview-aucun { background: #f5f4f0; display: flex; align-items: center; justify-content: center; }
+      .preview-moderne { background: #0C0C18; }
+      .preview-moderne::before { content: ""; position: absolute; left: 0; top: 0; width: 36%; height: 100%; background: var(--preview-color, #FF6B00); }
+      .preview-moderne::after { content: "CV"; position: absolute; left: 8%; top: 30%; color: white; font-weight: 900; font-size: 1rem; }
+      .preview-classique { background: #fff; border: 1px solid #e5e4df; }
+      .preview-classique::before { content: ""; position: absolute; top: 18px; left: 10px; right: 10px; height: 2.5px; background: var(--preview-color, #FF6B00); }
+      .preview-classique::after { content: "CV"; position: absolute; left: 10px; top: 26px; color: #0C0C18; font-weight: 900; font-size: 0.9rem; }
+      .color-picker-box { display: none; margin-top: 14px; padding: 14px; background: var(--off-white, #FAFAF8); border: 1px solid var(--border); border-radius: 10px; }
+      .color-picker-box.visible { display: block; }
+      @media (max-width: 480px) {
+        .template-grid { grid-template-columns: 1fr; }
+        .template-preview { height: 56px; }
+      }
       /* ATS SCORE */
       .ats-score-block { background: var(--night-1); border: 1px solid var(--night-border); border-radius: var(--r-lg); padding: 28px 32px; margin-bottom: 32px; position: relative; overflow: hidden; }
       .ats-score-block::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--orange), var(--success)); }
@@ -791,6 +815,7 @@
         }
       ]
     }
+
     </script>
   </head>
   <body>
@@ -1029,15 +1054,84 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
           </div>
         </div>
 
+        <!-- Q3 : Template CV mis en page (NOUVEAU) -->
+        <div class="question-block" id="templateSection">
+          <h3><span class="question-num">3</span> Veux-tu un CV mis en page ?
+            <span style="font-size:0.68rem;background:var(--orange);color:#fff;padding:2px 8px;border-radius:4px;vertical-align:middle;margin-left:8px;">Nouveau ✨</span>
+          </h3>
+          <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:12px;">Ton CV optimisé dans un beau template prêt à envoyer — inclus dans le prix.</p>
+          <div class="template-grid">
+            <div class="template-card selected" id="tpl-aucun" onclick="selectTemplate(this,'aucun')">
+              <div class="template-preview preview-aucun"><span style="font-size:1.4rem;">📋</span></div>
+              <div class="template-name">Texte seul</div>
+              <div class="template-badge">Sans mise en page</div>
+            </div>
+            <div class="template-card" id="tpl-moderne" onclick="selectTemplate(this,'moderne')">
+              <div class="template-preview preview-moderne"></div>
+              <div class="template-name">Moderne</div>
+              <div class="template-badge">Sidebar colorée</div>
+            </div>
+            <div class="template-card" id="tpl-classique" onclick="selectTemplate(this,'classique')">
+              <div class="template-preview preview-classique"></div>
+              <div class="template-name">Classique</div>
+              <div class="template-badge">Sobre &amp; pro</div>
+            </div>
+          </div>
+          <!-- Color picker — visible si template choisi -->
+          <div class="color-picker-box" id="colorPickerBox">
+            <p style="font-size:0.75rem;font-weight:700;color:var(--text-muted);margin-bottom:12px;">🎨 Personnalise les couleurs</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <!-- Couleur 1 : accent/sidebar -->
+              <div style="background:var(--white);border:1px solid var(--border);border-radius:8px;padding:12px;">
+                <p style="font-size:0.72rem;font-weight:700;color:var(--text);margin-bottom:8px;">🟠 Couleur principale</p>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                  <input type="color" id="colorPicker" value="#FF6B00"
+                    style="width:36px;height:36px;border:none;border-radius:6px;cursor:pointer;padding:1px;outline:1px solid var(--border);background:transparent;"
+                    oninput="onColorPick(this.value)" />
+                  <input type="text" id="colorHexInput" value="#FF6B00" maxlength="7" placeholder="#FF6B00"
+                    oninput="onHexInput(this.value)"
+                    style="flex:1;font-size:0.75rem;font-family:monospace;border:1px solid var(--border);border-radius:6px;padding:4px 8px;background:transparent;color:var(--text);outline:none;" />
+                </div>
+                <div style="display:flex;gap:5px;flex-wrap:wrap;">
+                  <div style="width:20px;height:20px;border-radius:4px;background:#FF6B00;cursor:pointer;" onclick="quickColor('#FF6B00')" title="Orange"></div>
+                  <div style="width:20px;height:20px;border-radius:4px;background:#1a56db;cursor:pointer;" onclick="quickColor('#1a56db')" title="Bleu"></div>
+                  <div style="width:20px;height:20px;border-radius:4px;background:#16a34a;cursor:pointer;" onclick="quickColor('#16a34a')" title="Vert"></div>
+                  <div style="width:20px;height:20px;border-radius:4px;background:#7c3aed;cursor:pointer;" onclick="quickColor('#7c3aed')" title="Violet"></div>
+                  <div style="width:20px;height:20px;border-radius:4px;background:#dc2626;cursor:pointer;" onclick="quickColor('#dc2626')" title="Rouge"></div>
+                </div>
+              </div>
+              <!-- Couleur 2 : fond sombre (Moderne uniquement) -->
+              <div style="background:var(--white);border:1px solid var(--border);border-radius:8px;padding:12px;" id="bgColorSection">
+                <p style="font-size:0.72rem;font-weight:700;color:var(--text);margin-bottom:8px;">⬛ Couleur de fond</p>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                  <input type="color" id="colorPickerBg" value="#0C0C18"
+                    style="width:36px;height:36px;border:none;border-radius:6px;cursor:pointer;padding:1px;outline:1px solid var(--border);background:transparent;"
+                    oninput="onBgColorPick(this.value)" />
+                  <input type="text" id="colorBgHexInput" value="#0C0C18" maxlength="7" placeholder="#0C0C18"
+                    oninput="onBgHexInput(this.value)"
+                    style="flex:1;font-size:0.75rem;font-family:monospace;border:1px solid var(--border);border-radius:6px;padding:4px 8px;background:transparent;color:var(--text);outline:none;" />
+                </div>
+                <div style="display:flex;gap:5px;flex-wrap:wrap;">
+                  <div style="width:20px;height:20px;border-radius:4px;background:#0C0C18;cursor:pointer;border:1px solid #ccc;" onclick="quickBgColor('#0C0C18')" title="Noir"></div>
+                  <div style="width:20px;height:20px;border-radius:4px;background:#1e3a5f;cursor:pointer;" onclick="quickBgColor('#1e3a5f')" title="Bleu nuit"></div>
+                  <div style="width:20px;height:20px;border-radius:4px;background:#1a1a2e;cursor:pointer;" onclick="quickBgColor('#1a1a2e')" title="Violet nuit"></div>
+                  <div style="width:20px;height:20px;border-radius:4px;background:#2d4a22;cursor:pointer;" onclick="quickBgColor('#2d4a22')" title="Vert forêt"></div>
+                  <div style="width:20px;height:20px;border-radius:4px;background:#ffffff;cursor:pointer;border:1px solid #ccc;" onclick="quickBgColor('#ffffff')" title="Blanc"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q4 : Format fichier -->
         <div class="question-block">
-          <h3><span class="question-num">3</span> Comment veux-tu recevoir tes fichiers ?</h3>
+          <h3><span class="question-num">4</span> Comment veux-tu recevoir tes fichiers ?</h3>
           <div class="format-grid">
             <div class="format-card" onclick="selectFormat(this, 'pdf')"><span class="format-icon">📕</span><span class="format-name">PDF</span><span class="format-desc">Idéal pour l'envoi par email</span></div>
             <div class="format-card" onclick="selectFormat(this, 'word')"><span class="format-icon">📘</span><span class="format-name">Word (.docx)</span><span class="format-desc">Pour modifier facilement ensuite</span></div>
             <div class="format-card" onclick="selectFormat(this, 'texte')"><span class="format-icon">📋</span><span class="format-name">Texte brut</span><span class="format-desc">Copier-coller dans ton outil</span></div>
           </div>
         </div>
-
         <button class="btn-download" id="btnDownload" onclick="generateFinal()" disabled>🎁 Générer et télécharger mes fichiers</button>
       </div>
     </section>
@@ -1522,6 +1616,9 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
           fd.append("cover_letter_style", state.selectedStyles.join(" + ") || "");
           fd.append("cover_letter_precision", document.getElementById("lmPrecision")?.value || "");
           fd.append("export_format", state.selectedFormat);
+          fd.append("cv_template", selectedTemplate || "aucun");
+          fd.append("cv_template_color", selectedColor || "#FF6B00");
+          fd.append("cv_template_bg", selectedBgColor || "#0C0C18");
           const res = await fetch(`${API_BASE}/api/optimize`, { method: "POST", body: fd });
           if (!res.ok) { const e = await res.json(); throw new Error(e.detail || "Erreur lors de la génération"); }
           if (state.selectedFormat === "texte") { const data = await res.json(); _showTextResult(data); return; }
@@ -1651,6 +1748,83 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
           grid.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,0.3);padding:40px;">Erreur lors de la recherche d\'offres.</p>';
         }
       }
+
+    // ══ TEMPLATE CV ══
+    let selectedTemplate = 'aucun';
+    let selectedColor = '#FF6B00';
+
+    function selectTemplate(el, val) {
+      document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedTemplate = val;
+      const box = document.getElementById('colorPickerBox');
+      if (box) box.classList.toggle('visible', val !== 'aucun');
+    }
+
+    function onColorPick(color) {
+      selectedColor = color;
+      const hex = document.getElementById('colorHexInput');
+      if (hex) hex.value = color.toUpperCase();
+      updatePreviews();
+    }
+
+    function onHexInput(val) {
+      const hex = val.startsWith('#') ? val : '#' + val;
+      if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+        selectedColor = hex;
+        const picker = document.getElementById('colorPicker');
+        if (picker) picker.value = hex;
+        updatePreviews();
+      }
+    }
+
+    function quickColor(color) {
+      selectedColor = color;
+      const picker = document.getElementById('colorPicker');
+      if (picker) picker.value = color;
+      const hex = document.getElementById('colorHexInput');
+      if (hex) hex.value = color.toUpperCase();
+      updatePreviews();
+    }
+
+    let selectedBgColor = '#0C0C18';
+
+    function onBgColorPick(color) {
+      selectedBgColor = color;
+      const hex = document.getElementById('colorBgHexInput');
+      if (hex) hex.value = color.toUpperCase();
+      updatePreviews();
+    }
+
+    function onBgHexInput(val) {
+      const hex = val.startsWith('#') ? val : '#' + val;
+      if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+        selectedBgColor = hex;
+        const picker = document.getElementById('colorPickerBg');
+        if (picker) picker.value = hex;
+        updatePreviews();
+      }
+    }
+
+    function quickBgColor(color) {
+      selectedBgColor = color;
+      const picker = document.getElementById('colorPickerBg');
+      if (picker) picker.value = color;
+      const hex = document.getElementById('colorBgHexInput');
+      if (hex) hex.value = color.toUpperCase();
+      updatePreviews();
+    }
+
+    function updatePreviews() {
+      document.querySelectorAll('.preview-moderne').forEach(el => {
+        el.style.setProperty('--preview-color', selectedColor);
+        el.style.background = selectedBgColor;
+      });
+      document.querySelectorAll('.preview-classique').forEach(el => {
+        el.style.setProperty('--preview-color', selectedColor);
+      });
+    }
+
     </script>
   
     <!-- Section statique pour indexation ChatGPT -->
