@@ -435,21 +435,31 @@ def export_to_pdf_template(
             left_content = Paragraph(title_text.upper(), ParagraphStyle('st',
                 parent=styles['Normal'], fontSize=8, textColor=white,
                 fontName='Helvetica-Bold', leading=10))
-            right_lines = [Paragraph(l, body) for l in lines if l]
-            right_content = right_lines if right_lines else [Paragraph("—", body)]
-            row = [[left_content, right_content[0] if len(right_content) == 1 else
-                    Table([[r] for r in right_content], colWidths=[12.5*cm])]]
-            t = Table(row, colWidths=[4*cm, 13*cm])
-            t.setStyle(TableStyle([
-                ('BACKGROUND', (0,0), (0,-1), accent),
-                ('BACKGROUND', (1,0), (1,-1), bg),
-                ('VALIGN', (0,0), (-1,-1), 'TOP'),
-                ('TOPPADDING', (0,0), (-1,-1), 8),
-                ('BOTTOMPADDING', (0,0), (-1,-1), 8),
-                ('LEFTPADDING', (0,0), (-1,-1), 10),
-                ('LINEBELOW', (0,0), (-1,-1), 0.5, HexColor('#333344')),
-            ]))
-            return t
+            # Limiter le contenu pour éviter les débordements
+            right_paras = []
+            for l in lines[:30]:  # max 30 lignes par section
+                if l.strip():
+                    right_paras.append(Paragraph(l[:200], body))  # max 200 chars par ligne
+            if not right_paras:
+                right_paras = [Paragraph("—", body)]
+            # Une ligne par tableau séparé pour éviter les cellules trop grandes
+            result = []
+            first = True
+            for para in right_paras:
+                row = [[left_content if first else Paragraph("", ParagraphStyle('empty',
+                    parent=styles['Normal'], fontSize=1)), para]]
+                t = Table(row, colWidths=[4*cm, 13*cm])
+                t.setStyle(TableStyle([
+                    ('BACKGROUND', (0,0), (0,-1), accent),
+                    ('BACKGROUND', (1,0), (1,-1), bg),
+                    ('VALIGN', (0,0), (-1,-1), 'TOP'),
+                    ('TOPPADDING', (0,0), (-1,-1), 4),
+                    ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+                    ('LEFTPADDING', (0,0), (-1,-1), 10),
+                ]))
+                result.append(t)
+                first = False
+            return result
 
         for sec_title, sec_key in [
             ("Expérience", "experience"),
@@ -457,9 +467,10 @@ def export_to_pdf_template(
             ("Compétences", "competences"),
             ("Autres", "autres"),
         ]:
-            t = make_section(sec_title, sections[sec_key])
-            if t:
-                story.append(t)
+            result = make_section(sec_title, sections[sec_key])
+            if result:
+                for t in result:
+                    story.append(t)
 
         # Footer
         footer_data = [[Paragraph("CV généré par CV-ATS.COM", ParagraphStyle('ft',
