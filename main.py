@@ -435,26 +435,25 @@ def export_to_pdf_template(
             left_content = Paragraph(title_text.upper(), ParagraphStyle('st',
                 parent=styles['Normal'], fontSize=8, textColor=white,
                 fontName='Helvetica-Bold', leading=10))
-            # Limiter le contenu pour éviter les débordements
+            # Max 8 lignes par section pour rester dans 2 pages
             right_paras = []
-            for l in lines[:30]:  # max 30 lignes par section
+            for l in lines[:8]:
                 if l.strip():
-                    right_paras.append(Paragraph(l[:200], body))  # max 200 chars par ligne
+                    right_paras.append(Paragraph(l[:150], body))
             if not right_paras:
                 right_paras = [Paragraph("—", body)]
-            # Une ligne par tableau séparé pour éviter les cellules trop grandes
             result = []
             first = True
+            empty_style = ParagraphStyle('empty', parent=styles['Normal'], fontSize=1, leading=1)
             for para in right_paras:
-                row = [[left_content if first else Paragraph("", ParagraphStyle('empty',
-                    parent=styles['Normal'], fontSize=1)), para]]
+                row = [[left_content if first else Paragraph("", empty_style), para]]
                 t = Table(row, colWidths=[4*cm, 13*cm])
                 t.setStyle(TableStyle([
                     ('BACKGROUND', (0,0), (0,-1), accent),
                     ('BACKGROUND', (1,0), (1,-1), bg),
                     ('VALIGN', (0,0), (-1,-1), 'TOP'),
-                    ('TOPPADDING', (0,0), (-1,-1), 4),
-                    ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+                    ('TOPPADDING', (0,0), (-1,-1), 3),
+                    ('BOTTOMPADDING', (0,0), (-1,-1), 3),
                     ('LEFTPADDING', (0,0), (-1,-1), 10),
                 ]))
                 result.append(t)
@@ -525,11 +524,12 @@ def export_to_pdf_template(
         # Ligne accent
         story.append(HRFlowable(width="100%", thickness=2, color=accent, spaceAfter=6))
 
-        # Infos contact
+        # Infos contact — max 3 lignes
         for line in sections["header"][1:4]:
-            story.append(Paragraph(line, ParagraphStyle('contact',
-                parent=styles['Normal'], fontSize=9, textColor=HexColor('#555555'),
-                fontName='Helvetica', leading=12)))
+            if line.strip():
+                story.append(Paragraph(line[:100], ParagraphStyle('contact',
+                    parent=styles['Normal'], fontSize=9, textColor=HexColor('#555555'),
+                    fontName='Helvetica', leading=12)))
 
         story.append(Spacer(1, 8))
 
@@ -543,10 +543,11 @@ def export_to_pdf_template(
             if not sections[sec_key]:
                 continue
             story.append(Paragraph(sec_title.upper(), title_cl))
-            story.append(HRFlowable(width="100%", thickness=1, color=accent, spaceAfter=6))
-            for line in sections[sec_key]:
+            story.append(HRFlowable(width="100%", thickness=1, color=accent, spaceAfter=4))
+            # Max 10 lignes par section pour rester dans 2 pages
+            for line in sections[sec_key][:10]:
                 if line.strip():
-                    story.append(Paragraph(line, body_cl))
+                    story.append(Paragraph(line[:150], body_cl))
 
         # Lettre de motivation
         if cover_letter.strip():
