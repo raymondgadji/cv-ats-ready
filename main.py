@@ -337,24 +337,11 @@ async def create_payment_intent(
     }
 
 
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.colors import HexColor, white
-from reportlab.lib.units import cm
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
-from reportlab.lib.enums import TA_LEFT, TA_JUSTIFY
-from reportlab.platypus import Flowable
+from jinja2 import Environment, FileSystemLoader
+from weasyprint import HTML as WeasyHTML
 
-
-def hex_to_color(hex_str: str):
-    """Convertit un code hex en couleur ReportLab."""
-    hex_str = hex_str.strip()
-    if not hex_str.startswith("#"):
-        hex_str = "#" + hex_str
-    try:
-        return HexColor(hex_str)
-    except Exception:
-        return HexColor("#FF6B00")
+_PDF_TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "utils", "pdf_templates")
+_jinja_env = Environment(loader=FileSystemLoader(_PDF_TEMPLATES_DIR))
 
 
 def _parse_cv_sections(cv_text: str) -> dict:
@@ -390,185 +377,27 @@ def export_to_pdf_template(
     color: str = "#FF6B00",
     bg_color: str = "#0C0C18",
 ) -> bytes:
-    """Génère un PDF avec template visuel (moderne ou classique)."""
-    buffer = io.BytesIO()
-    accent = hex_to_color(color)
-    bg = hex_to_color(bg_color)
+    """Génère un PDF avec template visuel (moderne ou classique) via rendu HTML/CSS + WeasyPrint."""
     sections = _parse_cv_sections(cv_text)
-    styles = getSampleStyleSheet()
+    tpl_name = template if template in ("moderne", "classique") else "moderne"
+    jinja_tpl = _jinja_env.get_template(f"{tpl_name}.html.jinja")
 
-    if template == "moderne":
-        # ── TEMPLATE MODERNE — Sidebar colorée gauche + fond sombre droite
-        doc = SimpleDocTemplate(buffer, pagesize=A4,
-            rightMargin=1.5*cm, leftMargin=1.5*cm,
-            topMargin=1.5*cm, bottomMargin=1.5*cm)
+    html = jinja_tpl.render(
+        name=sections["header"][0] if sections["header"] else "Candidat",
+        contact_lines=[l for l in sections["header"][1:4] if l.strip()],
+        experience=sections["experience"],
+        formation=sections["formation"],
+        competences=sections["competences"],
+        autres=sections["autres"],
+        cover_letter_lines=[l.strip() for l in cover_letter.split("\n") if l.strip()] if cover_letter.strip() else [],
+        accent_color=color,
+        bg_color=bg_color,
+        dark_text="#1a1a1a",
+        text_muted="#8a8a8a",
+        text_muted_on_dark="rgba(255,255,255,0.4)",
+    )
 
-        story = []
-        body = ParagraphStyle('body', parent=styles['Normal'], fontSize=9,
-            textColor=white, fontName='Helvetica', leading=13, spaceAfter=4)
-        title = ParagraphStyle('title', parent=styles['Normal'], fontSize=11,
-            textColor=accent, fontName='Helvetica-Bold', leading=14, spaceBefore=8, spaceAfter=4)
-        name_style = ParagraphStyle('name', parent=styles['Normal'], fontSize=16,
-            textColor=white, fontName='Helvetica-Bold', leading=18)
-
-        # Header
-        header_text = "\n".join(sections["header"][:3]) if sections["header"] else "CV Optimisé"
-        name_line = sections["header"][0] if sections["header"] else "Candidat"
-
-        header_data = [[
-            Paragraph(name_line, name_style),
-        ]]
-        header_table = Table(header_data, colWidths=[17*cm])
-        header_table.setStyle(TableStyle([
-            ('BACKGROUND', (0,0), (-1,-1), bg),
-            ('TOPPADDING', (0,0), (-1,-1), 14),
-            ('BOTTOMPADDING', (0,0), (-1,-1), 14),
-            ('LEFTPADDING', (0,0), (-1,-1), 16),
-            ('ROUNDEDCORNERS', [8,8,0,0]),
-        ]))
-        story.append(header_table)
-
-        # Body — sidebar gauche (accent) + contenu droite
-        def make_section(title_text, lines):
-            if not lines:
-                return None
-            left_content = Paragraph(title_text.upper(), ParagraphStyle('st',
-                parent=styles['Normal'], fontSize=8, textColor=white,
-                fontName='Helvetica-Bold', leading=10))
-            # Max 8 lignes par section pour rester dans 2 pages
-            right_paras = []
-            for l in lines[:8]:
-                if l.strip():
-                    right_paras.append(Paragraph(l[:150], body))
-            if not right_paras:
-                right_paras = [Paragraph("—", body)]
-            result = []
-            first = True
-            empty_style = ParagraphStyle('empty', parent=styles['Normal'], fontSize=1, leading=1)
-            for para in right_paras:
-                row = [[left_content if first else Paragraph("", empty_style), para]]
-                t = Table(row, colWidths=[4*cm, 13*cm])
-                t.setStyle(TableStyle([
-                    ('BACKGROUND', (0,0), (0,-1), accent),
-                    ('BACKGROUND', (1,0), (1,-1), bg),
-                    ('VALIGN', (0,0), (-1,-1), 'TOP'),
-                    ('TOPPADDING', (0,0), (-1,-1), 3),
-                    ('BOTTOMPADDING', (0,0), (-1,-1), 3),
-                    ('LEFTPADDING', (0,0), (-1,-1), 10),
-                ]))
-                result.append(t)
-                first = False
-            return result
-
-        for sec_title, sec_key in [
-            ("Expérience", "experience"),
-            ("Formation", "formation"),
-            ("Compétences", "competences"),
-            ("Autres", "autres"),
-        ]:
-            result = make_section(sec_title, sections[sec_key])
-            if result:
-                for t in result:
-                    story.append(t)
-
-        # Footer
-        footer_data = [[Paragraph("CV généré par CV-ATS.COM", ParagraphStyle('ft',
-            parent=styles['Normal'], fontSize=7, textColor=HexColor('#888899'),
-            fontName='Helvetica', alignment=1))]]
-        footer_table = Table(footer_data, colWidths=[17*cm])
-        footer_table.setStyle(TableStyle([
-            ('BACKGROUND', (0,0), (-1,-1), bg),
-            ('TOPPADDING', (0,0), (-1,-1), 8),
-            ('BOTTOMPADDING', (0,0), (-1,-1), 8),
-            ('ROUNDEDCORNERS', [0,0,8,8]),
-        ]))
-        story.append(footer_table)
-
-        # Lettre de motivation si présente
-        if cover_letter.strip():
-            story.append(Spacer(1, 16))
-            lm_title = Paragraph("LETTRE DE MOTIVATION", ParagraphStyle('lmt',
-                parent=styles['Normal'], fontSize=12, textColor=accent,
-                fontName='Helvetica-Bold', spaceBefore=10, spaceAfter=8))
-            story.append(lm_title)
-            for line in cover_letter.split("\n"):
-                if line.strip():
-                    story.append(Paragraph(line.strip(), ParagraphStyle('lmb',
-                        parent=styles['Normal'], fontSize=9, textColor=white,
-                        fontName='Helvetica', leading=14, spaceAfter=4,
-                        alignment=TA_JUSTIFY)))
-
-        doc.build(story)
-
-    else:
-        # ── TEMPLATE CLASSIQUE — Fond blanc, ligne accent, typo sobre
-        doc = SimpleDocTemplate(buffer, pagesize=A4,
-            rightMargin=2*cm, leftMargin=2*cm,
-            topMargin=2*cm, bottomMargin=2*cm)
-
-        story = []
-        DARK = HexColor('#1a1a1a')
-        body_cl = ParagraphStyle('body_cl', parent=styles['Normal'], fontSize=10,
-            textColor=DARK, fontName='Helvetica', leading=14, spaceAfter=4,
-            alignment=TA_JUSTIFY)
-        title_cl = ParagraphStyle('title_cl', parent=styles['Normal'], fontSize=11,
-            textColor=accent, fontName='Helvetica-Bold', leading=14,
-            spaceBefore=12, spaceAfter=4)
-        name_cl = ParagraphStyle('name_cl', parent=styles['Normal'], fontSize=18,
-            textColor=DARK, fontName='Helvetica-Bold', leading=20, spaceAfter=2)
-
-        # Nom
-        name_line = sections["header"][0] if sections["header"] else "Candidat"
-        story.append(Paragraph(name_line, name_cl))
-
-        # Ligne accent
-        story.append(HRFlowable(width="100%", thickness=2, color=accent, spaceAfter=6))
-
-        # Infos contact — max 3 lignes
-        for line in sections["header"][1:4]:
-            if line.strip():
-                story.append(Paragraph(line[:100], ParagraphStyle('contact',
-                    parent=styles['Normal'], fontSize=9, textColor=HexColor('#555555'),
-                    fontName='Helvetica', leading=12)))
-
-        story.append(Spacer(1, 8))
-
-        # Sections
-        for sec_title, sec_key in [
-            ("Expérience Professionnelle", "experience"),
-            ("Formation", "formation"),
-            ("Compétences", "competences"),
-            ("Autres", "autres"),
-        ]:
-            if not sections[sec_key]:
-                continue
-            story.append(Paragraph(sec_title.upper(), title_cl))
-            story.append(HRFlowable(width="100%", thickness=1, color=accent, spaceAfter=4))
-            # Max 10 lignes par section pour rester dans 2 pages
-            for line in sections[sec_key][:10]:
-                if line.strip():
-                    story.append(Paragraph(line[:150], body_cl))
-
-        # Lettre de motivation
-        if cover_letter.strip():
-            story.append(Spacer(1, 16))
-            story.append(Paragraph("LETTRE DE MOTIVATION", title_cl))
-            story.append(HRFlowable(width="100%", thickness=1, color=accent, spaceAfter=6))
-            for line in cover_letter.split("\n"):
-                if line.strip():
-                    story.append(Paragraph(line.strip(), body_cl))
-
-        # Footer
-        story.append(Spacer(1, 12))
-        story.append(HRFlowable(width="100%", thickness=0.5, color=HexColor('#cccccc'), spaceAfter=4))
-        story.append(Paragraph("CV généré par CV-ATS.COM", ParagraphStyle('ft',
-            parent=styles['Normal'], fontSize=7, textColor=HexColor('#aaaaaa'),
-            fontName='Helvetica', alignment=1)))
-
-        doc.build(story)
-
-    buffer.seek(0)
-    return buffer.read()
+    return WeasyHTML(string=html, base_url=_PDF_TEMPLATES_DIR).write_pdf()
 
 
 @app.post("/api/optimize")

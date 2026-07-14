@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap');
+
+  @page {
+    size: A4;
+    margin: 22mm 20mm;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'DM Sans', sans-serif;
+    color: {{ dark_text }};
+    font-size: 10pt;
+  }
+
+  .name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 21pt;
+    letter-spacing: -0.01em;
+    margin-bottom: 4px;
+  }
+  .contact {
+    font-size: 9pt;
+    color: {{ text_muted }};
+    margin-bottom: 14px;
+  }
+  .accent-rule {
+    border: none;
+    border-top: 2.5px solid {{ accent_color }};
+    margin: 0 0 18px;
+  }
+
+  .block {
+    margin-bottom: 18px;
+    page-break-inside: avoid;
+  }
+  .block h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 10.5pt;
+    font-weight: 700;
+    color: {{ accent_color }};
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 8px;
+    padding-left: 10px;
+    border-left: 3px solid {{ accent_color }};
+  }
+  .block p {
+    margin: 0 0 7px;
+    font-size: 9.7pt;
+    line-height: 1.55;
+    text-align: justify;
+  }
+
+  .footer {
+    margin-top: 18px;
+    padding-top: 8px;
+    border-top: 0.5px solid #e5e4df;
+    text-align: center;
+    font-size: 7.5pt;
+    color: {{ text_muted }};
+  }
+
+  .cover-letter {
+    page-break-before: always;
+  }
+</style>
+</head>
+<body>
+
+  <div class="name">{{ name }}</div>
+  {% if contact_lines %}
+  <div class="contact">{{ contact_lines | join(' &nbsp;·&nbsp; ') }}</div>
+  {% endif %}
+  <hr class="accent-rule">
+
+  {% if experience %}
+  <div class="block">
+    <h2>Expérience Professionnelle</h2>
+    {% for line in experience %}
+    <p>{{ line }}</p>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if formation %}
+  <div class="block">
+    <h2>Formation</h2>
+    {% for line in formation %}
+    <p>{{ line }}</p>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if competences %}
+  <div class="block">
+    <h2>Compétences</h2>
+    {% for line in competences %}
+    <p>{{ line }}</p>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if autres %}
+  <div class="block">
+    <h2>Autres</h2>
+    {% for line in autres %}
+    <p>{{ line }}</p>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if not cover_letter_lines %}
+  <div class="footer">CV généré par CV-ATS.COM</div>
+  {% endif %}
+
+  {% if cover_letter_lines %}
+  <div class="block cover-letter">
+    <h2>Lettre de motivation</h2>
+    {% for line in cover_letter_lines %}
+    <p>{{ line }}</p>
+    {% endfor %}
+  </div>
+  <div class="footer">CV généré par CV-ATS.COM</div>
+  {% endif %}
+
+</body>
+</html>

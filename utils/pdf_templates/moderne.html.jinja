@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap');
+
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'DM Sans', sans-serif;
+    color: {{ dark_text }};
+    font-size: 10pt;
+  }
+
+  .header {
+    background: {{ bg_color }};
+    color: #ffffff;
+    padding: 26px 34px;
+  }
+  .header .name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 24pt;
+    letter-spacing: -0.01em;
+  }
+  .header .contact {
+    margin-top: 6px;
+    font-size: 9pt;
+    color: rgba(255,255,255,0.65);
+  }
+
+  .layout {
+    display: flex;
+  }
+
+  .sidebar {
+    width: 34%;
+    background: {{ accent_color }};
+    color: #ffffff;
+    padding: 24px 20px;
+    min-height: 700px;
+  }
+  .sidebar h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 10pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 1.5px solid rgba(255,255,255,0.35);
+  }
+  .skill-pill {
+    display: block;
+    background: rgba(255,255,255,0.16);
+    border-radius: 5px;
+    padding: 6px 10px;
+    margin-bottom: 7px;
+    font-size: 9pt;
+    line-height: 1.3;
+  }
+  .sidebar-block {
+    margin-bottom: 26px;
+  }
+
+  .main {
+    width: 66%;
+    background: {{ bg_color }};
+    color: rgba(255,255,255,0.88);
+    padding: 24px 26px;
+  }
+  .main-block {
+    margin-bottom: 20px;
+  }
+  .main-block:last-child { margin-bottom: 0; }
+  .main-block h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 11pt;
+    font-weight: 700;
+    color: {{ accent_color }};
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+  }
+  .main-block p {
+    margin: 0 0 8px;
+    font-size: 9.5pt;
+    line-height: 1.55;
+  }
+
+  .cover-letter {
+    background: #ffffff;
+    color: {{ dark_text }};
+    padding: 30px 34px;
+  }
+  .cover-letter h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 13pt;
+    font-weight: 700;
+    color: {{ accent_color }};
+    margin: 0 0 14px;
+  }
+  .cover-letter p {
+    margin: 0 0 10px;
+    font-size: 10pt;
+    line-height: 1.65;
+    text-align: justify;
+  }
+
+  .footer {
+    text-align: center;
+    font-size: 7.5pt;
+    color: {{ text_muted }};
+    padding: 10px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="name">{{ name }}</div>
+    {% if contact_lines %}
+    <div class="contact">{{ contact_lines | join(' &nbsp;·&nbsp; ') }}</div>
+    {% endif %}
+  </div>
+
+  <div class="layout">
+    <div class="sidebar">
+      {% if competences %}
+      <div class="sidebar-block">
+        <h2>Compétences</h2>
+        {% for line in competences %}
+        <div class="skill-pill">{{ line }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% if formation %}
+      <div class="sidebar-block">
+        <h2>Formation</h2>
+        {% for line in formation %}
+        <div class="skill-pill">{{ line }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="main">
+      {% if experience %}
+      <div class="main-block">
+        <h2>Expérience</h2>
+        {% for line in experience %}
+        <p>{{ line }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% if autres %}
+      <div class="main-block">
+        <h2>Autres</h2>
+        {% for line in autres %}
+        <p>{{ line }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="footer" style="background:{{ bg_color }}; color:{{ text_muted_on_dark }};">
+    CV généré par CV-ATS.COM
+  </div>
+
+  {% if cover_letter_lines %}
+  <div class="cover-letter" style="page-break-before: always;">
+    <h2>Lettre de motivation</h2>
+    {% for line in cover_letter_lines %}
+    <p>{{ line }}</p>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</body>
+</html>
