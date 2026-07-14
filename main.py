@@ -1,6 +1,6 @@
 """
 main.py — Backend FastAPI CV ATS
-v1.3.0 — PostgreSQL + CORS sécurisé cv-ats.com
+v1.4.0 — Templates PDF Moderne/Classique migrés vers HTML/CSS + WeasyPrint
 """
 
 import os
@@ -115,7 +115,7 @@ def get_logs_from_db(limit: int = 500) -> list:
 # ─────────────────────────────────────────
 # APP
 # ─────────────────────────────────────────
-app = FastAPI(title="CV ATS API", version="1.3.0")
+app = FastAPI(title="CV ATS API", version="1.4.0")
 
 # ✅ CORS sécurisé — domaines autorisés uniquement
 ALLOWED_ORIGINS = [
@@ -161,7 +161,7 @@ def health():
     return {
         "status":  "ok",
         "service": "cv-ats",
-        "version": "1.3.0",
+        "version": "1.4.0",
         "db":      "postgresql ✅" if db_ok else "postgresql ❌ non connecté",
     }
 
