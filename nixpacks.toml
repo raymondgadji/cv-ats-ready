@@ -1,3 +1,0 @@
-# Libs système requises par WeasyPrint (rendu PDF des templates CV) — absentes du buildpack Python par défaut.
-[phases.setup]
-nixPkgs = ["pango", "cairo", "gdk-pixbuf", "harfbuzz", "fontconfig", "freetype", "glib", "libffi", "zlib"]

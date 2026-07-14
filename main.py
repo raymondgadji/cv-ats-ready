@@ -338,7 +338,6 @@ async def create_payment_intent(
 
 
 from jinja2 import Environment, FileSystemLoader
-from weasyprint import HTML as WeasyHTML
 
 _PDF_TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "utils", "pdf_templates")
 _jinja_env = Environment(loader=FileSystemLoader(_PDF_TEMPLATES_DIR))
@@ -378,6 +377,7 @@ def export_to_pdf_template(
     bg_color: str = "#0C0C18",
 ) -> bytes:
     """Génère un PDF avec template visuel (moderne ou classique) via rendu HTML/CSS + WeasyPrint."""
+    from weasyprint import HTML as WeasyHTML  # import différé : une lib système manquante ne doit pas planter tout le serveur
     sections = _parse_cv_sections(cv_text)
     tpl_name = template if template in ("moderne", "classique") else "moderne"
     jinja_tpl = _jinja_env.get_template(f"{tpl_name}.html.jinja")
