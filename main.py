@@ -422,8 +422,14 @@ def export_to_pdf_designer(
         except Exception:
             return "#f3f3f3"
 
+    # Couleur par bloc : précalcule les teintes claires (pastilles) pour chaque bloc qui a sa propre couleur
+    layout = layout or []
+    for block in layout:
+        if isinstance(block, dict) and block.get("color"):
+            block["color_light"] = _lighten(block["color"], 0.85)
+
     html = jinja_tpl.render(
-        blocks=layout or [],
+        blocks=layout,
         name=sections["header"][0] if sections["header"] else "Candidat",
         contact_lines=[l for l in sections["header"][1:4] if l.strip()],
         experience=sections["experience"],

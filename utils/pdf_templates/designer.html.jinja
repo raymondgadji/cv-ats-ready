@@ -144,25 +144,25 @@
         {% endif %}
 
       {% elif b.type == 'competences' %}
-        <h2>Compétences</h2>
+        <h2 style="color:{{ b.color or accent_color }};">Compétences</h2>
         {% for line in competences %}
-        <div class="pill">{{ line }}</div>
+        <div class="pill" style="background:{{ b.color_light or accent_light }};">{{ line }}</div>
         {% endfor %}
 
       {% elif b.type == 'formation' %}
-        <h2>Formation</h2>
+        <h2 style="color:{{ b.color or accent_color }};">Formation</h2>
         {% for line in formation %}
-        <div class="pill">{{ line }}</div>
+        <div class="pill" style="background:{{ b.color_light or accent_light }};">{{ line }}</div>
         {% endfor %}
 
       {% elif b.type == 'experience' %}
-        <h2>Expérience</h2>
+        <h2 style="color:{{ b.color or accent_color }};">Expérience</h2>
         {% for line in experience %}
         <p>{{ line }}</p>
         {% endfor %}
 
       {% elif b.type == 'autres' %}
-        <h2>Autres</h2>
+        <h2 style="color:{{ b.color or accent_color }};">Autres</h2>
         {% for line in autres %}
         <p>{{ line }}</p>
         {% endfor %}

@@ -271,11 +271,20 @@
       .handle-s  { bottom: -6px; left: 50%; margin-left: -5.5px; cursor: ns-resize; }
       .handle-sw { bottom: -6px; left: -6px; cursor: nesw-resize; }
       .handle-w  { top: 50%; left: -6px; margin-top: -5.5px; cursor: ew-resize; }
-      .designer-color-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 22px; border-bottom: 1px solid var(--border); background: #fff; flex-shrink: 0; }
+      .designer-color-toolbar { display: flex; align-items: flex-start; gap: 16px; flex-wrap: wrap; padding: 12px 22px; border-bottom: 1px solid var(--border); background: #fff; flex-shrink: 0; }
       .designer-color-toolbar .designer-shapes-label { white-space: nowrap; }
+      .designer-color-wheel-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; }
+      .designer-color-wheel { position: relative; width: 92px; height: 92px; border-radius: 50%; cursor: crosshair; background: conic-gradient(red, #ff0, lime, cyan, blue, magenta, red); box-shadow: 0 0 0 1px rgba(0,0,0,0.08); touch-action: none; }
+      .designer-color-wheel::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle, #fff 0%, rgba(255,255,255,0) 72%); pointer-events: none; }
+      .designer-color-wheel-cursor { position: absolute; width: 12px; height: 12px; left: 50%; top: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1.5px rgba(0,0,0,0.5); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; }
+      .designer-lightness-slider { width: 92px; height: 14px; cursor: pointer; }
+      .designer-color-toolbar-right { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 200px; }
+      .designer-color-target { font-size: 0.78rem; font-weight: 700; color: var(--text); }
+      .designer-color-inputs-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
       .designer-color-input { width: 32px; height: 32px; border: none; border-radius: 6px; cursor: pointer; padding: 1px; outline: 1px solid var(--border); background: transparent; }
       .designer-color-hex { width: 78px; font-size: 0.75rem; font-family: monospace; border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; background: transparent; color: var(--text); outline: none; }
       .designer-swatch { width: 18px; height: 18px; border-radius: 4px; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); }
+      .designer-block.selected .designer-block-inner { border-style: solid; border-color: var(--orange); border-width: 2px; box-shadow: 0 0 0 2px rgba(255,107,0,0.25); }
       .designer-modal-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 22px; border-top: 1px solid var(--border); flex-shrink: 0; }
       .designer-reset-btn { background: none; border: 1.5px solid var(--border); border-radius: 8px; padding: 9px 16px; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); cursor: pointer; }
       .designer-reset-btn:hover { border-color: var(--orange); color: var(--orange-dark); }
@@ -1202,15 +1211,25 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
               <span class="designer-shapes-hint">utile pour un logo, une photo en plus, un bandeau couleur…</span>
             </div>
             <div class="designer-color-toolbar">
-              <span class="designer-shapes-label">🎨 Couleur :</span>
-              <input type="color" id="designerColorPicker" value="#FF6B00" class="designer-color-input" oninput="onDesignerColorPick(this.value)" />
-              <input type="text" id="designerColorHex" value="#FF6B00" maxlength="7" class="designer-color-hex" oninput="onDesignerColorHexInput(this.value)" />
-              <div class="designer-swatch" style="background:#FF6B00" onclick="quickDesignerColor('#FF6B00')" title="Orange"></div>
-              <div class="designer-swatch" style="background:#1a56db" onclick="quickDesignerColor('#1a56db')" title="Bleu"></div>
-              <div class="designer-swatch" style="background:#16a34a" onclick="quickDesignerColor('#16a34a')" title="Vert"></div>
-              <div class="designer-swatch" style="background:#7c3aed" onclick="quickDesignerColor('#7c3aed')" title="Violet"></div>
-              <div class="designer-swatch" style="background:#dc2626" onclick="quickDesignerColor('#dc2626')" title="Rouge"></div>
-              <span class="designer-shapes-hint">change les titres, pastilles et formes en direct</span>
+              <div class="designer-color-wheel-wrap">
+                <div class="designer-color-wheel" id="designerColorWheel">
+                  <div class="designer-color-wheel-cursor" id="designerColorWheelCursor"></div>
+                </div>
+                <input type="range" id="designerLightnessSlider" min="0" max="100" value="100" class="designer-lightness-slider" oninput="onDesignerLightnessChange(this.value)" title="Luminosité" />
+              </div>
+              <div class="designer-color-toolbar-right">
+                <div class="designer-color-target" id="designerColorTargetLabel">🎨 Couleur par défaut</div>
+                <div class="designer-color-inputs-row">
+                  <input type="color" id="designerColorPicker" value="#FF6B00" class="designer-color-input" oninput="onDesignerColorPick(this.value)" />
+                  <input type="text" id="designerColorHex" value="#FF6B00" maxlength="7" class="designer-color-hex" oninput="onDesignerColorHexInput(this.value)" />
+                  <div class="designer-swatch" style="background:#FF6B00" onclick="quickDesignerColor('#FF6B00')" title="Orange"></div>
+                  <div class="designer-swatch" style="background:#1a56db" onclick="quickDesignerColor('#1a56db')" title="Bleu"></div>
+                  <div class="designer-swatch" style="background:#16a34a" onclick="quickDesignerColor('#16a34a')" title="Vert"></div>
+                  <div class="designer-swatch" style="background:#7c3aed" onclick="quickDesignerColor('#7c3aed')" title="Violet"></div>
+                  <div class="designer-swatch" style="background:#dc2626" onclick="quickDesignerColor('#dc2626')" title="Rouge"></div>
+                </div>
+                <span class="designer-shapes-hint">clique un bloc coloré du canvas pour lui donner sa propre couleur — sinon ça change la couleur par défaut</span>
+              </div>
             </div>
             <div class="designer-modal-body">
               <div class="designer-canvas" id="designerCanvas"></div>
@@ -2017,22 +2036,22 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
 
     function addShapeBlock(shape) {
       designerShapeCounter += 1;
+      const id = 'forme-' + Date.now() + '-' + designerShapeCounter;
       const w = shape === 'circle' ? 16 : 26;
       designerBlocks.push({
-        id: 'forme-' + Date.now() + '-' + designerShapeCounter,
-        type: 'forme',
-        shape,
+        id, type: 'forme', shape,
         x: 40, y: 42,
         w,
         h: shape === 'circle' ? Math.round(w * PAGE_ASPECT * 10) / 10 : 14,
         color: selectedColor || '#FF6B00',
         photo: null,
       });
-      renderDesignerCanvas();
+      selectDesignerBlock(id);
     }
 
     function removeDesignerBlock(id) {
       designerBlocks = designerBlocks.filter(b => b.id !== id);
+      if (designerSelectedBlockId === id) { designerSelectedBlockId = null; updateColorToolbarForSelection(); }
       renderDesignerCanvas();
     }
 
@@ -2042,12 +2061,97 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
       }
     }
 
+    const COLORABLE_TYPES = ['competences', 'formation', 'experience', 'autres', 'forme'];
+    let designerSelectedBlockId = null;
+    let designerWheelState = { h: 24, s: 1, v: 1 };
+    let designerWheelAttached = false;
+
+    function hsvToHex(h, s, v) {
+      const c = v * s;
+      const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+      const m = v - c;
+      let r = 0, g = 0, b = 0;
+      if (h < 60)       { r = c; g = x; b = 0; }
+      else if (h < 120) { r = x; g = c; b = 0; }
+      else if (h < 180) { r = 0; g = c; b = x; }
+      else if (h < 240) { r = 0; g = x; b = c; }
+      else if (h < 300) { r = x; g = 0; b = c; }
+      else              { r = c; g = 0; b = x; }
+      const toHex = n => Math.round((n + m) * 255).toString(16).padStart(2, '0');
+      return '#' + toHex(r) + toHex(g) + toHex(b);
+    }
+
+    function hexToHsv(hex) {
+      hex = (hex || '#FF6B00').replace('#', '');
+      const r = parseInt(hex.substr(0, 2), 16) / 255;
+      const g = parseInt(hex.substr(2, 2), 16) / 255;
+      const b = parseInt(hex.substr(4, 2), 16) / 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+      let h = 0;
+      if (d !== 0) {
+        if (max === r) h = 60 * (((g - b) / d) % 6);
+        else if (max === g) h = 60 * ((b - r) / d + 2);
+        else h = 60 * ((r - g) / d + 4);
+      }
+      if (h < 0) h += 360;
+      const s = max === 0 ? 0 : d / max;
+      return { h, s, v: max };
+    }
+
+    function attachColorWheelEvents() {
+      if (designerWheelAttached) return;
+      designerWheelAttached = true;
+      const wheel = document.getElementById('designerColorWheel');
+      const updateFromEvent = (e) => {
+        const rect = wheel.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
+        const dx = e.clientX - cx, dy = e.clientY - cy;
+        const radius = rect.width / 2;
+        const dist = Math.min(Math.sqrt(dx * dx + dy * dy), radius);
+        let angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        if (angle < 0) angle += 360;
+        designerWheelState.h = angle;
+        designerWheelState.s = radius > 0 ? dist / radius : 0;
+        positionWheelCursor(angle, designerWheelState.s);
+        applyWheelColor();
+      };
+      wheel.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        try { wheel.setPointerCapture(e.pointerId); } catch (_) {}
+        updateFromEvent(e);
+        const onMove = (mv) => updateFromEvent(mv);
+        const onUp = () => { wheel.removeEventListener('pointermove', onMove); wheel.removeEventListener('pointerup', onUp); };
+        wheel.addEventListener('pointermove', onMove);
+        wheel.addEventListener('pointerup', onUp);
+      });
+    }
+
+    function positionWheelCursor(angleDeg, s) {
+      const cursor = document.getElementById('designerColorWheelCursor');
+      if (!cursor) return;
+      const rad = angleDeg * Math.PI / 180;
+      const x = 50 + s * 50 * Math.cos(rad);
+      const y = 50 + s * 50 * Math.sin(rad);
+      cursor.style.left = x + '%'; cursor.style.top = y + '%';
+    }
+
+    function applyWheelColor() {
+      onDesignerColorPick(hsvToHex(designerWheelState.h, designerWheelState.s, designerWheelState.v));
+    }
+
+    function onDesignerLightnessChange(val) {
+      designerWheelState.v = val / 100;
+      applyWheelColor();
+    }
+
     function openDesigner() {
       if (!designerInitialized) {
         designerBlocks = buildDefaultDesignerBlocks();
         designerInitialized = true;
       }
-      syncDesignerColorInputs(selectedColor || '#FF6B00');
+      designerSelectedBlockId = null;
+      attachColorWheelEvents();
+      updateColorToolbarForSelection();
       renderDesignerCanvas();
       document.getElementById('designerOverlay').classList.add('show');
     }
@@ -2057,14 +2161,44 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
       if (picker) picker.value = value;
       const hex = document.getElementById('designerColorHex');
       if (hex) hex.value = value.toUpperCase();
+      const hsv = hexToHsv(value);
+      designerWheelState = hsv;
+      positionWheelCursor(hsv.h, hsv.s);
+      const slider = document.getElementById('designerLightnessSlider');
+      if (slider) slider.value = Math.round(hsv.v * 100);
+    }
+
+    function updateColorToolbarForSelection() {
+      const block = designerBlocks.find(b => b.id === designerSelectedBlockId);
+      const isColorable = block && COLORABLE_TYPES.includes(block.type);
+      const label = document.getElementById('designerColorTargetLabel');
+      if (label) {
+        label.textContent = isColorable
+          ? `🎨 Couleur du bloc « ${DESIGNER_SECTION_LABELS[block.type] || 'Forme'} »`
+          : '🎨 Couleur par défaut (clique un bloc pour le personnaliser)';
+      }
+      syncDesignerColorInputs(isColorable ? (block.color || selectedColor || '#FF6B00') : (selectedColor || '#FF6B00'));
+    }
+
+    function selectDesignerBlock(id) {
+      designerSelectedBlockId = id;
+      updateColorToolbarForSelection();
+      renderDesignerCanvas();
     }
 
     function onDesignerColorPick(value) {
-      selectedColor = value;
-      syncDesignerColorInputs(value);
-      // Garde le picker principal (hors modale) synchronisé aussi
-      const mainPicker = document.getElementById('colorPicker'); if (mainPicker) mainPicker.value = value;
-      const mainHex = document.getElementById('colorHexInput'); if (mainHex) mainHex.value = value.toUpperCase();
+      const block = designerBlocks.find(b => b.id === designerSelectedBlockId);
+      if (block && COLORABLE_TYPES.includes(block.type)) {
+        block.color = value;
+      } else {
+        selectedColor = value;
+        const mainPicker = document.getElementById('colorPicker'); if (mainPicker) mainPicker.value = value;
+        const mainHex = document.getElementById('colorHexInput'); if (mainHex) mainHex.value = value.toUpperCase();
+      }
+      const picker = document.getElementById('designerColorPicker');
+      if (picker) picker.value = value;
+      const hex = document.getElementById('designerColorHex');
+      if (hex) hex.value = value.toUpperCase();
       updatePreviews();
     }
 
@@ -2075,6 +2209,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
 
     function quickDesignerColor(color) {
       onDesignerColorPick(color);
+      syncDesignerColorInputs(color);
     }
 
     function closeDesigner() {
@@ -2095,7 +2230,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
     }
 
     function designerBlockContentHTML(block) {
-      const accent = selectedColor || '#FF6B00';
+      const accent = block.color || selectedColor || '#FF6B00';
       if (block.type === 'identite') {
         const nameLine = (designerSections.header && designerSections.header[0]) || 'Ton nom';
         const contact = (designerSections.header || []).slice(1, 4).filter(Boolean).join(' · ');
@@ -2126,7 +2261,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
       designerBlocks.forEach(block => {
         const isCircle = block.shape === 'circle';
         const el = document.createElement('div');
-        el.className = 'designer-block';
+        el.className = 'designer-block' + (block.id === designerSelectedBlockId ? ' selected' : '');
         el.style.left = block.x + '%'; el.style.top = block.y + '%';
         el.style.width = block.w + '%'; el.style.height = block.h + '%';
         el.dataset.blockId = block.id;
@@ -2186,6 +2321,12 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
         canvas.appendChild(el);
         attachDesignerDrag(el, block, canvas);
       });
+      if (!canvas.dataset.deselectBound) {
+        canvas.dataset.deselectBound = '1';
+        canvas.addEventListener('pointerdown', (e) => {
+          if (e.target === canvas) { designerSelectedBlockId = null; updateColorToolbarForSelection(); renderDesignerCanvas(); }
+        });
+      }
     }
 
     let designerActivePhotoBlockId = null;
@@ -2206,15 +2347,16 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
       el.addEventListener('pointerdown', (e) => {
         if (e.target.classList.contains('designer-resize-handle') || e.target.classList.contains('designer-photo-upload-btn') || e.target.classList.contains('designer-block-delete')) return;
         e.preventDefault();
-        el.setPointerCapture(e.pointerId);
+        e.stopPropagation();
+        try { el.setPointerCapture(e.pointerId); } catch (_) {}
         const rect = canvas.getBoundingClientRect();
         const startX = e.clientX, startY = e.clientY;
         const startBlockX = block.x, startBlockY = block.y;
-        designerDragCtx = { moved: false };
+        const dragCtx = { moved: false };
         const onMove = (mv) => {
-          designerDragCtx.moved = true;
           const dxPct = ((mv.clientX - startX) / rect.width) * 100;
           const dyPct = ((mv.clientY - startY) / rect.height) * 100;
+          if (Math.abs(dxPct) > 0.3 || Math.abs(dyPct) > 0.3) dragCtx.moved = true;
           block.x = Math.min(Math.max(startBlockX + dxPct, 0), 100 - block.w);
           block.y = Math.min(Math.max(startBlockY + dyPct, 0), 100 - block.h);
           el.style.left = block.x + '%'; el.style.top = block.y + '%';
@@ -2222,6 +2364,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
         const onUp = () => {
           el.removeEventListener('pointermove', onMove);
           el.removeEventListener('pointerup', onUp);
+          if (!dragCtx.moved) selectDesignerBlock(block.id);
         };
         el.addEventListener('pointermove', onMove);
         el.addEventListener('pointerup', onUp);
