@@ -144,34 +144,38 @@
         {% endif %}
 
       {% elif b.type == 'competences' %}
-        <h2 style="color:{{ b.color or accent_color }};">Compétences</h2>
+        <h2 style="color:{{ b.titleColor or accent_color }};">Compétences</h2>
         {% for line in competences %}
-        <div class="pill" style="background:{{ b.color_light or accent_light }};">{{ line }}</div>
+        <div class="pill" style="background:{{ b.bgColor_light or accent_light }}; color:{{ b.textColor or dark_text }};">{{ line }}</div>
         {% endfor %}
 
       {% elif b.type == 'formation' %}
-        <h2 style="color:{{ b.color or accent_color }};">Formation</h2>
+        <h2 style="color:{{ b.titleColor or accent_color }};">Formation</h2>
         {% for line in formation %}
-        <div class="pill" style="background:{{ b.color_light or accent_light }};">{{ line }}</div>
+        <div class="pill" style="background:{{ b.bgColor_light or accent_light }}; color:{{ b.textColor or dark_text }};">{{ line }}</div>
         {% endfor %}
 
       {% elif b.type == 'experience' %}
-        <h2 style="color:{{ b.color or accent_color }};">Expérience</h2>
+        <div style="{% if b.bgColor %}background:{{ b.bgColor_light or accent_light }}; border-radius:6px; padding:8px 10px; height:100%; box-sizing:border-box;{% endif %}">
+        <h2 style="color:{{ b.titleColor or accent_color }};">Expérience</h2>
         {% for line in experience %}
-        <p>{{ line }}</p>
+        <p style="color:{{ b.textColor or dark_text }};">{{ line }}</p>
         {% endfor %}
+        </div>
 
       {% elif b.type == 'autres' %}
-        <h2 style="color:{{ b.color or accent_color }};">Autres</h2>
+        <div style="{% if b.bgColor %}background:{{ b.bgColor_light or accent_light }}; border-radius:6px; padding:8px 10px; height:100%; box-sizing:border-box;{% endif %}">
+        <h2 style="color:{{ b.titleColor or accent_color }};">Autres</h2>
         {% for line in autres %}
-        <p>{{ line }}</p>
+        <p style="color:{{ b.textColor or dark_text }};">{{ line }}</p>
         {% endfor %}
+        </div>
 
       {% elif b.type == 'forme' %}
         {% if b.photo %}
         <img class="photo-fill" src="{{ b.photo }}" />
         {% else %}
-        <div style="width:100%; height:100%; background:{{ b.color or accent_color }};"></div>
+        <div style="width:100%; height:100%; background:{{ b.bgColor or accent_color }};"></div>
         {% endif %}
       {% endif %}
     </div>

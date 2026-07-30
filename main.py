@@ -358,14 +358,19 @@ def _parse_cv_sections(cv_text: str) -> dict:
         if not line_clean:
             continue
         lower = line_clean.lower()
-        matched = False
+        matched_known = False
         for key, sec in section_map.items():
             if key in lower and len(line_clean) < 60:
                 current = sec
-                matched = True
+                matched_known = True
                 break
-        if not matched:
-            sections[current].append(line_clean)
+        if matched_known:
+            continue
+        # Titre de section non reconnu (ex: "PROJETS MAJEURS", "LANGUES") : bascule vers "autres"
+        # au lieu de continuer à s'ajouter silencieusement à la section précédente (bug corrigé).
+        if current != "header" and line_clean.isupper() and 3 < len(line_clean) < 60:
+            current = "autres"
+        sections[current].append(line_clean)
     return sections
 
 
@@ -422,11 +427,15 @@ def export_to_pdf_designer(
         except Exception:
             return "#f3f3f3"
 
-    # Couleur par bloc : précalcule les teintes claires (pastilles) pour chaque bloc qui a sa propre couleur
+    # Couleur par bloc (titre / texte / fond) : précalcule les teintes claires des pastilles
     layout = layout or []
     for block in layout:
-        if isinstance(block, dict) and block.get("color"):
-            block["color_light"] = _lighten(block["color"], 0.85)
+        if not isinstance(block, dict):
+            continue
+        if block.get("titleColor"):
+            block["titleColor_light"] = _lighten(block["titleColor"], 0.85)
+        if block.get("bgColor"):
+            block["bgColor_light"] = _lighten(block["bgColor"], 0.7)
 
     html = jinja_tpl.render(
         blocks=layout,
