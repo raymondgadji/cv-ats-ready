@@ -437,8 +437,13 @@ def export_to_pdf_designer(
         if block.get("bgColor"):
             block["bgColor_light"] = _lighten(block["bgColor"], 0.7)
 
+    # Pagination — max 2 pages (au-delà, on encourage à réduire le contenu plutôt qu'empiler des pages)
+    blocks_page1 = [b for b in layout if isinstance(b, dict) and int(b.get("page") or 1) == 1]
+    blocks_page2 = [b for b in layout if isinstance(b, dict) and int(b.get("page") or 1) == 2]
+
     html = jinja_tpl.render(
-        blocks=layout,
+        blocks=blocks_page1,
+        blocks_page2=blocks_page2,
         name=sections["header"][0] if sections["header"] else "Candidat",
         contact_lines=[l for l in sections["header"][1:4] if l.strip()],
         experience=sections["experience"],

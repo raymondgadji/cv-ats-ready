@@ -122,11 +122,8 @@
     text-align: justify;
   }
 </style>
-</head>
-<body>
 
-  <div class="page">
-    {% for b in blocks %}
+{% macro render_block(b) %}
     <div class="block {% if b.shape == 'circle' %}shape-circle{% endif %}"
          style="left:{{ b.x }}%; top:{{ b.y }}%; width:{{ b.w }}%; height:{{ b.h }}%;">
 
@@ -179,10 +176,21 @@
         {% endif %}
       {% endif %}
     </div>
-    {% endfor %}
+{% endmacro %}
+</head>
+<body>
 
+  <div class="page">
+    {% for b in blocks %}{{ render_block(b) }}{% endfor %}
     <div class="footer">CV généré par CV-ATS.COM</div>
   </div>
+
+  {% if blocks_page2 %}
+  <div class="page" style="page-break-before: always;">
+    {% for b in blocks_page2 %}{{ render_block(b) }}{% endfor %}
+    <div class="footer">CV généré par CV-ATS.COM</div>
+  </div>
+  {% endif %}
 
   {% if cover_letter_lines %}
   <div class="cover-letter" style="page-break-before: always;">

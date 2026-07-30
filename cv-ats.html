@@ -250,6 +250,12 @@
       .shape-icon-circle { border-radius: 50%; }
       .shape-icon-rect { border-radius: 2px; }
       .designer-shapes-hint { font-size: 0.7rem; color: var(--text-muted); }
+      .designer-page-tabs { display: flex; align-items: center; gap: 8px; padding: 10px 22px; border-bottom: 1px solid var(--border); background: var(--off-white, #FAFAF8); flex-shrink: 0; }
+      .designer-page-tab { background: #fff; border: 1.5px solid var(--border); border-radius: 8px; padding: 6px 14px; font-family: 'Syne', sans-serif; font-size: 0.78rem; font-weight: 700; color: var(--text-muted); cursor: pointer; position: relative; }
+      .designer-page-tab:hover { border-color: var(--orange); }
+      .designer-page-tab.active { background: var(--orange); border-color: var(--orange); color: #fff; }
+      .designer-page-tab .page-count-badge { display: inline-block; margin-left: 6px; background: rgba(0,0,0,0.12); border-radius: 8px; padding: 0 6px; font-size: 0.68rem; }
+      .designer-page-tab.active .page-count-badge { background: rgba(255,255,255,0.3); }
       .designer-modal-body { flex: 1; overflow: auto; display: flex; align-items: flex-start; justify-content: center; padding: 24px; background: var(--off-white, #FAFAF8); }
       .designer-canvas { position: relative; width: 420px; height: 594px; background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.15); flex-shrink: 0; user-select: none; touch-action: none; }
       .designer-block { position: absolute; cursor: grab; }
@@ -291,7 +297,8 @@
       .designer-swatch { width: 18px; height: 18px; border-radius: 4px; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); }
       .designer-block.selected .designer-block-inner { border-style: solid; border-color: var(--orange); border-width: 2px; box-shadow: 0 0 0 2px rgba(255,107,0,0.25); }
       .designer-block.content-overflow .designer-block-inner { box-shadow: inset 0 -16px 12px -12px rgba(220,38,38,0.6); }
-      .designer-block.content-overflow::after { content: '⚠ contenu coupé — agrandis ce bloc'; position: absolute; bottom: -15px; left: 0; font-size: 0.58rem; font-weight: 700; color: #dc2626; white-space: nowrap; pointer-events: none; }
+      .designer-block.content-overflow::after { content: '⚠ contenu coupé'; position: absolute; bottom: -15px; left: 0; font-size: 0.58rem; font-weight: 700; color: #dc2626; white-space: nowrap; pointer-events: none; }
+      .designer-overflow-action { position: absolute; bottom: -36px; left: 0; background: var(--orange); color: #fff; border: none; border-radius: 6px; padding: 3px 10px; font-size: 0.62rem; font-weight: 700; cursor: pointer; z-index: 5; white-space: nowrap; }
       .designer-modal-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 22px; border-top: 1px solid var(--border); flex-shrink: 0; }
       .designer-reset-btn { background: none; border: 1.5px solid var(--border); border-radius: 8px; padding: 9px 16px; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); cursor: pointer; }
       .designer-reset-btn:hover { border-color: var(--orange); color: var(--orange-dark); }
@@ -1243,6 +1250,11 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
                 <span class="designer-shapes-hint">clique un bloc coloré du canvas pour lui donner sa propre couleur — sinon ça change la couleur par défaut</span>
               </div>
             </div>
+            <div class="designer-page-tabs" id="designerPageTabs">
+              <button type="button" class="designer-page-tab" data-page="1" onclick="setDesignerActivePage(1)">Page 1</button>
+              <button type="button" class="designer-page-tab" data-page="2" onclick="setDesignerActivePage(2)">Page 2</button>
+              <span class="designer-shapes-hint">1 page = norme recruteur. La page 2 est là pour les CV denses (10+ ans d'XP) — pas plus de 2.</span>
+            </div>
             <div class="designer-modal-body">
               <div class="designer-canvas" id="designerCanvas"></div>
             </div>
@@ -2041,8 +2053,10 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
     }
 
     function resetDesignerLayout() {
-      // Remet les blocs de contenu du CV à leur position par défaut, garde les formes ajoutées telles quelles
+      // Remet les blocs de contenu du CV à leur position par défaut (page 1), garde les formes ajoutées telles quelles
       designerBlocks = buildDefaultDesignerBlocks();
+      designerActivePage = 1;
+      updateDesignerPageTabs();
       renderDesignerCanvas();
     }
 
@@ -2057,6 +2071,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
         h: shape === 'circle' ? Math.round(w * PAGE_ASPECT * 10) / 10 : 14,
         bgColor: selectedColor || '#FF6B00',
         photo: null,
+        page: designerActivePage,
       });
       selectDesignerBlock(id);
     }
@@ -2081,6 +2096,32 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
     const COLOR_TARGET_FIELD = { title: 'titleColor', text: 'textColor', bg: 'bgColor' };
     let designerSelectedBlockId = null;
     let designerColorTarget = 'title';
+    let designerActivePage = 1;
+
+    function setDesignerActivePage(page) {
+      designerActivePage = page;
+      designerSelectedBlockId = null;
+      updateColorToolbarForSelection();
+      updateDesignerPageTabs();
+      renderDesignerCanvas();
+    }
+
+    function updateDesignerPageTabs() {
+      document.querySelectorAll('.designer-page-tab').forEach(tab => {
+        const page = parseInt(tab.dataset.page, 10);
+        const count = designerBlocks.filter(b => (b.page || 1) === page).length;
+        tab.innerHTML = `Page ${page}` + (count ? ` <span class="page-count-badge">${count}</span>` : '');
+        tab.classList.toggle('active', page === designerActivePage);
+      });
+    }
+
+    function moveDesignerBlockToPage2(blockId) {
+      const block = designerBlocks.find(b => b.id === blockId);
+      if (!block) return;
+      block.page = 2;
+      designerSelectedBlockId = blockId;
+      setDesignerActivePage(2);
+    }
     let designerWheelState = { h: 24, s: 1, v: 1 };
     let designerWheelAttached = false;
 
@@ -2168,6 +2209,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
         designerInitialized = true;
       }
       designerSelectedBlockId = null;
+      designerActivePage = 1;
       attachColorWheelEvents();
       updateColorToolbarForSelection();
       renderDesignerCanvas();
@@ -2274,6 +2316,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
         textColor: b.textColor || undefined,
         bgColor: b.bgColor || (b.type === 'forme' ? (selectedColor || '#FF6B00') : undefined),
         color: b.titleColor || selectedColor || undefined, // legacy fallback pour compat
+        page: b.page || 1,
       }));
     }
 
@@ -2310,7 +2353,8 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
     function renderDesignerCanvas() {
       const canvas = document.getElementById('designerCanvas');
       canvas.innerHTML = '';
-      designerBlocks.forEach(block => {
+      updateDesignerPageTabs();
+      designerBlocks.filter(block => (block.page || 1) === designerActivePage).forEach(block => {
         const isCircle = block.shape === 'circle';
         const el = document.createElement('div');
         el.className = 'designer-block' + (block.id === designerSelectedBlockId ? ' selected' : '');
@@ -2373,7 +2417,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
         canvas.appendChild(el);
         attachDesignerDrag(el, block, canvas);
         if (['identite', 'competences', 'formation', 'experience', 'autres'].includes(block.type)) {
-          checkDesignerBlockOverflow(el, content);
+          checkDesignerBlockOverflow(el, content, block);
         }
       });
       if (!canvas.dataset.deselectBound) {
@@ -2384,10 +2428,20 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
       }
     }
 
-    function checkDesignerBlockOverflow(el, content) {
+    function checkDesignerBlockOverflow(el, content, block) {
       requestAnimationFrame(() => {
         const overflowing = content.scrollHeight > content.clientHeight + 1;
         el.classList.toggle('content-overflow', overflowing);
+        const existingBtn = el.querySelector('.designer-overflow-action');
+        if (existingBtn) existingBtn.remove();
+        if (overflowing && (block.page || 1) === 1) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'designer-overflow-action';
+          btn.textContent = '→ Envoyer sur la page 2';
+          btn.onclick = (e) => { e.stopPropagation(); moveDesignerBlockToPage2(block.id); };
+          el.appendChild(btn);
+        }
       });
     }
 
