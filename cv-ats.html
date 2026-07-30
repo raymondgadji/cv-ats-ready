@@ -1223,6 +1223,11 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
             </div>
             <div class="designer-modal-content">
               <div class="designer-sidebar">
+                <div class="designer-page-tabs" id="designerPageTabs">
+                  <button type="button" class="designer-page-tab" data-page="1" onclick="setDesignerActivePage(1)">Page 1</button>
+                  <button type="button" class="designer-page-tab" data-page="2" onclick="setDesignerActivePage(2)">Page 2</button>
+                  <span class="designer-shapes-hint">1 page = norme recruteur. Page 2 pour les CV denses (10+ ans d'XP) — pas plus de 2.</span>
+                </div>
                 <div class="designer-shapes-toolbar">
                   <span class="designer-shapes-label">➕ Ajouter une forme</span>
                   <button type="button" class="designer-shape-btn" onclick="addShapeBlock('circle')"><span class="shape-icon shape-icon-circle"></span> Cercle</button>
@@ -1256,11 +1261,6 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
                     </div>
                     <span class="designer-shapes-hint">clique un bloc coloré du canvas pour lui donner sa propre couleur</span>
                   </div>
-                </div>
-                <div class="designer-page-tabs" id="designerPageTabs">
-                  <button type="button" class="designer-page-tab" data-page="1" onclick="setDesignerActivePage(1)">Page 1</button>
-                  <button type="button" class="designer-page-tab" data-page="2" onclick="setDesignerActivePage(2)">Page 2</button>
-                  <span class="designer-shapes-hint">1 page = norme recruteur. Page 2 pour les CV denses (10+ ans d'XP) — pas plus de 2.</span>
                 </div>
               </div>
               <div class="designer-modal-body">
@@ -2011,6 +2011,9 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
 
     const MIN_BLOCK_W = 8;
     const MIN_BLOCK_H = 6;
+    // Certains blocs ont un contenu à taille fixe (nom, photo) qui déborde très vite si on descend
+    // sous une taille raisonnable — plancher plus haut pour éviter l'effet "ça bug" perçu par l'utilisateur.
+    const MIN_BLOCK_H_BY_TYPE = { identite: 9 };
 
     let designerBlocks = [];
     let designerSections = { header: [], experience: [], formation: [], competences: [], autres: [] };
@@ -2107,12 +2110,26 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
     let designerColorTarget = 'title';
     let designerActivePage = 1;
 
-    function setDesignerActivePage(page) {
+    function showDesignerToast(msg) {
+      const toast = document.createElement('div');
+      toast.style.cssText = `position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:10px 20px;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;font-size:0.82rem;box-shadow:0 8px 24px rgba(0,0,0,0.35);z-index:10010;text-align:center;max-width:90vw;`;
+      toast.textContent = msg;
+      document.body.appendChild(toast);
+      setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity .3s'; }, 2200);
+      setTimeout(() => toast.remove(), 2600);
+    }
+
+    function setDesignerActivePage(page, opts) {
       designerActivePage = page;
       designerSelectedBlockId = null;
       updateColorToolbarForSelection();
       updateDesignerPageTabs();
       renderDesignerCanvas();
+      if (!opts || !opts.silent) {
+        const otherPage = page === 1 ? 2 : 1;
+        const otherCount = designerBlocks.filter(b => (b.page || 1) === otherPage).length;
+        showDesignerToast(`📄 Page ${page} affichée` + (otherCount ? ` — ton contenu de la Page ${otherPage} (${otherCount} bloc${otherCount > 1 ? 's' : ''}) est toujours là` : ' (vide)'));
+      }
     }
 
     function updateDesignerPageTabs() {
@@ -2129,8 +2146,8 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
       const block = designerBlocks.find(b => b.id === blockId);
       if (!block) return;
       block.page = 2;
-      designerSelectedBlockId = blockId;
       setDesignerActivePage(2);
+      selectDesignerBlock(blockId);
     }
     let designerWheelState = { h: 24, s: 1, v: 1 };
     let designerWheelAttached = false;
@@ -2552,10 +2569,11 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
             x = edges.left ? s.x + s.w - w : s.x;
             y = edges.top ? s.y + s.h - h : s.y;
           } else {
+            const minH = MIN_BLOCK_H_BY_TYPE[block.type] || MIN_BLOCK_H;
             if (edges.left)   { w = Math.max(s.w - dxPct, MIN_BLOCK_W); x = s.x + (s.w - w); }
             if (edges.right)  { w = Math.max(s.w + dxPct, MIN_BLOCK_W); }
-            if (edges.top)    { h = Math.max(s.h - dyPct, MIN_BLOCK_H); y = s.y + (s.h - h); }
-            if (edges.bottom) { h = Math.max(s.h + dyPct, MIN_BLOCK_H); }
+            if (edges.top)    { h = Math.max(s.h - dyPct, minH); y = s.y + (s.h - h); }
+            if (edges.bottom) { h = Math.max(s.h + dyPct, minH); }
           }
 
           x = Math.min(Math.max(x, 0), 100 - w);
