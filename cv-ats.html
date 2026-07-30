@@ -252,18 +252,30 @@
       .designer-shapes-hint { font-size: 0.7rem; color: var(--text-muted); }
       .designer-modal-body { flex: 1; overflow: auto; display: flex; align-items: flex-start; justify-content: center; padding: 24px; background: var(--off-white, #FAFAF8); }
       .designer-canvas { position: relative; width: 420px; height: 594px; background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.15); flex-shrink: 0; user-select: none; touch-action: none; }
-      .designer-block { position: absolute; border: 1.5px dashed rgba(255,107,0,0.5); background: rgba(255,107,0,0.05); border-radius: 6px; cursor: grab; overflow: hidden; }
+      .designer-block { position: absolute; cursor: grab; }
       .designer-block:active { cursor: grabbing; }
-      .designer-block.shape-circle { border-radius: 50%; }
-      .designer-block-label { position: absolute; top: 3px; left: 6px; font-family: 'Syne', sans-serif; font-size: 0.6rem; font-weight: 700; color: var(--orange-dark); text-transform: uppercase; letter-spacing: 0.03em; pointer-events: none; opacity: 0.85; }
+      .designer-block-inner { position: absolute; inset: 0; border: 1.5px dashed rgba(255,107,0,0.5); background: rgba(255,107,0,0.05); border-radius: 6px; overflow: hidden; }
+      .designer-block-inner.shape-circle { border-radius: 50%; }
       .designer-block-content { position: absolute; inset: 0; padding: 14px 8px 6px; font-size: 0.62rem; color: #333; line-height: 1.35; overflow: hidden; pointer-events: none; }
-      .designer-block.shape-circle .designer-block-content { display: flex; align-items: center; justify-content: center; padding: 0; }
+      .designer-block-inner.shape-circle .designer-block-content { display: flex; align-items: center; justify-content: center; padding: 0; }
       .designer-photo-img { width: 100%; height: 100%; object-fit: cover; display: block; }
       .designer-photo-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; color: var(--orange-dark); background: var(--orange-pale); }
-      .designer-photo-upload-btn { position: absolute; bottom: 4px; right: 4px; background: var(--orange); color: #fff; border: none; width: 22px; height: 22px; border-radius: 50%; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2; }
-      .designer-block-delete { position: absolute; top: 4px; right: 4px; background: rgba(220,38,38,0.9); color: #fff; border: none; width: 18px; height: 18px; border-radius: 50%; font-size: 0.65rem; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 3; }
-      .designer-resize-handle { position: absolute; right: 0; bottom: 0; width: 14px; height: 14px; background: var(--orange); border-radius: 3px 0 6px 0; cursor: nwse-resize; z-index: 3; }
-      .designer-block.shape-circle .designer-resize-handle { bottom: 6%; right: 6%; border-radius: 50%; }
+      .designer-photo-upload-btn { position: absolute; bottom: 2px; right: 2px; background: var(--orange); color: #fff; border: none; width: 22px; height: 22px; border-radius: 50%; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 4; }
+      .designer-block-delete { position: absolute; top: -6px; right: -6px; background: rgba(220,38,38,0.95); color: #fff; border: 2px solid #fff; width: 18px; height: 18px; border-radius: 50%; font-size: 0.65rem; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 4; }
+      .designer-resize-handle { position: absolute; width: 11px; height: 11px; background: var(--orange); border: 1.5px solid #fff; border-radius: 3px; z-index: 3; }
+      .handle-nw { top: -6px; left: -6px; cursor: nwse-resize; }
+      .handle-n  { top: -6px; left: 50%; margin-left: -5.5px; cursor: ns-resize; }
+      .handle-ne { top: -6px; right: -6px; cursor: nesw-resize; }
+      .handle-e  { top: 50%; right: -6px; margin-top: -5.5px; cursor: ew-resize; }
+      .handle-se { bottom: -6px; right: -6px; cursor: nwse-resize; }
+      .handle-s  { bottom: -6px; left: 50%; margin-left: -5.5px; cursor: ns-resize; }
+      .handle-sw { bottom: -6px; left: -6px; cursor: nesw-resize; }
+      .handle-w  { top: 50%; left: -6px; margin-top: -5.5px; cursor: ew-resize; }
+      .designer-color-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 22px; border-bottom: 1px solid var(--border); background: #fff; flex-shrink: 0; }
+      .designer-color-toolbar .designer-shapes-label { white-space: nowrap; }
+      .designer-color-input { width: 32px; height: 32px; border: none; border-radius: 6px; cursor: pointer; padding: 1px; outline: 1px solid var(--border); background: transparent; }
+      .designer-color-hex { width: 78px; font-size: 0.75rem; font-family: monospace; border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; background: transparent; color: var(--text); outline: none; }
+      .designer-swatch { width: 18px; height: 18px; border-radius: 4px; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); }
       .designer-modal-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 22px; border-top: 1px solid var(--border); flex-shrink: 0; }
       .designer-reset-btn { background: none; border: 1.5px solid var(--border); border-radius: 8px; padding: 9px 16px; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); cursor: pointer; }
       .designer-reset-btn:hover { border-color: var(--orange); color: var(--orange-dark); }
@@ -1189,6 +1201,17 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
               <button type="button" class="designer-shape-btn" onclick="addShapeBlock('rect')"><span class="shape-icon shape-icon-rect"></span> Rectangle</button>
               <span class="designer-shapes-hint">utile pour un logo, une photo en plus, un bandeau couleur…</span>
             </div>
+            <div class="designer-color-toolbar">
+              <span class="designer-shapes-label">🎨 Couleur :</span>
+              <input type="color" id="designerColorPicker" value="#FF6B00" class="designer-color-input" oninput="onDesignerColorPick(this.value)" />
+              <input type="text" id="designerColorHex" value="#FF6B00" maxlength="7" class="designer-color-hex" oninput="onDesignerColorHexInput(this.value)" />
+              <div class="designer-swatch" style="background:#FF6B00" onclick="quickDesignerColor('#FF6B00')" title="Orange"></div>
+              <div class="designer-swatch" style="background:#1a56db" onclick="quickDesignerColor('#1a56db')" title="Bleu"></div>
+              <div class="designer-swatch" style="background:#16a34a" onclick="quickDesignerColor('#16a34a')" title="Vert"></div>
+              <div class="designer-swatch" style="background:#7c3aed" onclick="quickDesignerColor('#7c3aed')" title="Violet"></div>
+              <div class="designer-swatch" style="background:#dc2626" onclick="quickDesignerColor('#dc2626')" title="Rouge"></div>
+              <span class="designer-shapes-hint">change les titres, pastilles et formes en direct</span>
+            </div>
             <div class="designer-modal-body">
               <div class="designer-canvas" id="designerCanvas"></div>
             </div>
@@ -1921,14 +1944,21 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
       formation: 'Formation', experience: 'Expérience', autres: 'Autres',
     };
 
+    // Ratio A4 (210x297mm) — le canvas à l'écran a exactement le même ratio que la page PDF.
+    // Un bloc "cercle" doit avoir h% = w% * PAGE_ASPECT pour être un vrai cercle (pas une ellipse).
+    const PAGE_ASPECT = 210 / 297;
+
     const DESIGNER_DEFAULTS = {
       identite:    { x: 4,  y: 4,  w: 68, h: 12 },
-      photo:       { x: 78, y: 4,  w: 18, h: 18, shape: 'circle' },
+      photo:       { x: 78, y: 4,  w: 18, h: Math.round(18 * PAGE_ASPECT * 10) / 10, shape: 'circle' },
       competences: { x: 4,  y: 20, w: 28, h: 34 },
       formation:   { x: 4,  y: 57, w: 28, h: 18 },
       experience:  { x: 35, y: 20, w: 61, h: 45 },
       autres:      { x: 35, y: 68, w: 61, h: 24 },
     };
+
+    const MIN_BLOCK_W = 8;
+    const MIN_BLOCK_H = 6;
 
     let designerBlocks = [];
     let designerSections = { header: [], experience: [], formation: [], competences: [], autres: [] };
@@ -1987,13 +2017,14 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
 
     function addShapeBlock(shape) {
       designerShapeCounter += 1;
+      const w = shape === 'circle' ? 16 : 26;
       designerBlocks.push({
         id: 'forme-' + Date.now() + '-' + designerShapeCounter,
         type: 'forme',
         shape,
         x: 40, y: 42,
-        w: shape === 'circle' ? 16 : 26,
-        h: shape === 'circle' ? 16 : 14,
+        w,
+        h: shape === 'circle' ? Math.round(w * PAGE_ASPECT * 10) / 10 : 14,
         color: selectedColor || '#FF6B00',
         photo: null,
       });
@@ -2016,8 +2047,34 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
         designerBlocks = buildDefaultDesignerBlocks();
         designerInitialized = true;
       }
+      syncDesignerColorInputs(selectedColor || '#FF6B00');
       renderDesignerCanvas();
       document.getElementById('designerOverlay').classList.add('show');
+    }
+
+    function syncDesignerColorInputs(value) {
+      const picker = document.getElementById('designerColorPicker');
+      if (picker) picker.value = value;
+      const hex = document.getElementById('designerColorHex');
+      if (hex) hex.value = value.toUpperCase();
+    }
+
+    function onDesignerColorPick(value) {
+      selectedColor = value;
+      syncDesignerColorInputs(value);
+      // Garde le picker principal (hors modale) synchronisé aussi
+      const mainPicker = document.getElementById('colorPicker'); if (mainPicker) mainPicker.value = value;
+      const mainHex = document.getElementById('colorHexInput'); if (mainHex) mainHex.value = value.toUpperCase();
+      updatePreviews();
+    }
+
+    function onDesignerColorHexInput(val) {
+      const hex = val.startsWith('#') ? val : '#' + val;
+      if (/^#[0-9A-Fa-f]{6}$/.test(hex)) onDesignerColorPick(hex);
+    }
+
+    function quickDesignerColor(color) {
+      onDesignerColorPick(color);
     }
 
     function closeDesigner() {
@@ -2060,15 +2117,23 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
       return '';
     }
 
+    const CORNER_HANDLES = ['nw', 'ne', 'se', 'sw'];
+    const ALL_HANDLES = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
+
     function renderDesignerCanvas() {
       const canvas = document.getElementById('designerCanvas');
       canvas.innerHTML = '';
       designerBlocks.forEach(block => {
+        const isCircle = block.shape === 'circle';
         const el = document.createElement('div');
-        el.className = 'designer-block' + (block.shape === 'circle' ? ' shape-circle' : '');
+        el.className = 'designer-block';
         el.style.left = block.x + '%'; el.style.top = block.y + '%';
         el.style.width = block.w + '%'; el.style.height = block.h + '%';
         el.dataset.blockId = block.id;
+
+        // Wrapper interne clippé (cercle/rect) — les boutons/poignées restent HORS de ce clip
+        const inner = document.createElement('div');
+        inner.className = 'designer-block-inner' + (isCircle ? ' shape-circle' : '');
 
         const content = document.createElement('div');
         content.className = 'designer-block-content';
@@ -2077,6 +2142,8 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
           content.innerHTML = block.photo
             ? `<img class="designer-photo-img" src="${block.photo}" />`
             : `<div class="designer-photo-placeholder">📷</div>`;
+          inner.appendChild(content);
+          el.appendChild(inner);
           const uploadBtn = document.createElement('button');
           uploadBtn.type = 'button';
           uploadBtn.className = 'designer-photo-upload-btn';
@@ -2086,7 +2153,9 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
         } else if (block.type === 'forme') {
           content.innerHTML = block.photo
             ? `<img class="designer-photo-img" src="${block.photo}" />`
-            : `<div style="width:100%;height:100%;background:${block.color || selectedColor || '#FF6B00'};${block.shape === 'circle' ? 'border-radius:50%;' : 'border-radius:4px;'}"></div>`;
+            : `<div style="width:100%;height:100%;background:${block.color || selectedColor || '#FF6B00'};"></div>`;
+          inner.appendChild(content);
+          el.appendChild(inner);
           const uploadBtn = document.createElement('button');
           uploadBtn.type = 'button';
           uploadBtn.className = 'designer-photo-upload-btn';
@@ -2102,16 +2171,20 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
           el.appendChild(delBtn);
         } else {
           content.innerHTML = designerBlockContentHTML(block);
+          inner.appendChild(content);
+          el.appendChild(inner);
         }
-        el.appendChild(content);
 
-        const handle = document.createElement('div');
-        handle.className = 'designer-resize-handle';
-        el.appendChild(handle);
+        const handlePositions = isCircle ? CORNER_HANDLES : ALL_HANDLES;
+        handlePositions.forEach(pos => {
+          const handle = document.createElement('div');
+          handle.className = 'designer-resize-handle handle-' + pos;
+          el.appendChild(handle);
+          attachDesignerResize(pos, handle, el, block, canvas);
+        });
 
         canvas.appendChild(el);
         attachDesignerDrag(el, block, canvas);
-        attachDesignerResize(handle, el, block, canvas);
       });
     }
 
@@ -2155,19 +2228,49 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
       });
     }
 
-    function attachDesignerResize(handle, el, block, canvas) {
+    function attachDesignerResize(pos, handle, el, block, canvas) {
+      const edges = {
+        top: pos.includes('n'), bottom: pos.includes('s'),
+        left: pos.includes('w'), right: pos.includes('e'),
+      };
       handle.addEventListener('pointerdown', (e) => {
         e.preventDefault(); e.stopPropagation();
-        handle.setPointerCapture(e.pointerId);
+        try { handle.setPointerCapture(e.pointerId); } catch (_) {}
         const rect = canvas.getBoundingClientRect();
         const startX = e.clientX, startY = e.clientY;
-        const startW = block.w, startH = block.h;
+        const s = { x: block.x, y: block.y, w: block.w, h: block.h };
         const onMove = (mv) => {
-          const dwPct = ((mv.clientX - startX) / rect.width) * 100;
-          const dhPct = ((mv.clientY - startY) / rect.height) * 100;
-          block.w = Math.min(Math.max(startW + dwPct, 8), 100 - block.x);
-          block.h = Math.min(Math.max(startH + dhPct, 6), 100 - block.y);
-          el.style.width = block.w + '%'; el.style.height = block.h + '%';
+          const dxPct = ((mv.clientX - startX) / rect.width) * 100;
+          const dyPct = ((mv.clientY - startY) / rect.height) * 100;
+          let x = s.x, y = s.y, w = s.w, h = s.h;
+
+          if (block.shape === 'circle') {
+            // Verrouillé au ratio A4 pour rester un cercle parfait — on scale depuis le coin opposé
+            const dxSign = edges.right ? 1 : (edges.left ? -1 : 0);
+            const dySign = edges.bottom ? 1 : (edges.top ? -1 : 0);
+            const contributions = [];
+            if (dxSign) contributions.push(dxPct * dxSign);
+            if (dySign) contributions.push((dyPct * dySign) / PAGE_ASPECT);
+            const growth = contributions.length ? contributions.reduce((a, b) => a + b, 0) / contributions.length : 0;
+            w = Math.max(s.w + growth, MIN_BLOCK_W);
+            h = w * PAGE_ASPECT;
+            x = edges.left ? s.x + s.w - w : s.x;
+            y = edges.top ? s.y + s.h - h : s.y;
+          } else {
+            if (edges.left)   { w = Math.max(s.w - dxPct, MIN_BLOCK_W); x = s.x + (s.w - w); }
+            if (edges.right)  { w = Math.max(s.w + dxPct, MIN_BLOCK_W); }
+            if (edges.top)    { h = Math.max(s.h - dyPct, MIN_BLOCK_H); y = s.y + (s.h - h); }
+            if (edges.bottom) { h = Math.max(s.h + dyPct, MIN_BLOCK_H); }
+          }
+
+          x = Math.min(Math.max(x, 0), 100 - w);
+          y = Math.min(Math.max(y, 0), 100 - h);
+          w = Math.min(w, 100 - x);
+          h = Math.min(h, 100 - y);
+
+          block.x = x; block.y = y; block.w = w; block.h = h;
+          el.style.left = x + '%'; el.style.top = y + '%';
+          el.style.width = w + '%'; el.style.height = h + '%';
         };
         const onUp = () => {
           handle.removeEventListener('pointermove', onMove);
