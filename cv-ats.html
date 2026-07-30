@@ -2030,6 +2030,14 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
       return div.innerHTML;
     }
 
+    const DESIGNER_NOISE_LABELS = new Set(['coordonnées', 'coordonnees', 'contact', 'contacts', 'informations', 'informations personnelles']);
+    function isDesignerNoiseLine(line) {
+      if (/^[-=_*~]{2,}$/.test(line)) return true;
+      return DESIGNER_NOISE_LABELS.has(line.replace(/^:+|:+$| /g, '').toLowerCase().trim());
+    }
+
+    // Miroir JS de _parse_cv_sections() (main.py) — garder les deux logiques synchronisées,
+    // sinon l'aperçu de l'éditeur ne correspond plus au PDF final réellement généré.
     function parseCvSectionsClient(cvText) {
       const sections = { header: [], experience: [], formation: [], competences: [], autres: [] };
       let current = 'header';
@@ -2040,13 +2048,17 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
       };
       (cvText || '').split('\n').forEach(rawLine => {
         const line = rawLine.trim();
-        if (!line) return;
+        if (!line || isDesignerNoiseLine(line)) return;
         const lower = line.toLowerCase();
-        let matched = false;
+        let matchedKnown = false;
         for (const key in sectionMap) {
-          if (lower.includes(key) && line.length < 60) { current = sectionMap[key]; matched = true; break; }
+          if (lower.includes(key) && line.length < 60) { current = sectionMap[key]; matchedKnown = true; break; }
         }
-        if (!matched) sections[current].push(line);
+        if (matchedKnown) return;
+        if (current !== 'header' && line === line.toUpperCase() && /[A-ZÀ-Ý]/.test(line) && line.length > 3 && line.length < 60) {
+          current = 'autres';
+        }
+        sections[current].push(line);
       });
       return sections;
     }

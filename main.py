@@ -5,6 +5,7 @@ v1.4.0 — Templates PDF Moderne/Classique migrés vers HTML/CSS + WeasyPrint
 
 import os
 import io
+import re
 import json
 import secrets
 import datetime
@@ -343,6 +344,17 @@ _PDF_TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "utils", "pdf_templ
 _jinja_env = Environment(loader=FileSystemLoader(_PDF_TEMPLATES_DIR))
 
 
+_NOISE_LINE_RE = re.compile(r"^[-=_*~]{2,}$")
+_NOISE_LABELS = {"coordonnées", "coordonnees", "contact", "contacts", "informations", "informations personnelles"}
+
+
+def _is_noise_line(line_clean: str) -> bool:
+    """Séparateurs ("---") et labels génériques ("Coordonnées") qui ne sont pas du vrai contenu."""
+    if _NOISE_LINE_RE.match(line_clean):
+        return True
+    return line_clean.strip(" :").lower() in _NOISE_LABELS
+
+
 def _parse_cv_sections(cv_text: str) -> dict:
     """Parse le texte du CV en sections."""
     sections = {"header": [], "experience": [], "formation": [], "competences": [], "autres": []}
@@ -355,7 +367,7 @@ def _parse_cv_sections(cv_text: str) -> dict:
     }
     for line in lines:
         line_clean = line.strip()
-        if not line_clean:
+        if not line_clean or _is_noise_line(line_clean):
             continue
         lower = line_clean.lower()
         matched_known = False
