@@ -258,13 +258,15 @@
       .designer-page-tab.active { background: var(--orange); border-color: var(--orange); color: #fff; }
       .designer-page-tab .page-count-badge { display: inline-block; margin-left: 6px; background: rgba(0,0,0,0.12); border-radius: 8px; padding: 0 6px; font-size: 0.68rem; }
       .designer-page-tab.active .page-count-badge { background: rgba(255,255,255,0.3); }
+      .designer-move-block-btn { background: #1a1a1a; color: #fff; border: none; border-radius: 8px; padding: 8px 12px; font-size: 0.74rem; font-weight: 700; cursor: pointer; }
+      .designer-move-block-btn:hover { background: var(--orange-dark, #d95a00); }
       .designer-modal-body { flex: 1; min-width: 0; overflow: auto; display: flex; align-items: center; justify-content: center; padding: 20px; background: var(--off-white, #FAFAF8); }
       .designer-canvas { position: relative; width: 420px; height: 594px; background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.15); flex-shrink: 0; user-select: none; touch-action: none; margin: auto; }
       .designer-block { position: absolute; cursor: grab; }
       .designer-block:active { cursor: grabbing; }
       .designer-block-inner { position: absolute; inset: 0; border: 1.5px dashed rgba(255,107,0,0.5); background: rgba(255,107,0,0.05); border-radius: 6px; overflow: hidden; }
       .designer-block-inner.shape-circle { border-radius: 50%; }
-      .designer-block-content { position: absolute; inset: 0; padding: 14px 8px 6px; font-size: 0.62rem; color: #333; line-height: 1.35; overflow: hidden; pointer-events: none; }
+      .designer-block-content { position: absolute; inset: 0; padding: 6px 8px; font-size: 0.62rem; color: #333; line-height: 1.35; overflow: hidden; pointer-events: none; }
       .designer-block-inner.shape-circle .designer-block-content { display: flex; align-items: center; justify-content: center; padding: 0; }
       .designer-photo-img { width: 100%; height: 100%; object-fit: cover; display: block; }
       .designer-photo-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; color: var(--orange-dark); background: var(--orange-pale); }
@@ -1227,6 +1229,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
                   <button type="button" class="designer-page-tab" data-page="1" onclick="setDesignerActivePage(1)">Page 1</button>
                   <button type="button" class="designer-page-tab" data-page="2" onclick="setDesignerActivePage(2)">Page 2</button>
                   <span class="designer-shapes-hint">1 page = norme recruteur. Page 2 pour les CV denses (10+ ans d'XP) — pas plus de 2.</span>
+                  <button type="button" id="designerMoveBlockBtn" class="designer-move-block-btn" style="display:none;"></button>
                 </div>
                 <div class="designer-shapes-toolbar">
                   <span class="designer-shapes-label">➕ Ajouter une forme</span>
@@ -2123,6 +2126,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
       designerActivePage = page;
       designerSelectedBlockId = null;
       updateColorToolbarForSelection();
+      updatePageMoveButton();
       updateDesignerPageTabs();
       renderDesignerCanvas();
       if (!opts || !opts.silent) {
@@ -2142,12 +2146,24 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
       });
     }
 
-    function moveDesignerBlockToPage2(blockId) {
+    function moveDesignerBlockToPage(blockId, targetPage) {
       const block = designerBlocks.find(b => b.id === blockId);
       if (!block) return;
-      block.page = 2;
-      setDesignerActivePage(2);
+      block.page = targetPage;
+      setDesignerActivePage(targetPage);
       selectDesignerBlock(blockId);
+    }
+
+    function updatePageMoveButton() {
+      const btn = document.getElementById('designerMoveBlockBtn');
+      if (!btn) return;
+      const block = designerBlocks.find(b => b.id === designerSelectedBlockId);
+      if (!block) { btn.style.display = 'none'; return; }
+      const currentPage = block.page || 1;
+      const targetPage = currentPage === 1 ? 2 : 1;
+      btn.style.display = 'block';
+      btn.textContent = (targetPage === 2 ? '→ Envoyer ce bloc en Page 2' : '← Renvoyer ce bloc en Page 1');
+      btn.onclick = () => moveDesignerBlockToPage(block.id, targetPage);
     }
     let designerWheelState = { h: 24, s: 1, v: 1 };
     let designerWheelAttached = false;
@@ -2239,6 +2255,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
       designerActivePage = 1;
       attachColorWheelEvents();
       updateColorToolbarForSelection();
+      updatePageMoveButton();
       renderDesignerCanvas();
       document.getElementById('designerOverlay').classList.add('show');
       fitDesignerCanvasSize();
@@ -2322,6 +2339,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
     function selectDesignerBlock(id) {
       designerSelectedBlockId = id;
       updateColorToolbarForSelection();
+      updatePageMoveButton();
       renderDesignerCanvas();
     }
 
@@ -2476,7 +2494,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
       if (!canvas.dataset.deselectBound) {
         canvas.dataset.deselectBound = '1';
         canvas.addEventListener('pointerdown', (e) => {
-          if (e.target === canvas) { designerSelectedBlockId = null; updateColorToolbarForSelection(); renderDesignerCanvas(); }
+          if (e.target === canvas) { designerSelectedBlockId = null; updateColorToolbarForSelection(); updatePageMoveButton(); renderDesignerCanvas(); }
         });
       }
     }
@@ -2492,7 +2510,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
           btn.type = 'button';
           btn.className = 'designer-overflow-action';
           btn.textContent = '→ Envoyer sur la page 2';
-          btn.onclick = (e) => { e.stopPropagation(); moveDesignerBlockToPage2(block.id); };
+          btn.onclick = (e) => { e.stopPropagation(); moveDesignerBlockToPage(block.id, 2); };
           el.appendChild(btn);
         }
       });
