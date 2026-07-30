@@ -400,6 +400,47 @@ def export_to_pdf_template(
     return WeasyHTML(string=html, base_url=_PDF_TEMPLATES_DIR).write_pdf()
 
 
+def export_to_pdf_designer(
+    cv_text: str,
+    cover_letter: str = "",
+    layout: list = None,
+    color: str = "#FF6B00",
+) -> bytes:
+    """Génère un PDF à mise en page libre (blocs positionnés par l'utilisateur) via WeasyPrint."""
+    from weasyprint import HTML as WeasyHTML
+    sections = _parse_cv_sections(cv_text)
+    jinja_tpl = _jinja_env.get_template("designer.html.jinja")
+
+    def _lighten(hex_color: str, amount: float = 0.85) -> str:
+        try:
+            h = hex_color.lstrip("#")
+            r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+            r = round(r + (255 - r) * amount)
+            g = round(g + (255 - g) * amount)
+            b = round(b + (255 - b) * amount)
+            return f"#{r:02x}{g:02x}{b:02x}"
+        except Exception:
+            return "#f3f3f3"
+
+    html = jinja_tpl.render(
+        blocks=layout or [],
+        name=sections["header"][0] if sections["header"] else "Candidat",
+        contact_lines=[l for l in sections["header"][1:4] if l.strip()],
+        experience=sections["experience"],
+        formation=sections["formation"],
+        competences=sections["competences"],
+        autres=sections["autres"],
+        cover_letter_lines=[l.strip() for l in cover_letter.split("\n") if l.strip()] if cover_letter.strip() else [],
+        accent_color=color,
+        accent_light=_lighten(color, 0.85),
+        accent_light_strong=_lighten(color, 0.75),
+        dark_text="#1a1a1a",
+        text_muted="#8a8a8a",
+    )
+
+    return WeasyHTML(string=html, base_url=_PDF_TEMPLATES_DIR).write_pdf()
+
+
 @app.post("/api/optimize")
 async def optimize(
     request: Request,
@@ -416,6 +457,7 @@ async def optimize(
     cv_template:            str        = Form("aucun"),
     cv_template_color:      str        = Form("#FF6B00"),
     cv_template_bg:         str        = Form("#0C0C18"),
+    designer_layout:        str        = Form(""),
 ):
     paid = False
     if free_token:
@@ -495,6 +537,17 @@ async def optimize(
                 template=tpl,
                 color=cv_template_color,
                 bg_color=cv_template_bg,
+            )
+        elif tpl == "designer" and designer_layout.strip():
+            try:
+                layout = json.loads(designer_layout)
+            except (json.JSONDecodeError, TypeError):
+                layout = []
+            pdf_bytes = export_to_pdf_designer(
+                cv_text=final_cv,
+                cover_letter=cover_letter,
+                layout=layout,
+                color=cv_template_color,
             )
         else:
             pdf_bytes = export_to_pdf(final_cv, cover_letter)
