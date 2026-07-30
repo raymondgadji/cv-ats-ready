@@ -236,28 +236,30 @@
       /* ── CV Designer — canvas libre ── */
       .designer-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(12,12,24,0.72); z-index: 10000; align-items: center; justify-content: center; padding: 20px; }
       .designer-modal-overlay.show { display: flex; }
-      .designer-modal { background: #fff; border-radius: 16px; width: 100%; max-width: 920px; max-height: 92vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.4); }
+      .designer-modal { background: #fff; border-radius: 16px; width: 100%; max-width: 1400px; height: 96vh; max-height: 96vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.4); }
       .designer-modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 22px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
       .designer-modal-header h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 800; color: var(--text); margin: 0; }
       .designer-modal-header .hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
       .designer-close-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--text-muted); line-height: 1; padding: 4px 8px; }
       .designer-close-btn:hover { color: var(--text); }
-      .designer-shapes-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 10px 22px; border-bottom: 1px solid var(--border); background: var(--off-white, #FAFAF8); flex-shrink: 0; }
+      .designer-modal-content { flex: 1; display: flex; overflow: hidden; min-height: 0; }
+      .designer-sidebar { width: 280px; flex-shrink: 0; overflow-y: auto; border-right: 1px solid var(--border); background: var(--off-white, #FAFAF8); display: flex; flex-direction: column; }
+      .designer-shapes-toolbar { display: flex; flex-direction: column; align-items: stretch; gap: 8px; padding: 16px 18px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
       .designer-shapes-label { font-size: 0.76rem; font-weight: 700; color: var(--text); }
-      .designer-shape-btn { display: flex; align-items: center; gap: 6px; background: #fff; border: 1.5px solid var(--border); border-radius: 8px; padding: 6px 12px; font-size: 0.76rem; font-weight: 600; color: var(--text); cursor: pointer; }
+      .designer-shape-btn { display: flex; align-items: center; justify-content: center; gap: 6px; background: #fff; border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 0.76rem; font-weight: 600; color: var(--text); cursor: pointer; }
       .designer-shape-btn:hover { border-color: var(--orange); color: var(--orange-dark); }
       .shape-icon { display: inline-block; width: 12px; height: 12px; background: var(--orange); }
       .shape-icon-circle { border-radius: 50%; }
       .shape-icon-rect { border-radius: 2px; }
       .designer-shapes-hint { font-size: 0.7rem; color: var(--text-muted); }
-      .designer-page-tabs { display: flex; align-items: center; gap: 8px; padding: 10px 22px; border-bottom: 1px solid var(--border); background: var(--off-white, #FAFAF8); flex-shrink: 0; }
-      .designer-page-tab { background: #fff; border: 1.5px solid var(--border); border-radius: 8px; padding: 6px 14px; font-family: 'Syne', sans-serif; font-size: 0.78rem; font-weight: 700; color: var(--text-muted); cursor: pointer; position: relative; }
+      .designer-page-tabs { display: flex; flex-direction: column; align-items: stretch; gap: 8px; padding: 16px 18px; flex-shrink: 0; }
+      .designer-page-tab { background: #fff; border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 14px; font-family: 'Syne', sans-serif; font-size: 0.78rem; font-weight: 700; color: var(--text-muted); cursor: pointer; position: relative; text-align: center; }
       .designer-page-tab:hover { border-color: var(--orange); }
       .designer-page-tab.active { background: var(--orange); border-color: var(--orange); color: #fff; }
       .designer-page-tab .page-count-badge { display: inline-block; margin-left: 6px; background: rgba(0,0,0,0.12); border-radius: 8px; padding: 0 6px; font-size: 0.68rem; }
       .designer-page-tab.active .page-count-badge { background: rgba(255,255,255,0.3); }
-      .designer-modal-body { flex: 1; overflow: auto; display: flex; align-items: flex-start; justify-content: center; padding: 24px; background: var(--off-white, #FAFAF8); }
-      .designer-canvas { position: relative; width: 420px; height: 594px; background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.15); flex-shrink: 0; user-select: none; touch-action: none; }
+      .designer-modal-body { flex: 1; min-width: 0; overflow: auto; display: flex; align-items: center; justify-content: center; padding: 20px; background: var(--off-white, #FAFAF8); }
+      .designer-canvas { position: relative; width: 420px; height: 594px; background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.15); flex-shrink: 0; user-select: none; touch-action: none; margin: auto; }
       .designer-block { position: absolute; cursor: grab; }
       .designer-block:active { cursor: grabbing; }
       .designer-block-inner { position: absolute; inset: 0; border: 1.5px dashed rgba(255,107,0,0.5); background: rgba(255,107,0,0.05); border-radius: 6px; overflow: hidden; }
@@ -277,14 +279,14 @@
       .handle-s  { bottom: -6px; left: 50%; margin-left: -5.5px; cursor: ns-resize; }
       .handle-sw { bottom: -6px; left: -6px; cursor: nesw-resize; }
       .handle-w  { top: 50%; left: -6px; margin-top: -5.5px; cursor: ew-resize; }
-      .designer-color-toolbar { display: flex; align-items: flex-start; gap: 16px; flex-wrap: wrap; padding: 12px 22px; border-bottom: 1px solid var(--border); background: #fff; flex-shrink: 0; }
+      .designer-color-toolbar { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 16px 18px; border-bottom: 1px solid var(--border); background: #fff; flex-shrink: 0; }
       .designer-color-toolbar .designer-shapes-label { white-space: nowrap; }
       .designer-color-wheel-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; }
       .designer-color-wheel { position: relative; width: 92px; height: 92px; border-radius: 50%; cursor: crosshair; background: conic-gradient(red, #ff0, lime, cyan, blue, magenta, red); box-shadow: 0 0 0 1px rgba(0,0,0,0.08); touch-action: none; }
       .designer-color-wheel::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle, #fff 0%, rgba(255,255,255,0) 72%); pointer-events: none; }
       .designer-color-wheel-cursor { position: absolute; width: 12px; height: 12px; left: 50%; top: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1.5px rgba(0,0,0,0.5); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; }
       .designer-lightness-slider { width: 92px; height: 14px; cursor: pointer; }
-      .designer-color-toolbar-right { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 200px; }
+      .designer-color-toolbar-right { display: flex; flex-direction: column; gap: 8px; width: 100%; }
       .designer-color-target { font-size: 0.78rem; font-weight: 700; color: var(--text); }
       .designer-color-target-tabs { display: flex; gap: 6px; }
       .designer-color-tab { background: #fff; border: 1.5px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 0.72rem; font-weight: 600; color: var(--text-muted); cursor: pointer; }
@@ -303,8 +305,9 @@
       .designer-reset-btn { background: none; border: 1.5px solid var(--border); border-radius: 8px; padding: 9px 16px; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); cursor: pointer; }
       .designer-reset-btn:hover { border-color: var(--orange); color: var(--orange-dark); }
       .designer-validate-btn { background: linear-gradient(135deg, var(--success), #16a34a); color: #fff; border: none; border-radius: 8px; padding: 11px 22px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.85rem; cursor: pointer; }
-      @media (max-width: 480px) {
-        .designer-canvas { width: 300px; height: 424px; }
+      @media (max-width: 700px) {
+        .designer-modal-content { flex-direction: column; }
+        .designer-sidebar { width: 100%; max-height: 38vh; border-right: none; border-bottom: 1px solid var(--border); }
       }
       /* ATS SCORE */
       .ats-score-block { background: var(--night-1); border: 1px solid var(--night-border); border-radius: var(--r-lg); padding: 28px 32px; margin-bottom: 32px; position: relative; overflow: hidden; }
@@ -1218,45 +1221,51 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
               </div>
               <button type="button" class="designer-close-btn" onclick="closeDesigner()">✕</button>
             </div>
-            <div class="designer-shapes-toolbar">
-              <span class="designer-shapes-label">➕ Ajouter une forme :</span>
-              <button type="button" class="designer-shape-btn" onclick="addShapeBlock('circle')"><span class="shape-icon shape-icon-circle"></span> Cercle</button>
-              <button type="button" class="designer-shape-btn" onclick="addShapeBlock('rect')"><span class="shape-icon shape-icon-rect"></span> Rectangle</button>
-              <span class="designer-shapes-hint">utile pour un logo, une photo en plus, un bandeau couleur…</span>
-            </div>
-            <div class="designer-color-toolbar">
-              <div class="designer-color-wheel-wrap">
-                <div class="designer-color-wheel" id="designerColorWheel">
-                  <div class="designer-color-wheel-cursor" id="designerColorWheelCursor"></div>
+            <div class="designer-modal-content">
+              <div class="designer-sidebar">
+                <div class="designer-shapes-toolbar">
+                  <span class="designer-shapes-label">➕ Ajouter une forme</span>
+                  <button type="button" class="designer-shape-btn" onclick="addShapeBlock('circle')"><span class="shape-icon shape-icon-circle"></span> Cercle</button>
+                  <button type="button" class="designer-shape-btn" onclick="addShapeBlock('rect')"><span class="shape-icon shape-icon-rect"></span> Rectangle</button>
+                  <span class="designer-shapes-hint">utile pour un logo, une photo en plus, un bandeau couleur…</span>
                 </div>
-                <input type="range" id="designerLightnessSlider" min="0" max="100" value="100" class="designer-lightness-slider" oninput="onDesignerLightnessChange(this.value)" title="Luminosité" />
+                <div class="designer-color-toolbar">
+                  <div class="designer-color-wheel-wrap">
+                    <div class="designer-color-wheel" id="designerColorWheel">
+                      <div class="designer-color-wheel-cursor" id="designerColorWheelCursor"></div>
+                    </div>
+                    <input type="range" id="designerLightnessSlider" min="0" max="100" value="100" class="designer-lightness-slider" oninput="onDesignerLightnessChange(this.value)" title="Luminosité" />
+                  </div>
+                  <div class="designer-color-toolbar-right">
+                    <div class="designer-color-target" id="designerColorTargetLabel">🎨 Couleur par défaut</div>
+                    <div class="designer-color-target-tabs" id="designerColorTabs">
+                      <button type="button" class="designer-color-tab" data-target="title" onclick="setDesignerColorTarget('title')">Titre</button>
+                      <button type="button" class="designer-color-tab" data-target="text" onclick="setDesignerColorTarget('text')">Texte</button>
+                      <button type="button" class="designer-color-tab" data-target="bg" onclick="setDesignerColorTarget('bg')">Fond</button>
+                    </div>
+                    <div class="designer-color-inputs-row">
+                      <input type="color" id="designerColorPicker" value="#FF6B00" class="designer-color-input" oninput="onDesignerColorPick(this.value)" />
+                      <input type="text" id="designerColorHex" value="#FF6B00" maxlength="7" class="designer-color-hex" oninput="onDesignerColorHexInput(this.value)" />
+                    </div>
+                    <div class="designer-color-inputs-row">
+                      <div class="designer-swatch" style="background:#FF6B00" onclick="quickDesignerColor('#FF6B00')" title="Orange"></div>
+                      <div class="designer-swatch" style="background:#1a56db" onclick="quickDesignerColor('#1a56db')" title="Bleu"></div>
+                      <div class="designer-swatch" style="background:#16a34a" onclick="quickDesignerColor('#16a34a')" title="Vert"></div>
+                      <div class="designer-swatch" style="background:#7c3aed" onclick="quickDesignerColor('#7c3aed')" title="Violet"></div>
+                      <div class="designer-swatch" style="background:#dc2626" onclick="quickDesignerColor('#dc2626')" title="Rouge"></div>
+                    </div>
+                    <span class="designer-shapes-hint">clique un bloc coloré du canvas pour lui donner sa propre couleur</span>
+                  </div>
+                </div>
+                <div class="designer-page-tabs" id="designerPageTabs">
+                  <button type="button" class="designer-page-tab" data-page="1" onclick="setDesignerActivePage(1)">Page 1</button>
+                  <button type="button" class="designer-page-tab" data-page="2" onclick="setDesignerActivePage(2)">Page 2</button>
+                  <span class="designer-shapes-hint">1 page = norme recruteur. Page 2 pour les CV denses (10+ ans d'XP) — pas plus de 2.</span>
+                </div>
               </div>
-              <div class="designer-color-toolbar-right">
-                <div class="designer-color-target" id="designerColorTargetLabel">🎨 Couleur par défaut</div>
-                <div class="designer-color-target-tabs" id="designerColorTabs">
-                  <button type="button" class="designer-color-tab" data-target="title" onclick="setDesignerColorTarget('title')">Titre</button>
-                  <button type="button" class="designer-color-tab" data-target="text" onclick="setDesignerColorTarget('text')">Texte</button>
-                  <button type="button" class="designer-color-tab" data-target="bg" onclick="setDesignerColorTarget('bg')">Fond</button>
-                </div>
-                <div class="designer-color-inputs-row">
-                  <input type="color" id="designerColorPicker" value="#FF6B00" class="designer-color-input" oninput="onDesignerColorPick(this.value)" />
-                  <input type="text" id="designerColorHex" value="#FF6B00" maxlength="7" class="designer-color-hex" oninput="onDesignerColorHexInput(this.value)" />
-                  <div class="designer-swatch" style="background:#FF6B00" onclick="quickDesignerColor('#FF6B00')" title="Orange"></div>
-                  <div class="designer-swatch" style="background:#1a56db" onclick="quickDesignerColor('#1a56db')" title="Bleu"></div>
-                  <div class="designer-swatch" style="background:#16a34a" onclick="quickDesignerColor('#16a34a')" title="Vert"></div>
-                  <div class="designer-swatch" style="background:#7c3aed" onclick="quickDesignerColor('#7c3aed')" title="Violet"></div>
-                  <div class="designer-swatch" style="background:#dc2626" onclick="quickDesignerColor('#dc2626')" title="Rouge"></div>
-                </div>
-                <span class="designer-shapes-hint">clique un bloc coloré du canvas pour lui donner sa propre couleur — sinon ça change la couleur par défaut</span>
+              <div class="designer-modal-body">
+                <div class="designer-canvas" id="designerCanvas"></div>
               </div>
-            </div>
-            <div class="designer-page-tabs" id="designerPageTabs">
-              <button type="button" class="designer-page-tab" data-page="1" onclick="setDesignerActivePage(1)">Page 1</button>
-              <button type="button" class="designer-page-tab" data-page="2" onclick="setDesignerActivePage(2)">Page 2</button>
-              <span class="designer-shapes-hint">1 page = norme recruteur. La page 2 est là pour les CV denses (10+ ans d'XP) — pas plus de 2.</span>
-            </div>
-            <div class="designer-modal-body">
-              <div class="designer-canvas" id="designerCanvas"></div>
             </div>
             <div class="designer-modal-footer">
               <button type="button" class="designer-reset-btn" onclick="resetDesignerLayout()">↺ Réinitialiser</button>
@@ -2111,6 +2120,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
         const page = parseInt(tab.dataset.page, 10);
         const count = designerBlocks.filter(b => (b.page || 1) === page).length;
         tab.innerHTML = `Page ${page}` + (count ? ` <span class="page-count-badge">${count}</span>` : '');
+        tab.title = count ? `${count} bloc${count > 1 ? 's' : ''} sur cette page` : 'Aucun bloc sur cette page';
         tab.classList.toggle('active', page === designerActivePage);
       });
     }
@@ -2214,6 +2224,32 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
       updateColorToolbarForSelection();
       renderDesignerCanvas();
       document.getElementById('designerOverlay').classList.add('show');
+      fitDesignerCanvasSize();
+      attachDesignerResizeListener();
+    }
+
+    function fitDesignerCanvasSize() {
+      const body = document.querySelector('.designer-modal-body');
+      const canvas = document.getElementById('designerCanvas');
+      if (!body || !canvas) return;
+      const availW = body.clientWidth - 40;
+      const availH = body.clientHeight - 40;
+      if (availW <= 0 || availH <= 0) return;
+      const aspect = PAGE_ASPECT; // largeur / hauteur A4
+      let w = availH * aspect;
+      let h = availH;
+      if (w > availW) { w = availW; h = availW / aspect; }
+      canvas.style.width = Math.max(Math.round(w), 220) + 'px';
+      canvas.style.height = Math.max(Math.round(h), 311) + 'px';
+    }
+
+    let designerResizeListenerAttached = false;
+    function attachDesignerResizeListener() {
+      if (designerResizeListenerAttached) return;
+      designerResizeListenerAttached = true;
+      window.addEventListener('resize', () => {
+        if (document.getElementById('designerOverlay')?.classList.contains('show')) fitDesignerCanvasSize();
+      });
     }
 
     function syncDesignerColorInputs(value) {
@@ -2461,7 +2497,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
 
     function attachDesignerDrag(el, block, canvas) {
       el.addEventListener('pointerdown', (e) => {
-        if (e.target.classList.contains('designer-resize-handle') || e.target.classList.contains('designer-photo-upload-btn') || e.target.classList.contains('designer-block-delete')) return;
+        if (e.target.classList.contains('designer-resize-handle') || e.target.classList.contains('designer-photo-upload-btn') || e.target.classList.contains('designer-block-delete') || e.target.classList.contains('designer-overflow-action')) return;
         e.preventDefault();
         e.stopPropagation();
         try { el.setPointerCapture(e.pointerId); } catch (_) {}
