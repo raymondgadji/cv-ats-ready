@@ -37,11 +37,33 @@ DATABASE_URL          = os.environ.get("DATABASE_URL", "")
 
 PROMO_CODES = {
     "TEST_CV_ATS_READY": ("free",    0),
+    "QA_INTERNAL":       ("free",    0),  # tests internes (Raymond + Claude) — exclu des stats de traction
     "BETA50":            ("percent", 50),
     "LAUNCH20":          ("percent", 20),
 }
 
-VALID_FREE_TOKENS: set[str] = set()
+# code promo réservé à l'usage interne — jamais compté dans les chiffres de traction (Station F, investisseurs...)
+QA_PROMO_CODE = "QA_INTERNAL"
+
+# token -> code promo utilisé pour le générer (permet de tracer quel code a servi à chaque optimisation)
+VALID_FREE_TOKENS: dict[str, str] = {}
+
+
+def _redeem_free_token(free_token: str) -> tuple[bool, str | None]:
+    """Valide un free_token et renvoie (paid, promo_code utilisé).
+
+    BYPASS BÊTA : un token non reconnu est quand même accepté (voir points d'attention du
+    projet) — mais on essaie de retrouver le code promo littéral (ex: appels API directs de
+    test) pour garder des logs de traction fiables plutôt qu'un simple booléen "promo".
+    """
+    if not free_token:
+        return False, None
+    if free_token in VALID_FREE_TOKENS:
+        return True, VALID_FREE_TOKENS.pop(free_token)
+    upper = free_token.strip().upper()
+    if upper in PROMO_CODES:
+        return True, upper
+    return True, "BYPASS_NON_RECONNU"
 
 # ─────────────────────────────────────────
 # POSTGRESQL
@@ -299,7 +321,7 @@ async def create_payment_intent(
         if promo_type == "free":
             free          = True
             free_token    = secrets.token_urlsafe(32)
-            VALID_FREE_TOKENS.add(free_token)
+            VALID_FREE_TOKENS[free_token] = code
             promo_message = f"✅ Code {code} : accès 100% gratuit !"
         elif promo_type == "percent":
             discount_pct  = promo_value
@@ -492,12 +514,9 @@ async def optimize(
     designer_layout:        str        = Form(""),
 ):
     paid = False
+    used_promo_code = None
     if free_token:
-        if free_token in VALID_FREE_TOKENS:
-            paid = True
-            VALID_FREE_TOKENS.discard(free_token)
-        else:
-            paid = True  # BYPASS BÊTA
+        paid, used_promo_code = _redeem_free_token(free_token)
     elif payment_intent_id:
         try:
             intent = stripe.PaymentIntent.retrieve(payment_intent_id)
@@ -550,6 +569,7 @@ async def optimize(
         "cv_edited":   bool(edited_cv.strip()),
         "lm_edited":   bool(edited_lm.strip()),
         "promo":       bool(free_token),
+        "promo_code":  used_promo_code,
         "paid_stripe": bool(payment_intent_id),
         "ip":          request.client.host if request.client else "unknown",
         "origin":      request.headers.get("origin", "unknown"),
@@ -617,12 +637,9 @@ async def autopilot(
     nb_offres:         int = Form(40),
 ):
     paid = False
+    used_promo_code = None
     if free_token:
-        if free_token in VALID_FREE_TOKENS:
-            paid = True
-            VALID_FREE_TOKENS.discard(free_token)
-        else:
-            paid = True  # BYPASS BÊTA
+        paid, used_promo_code = _redeem_free_token(free_token)
     elif payment_intent_id:
         try:
             intent = stripe.PaymentIntent.retrieve(payment_intent_id)
@@ -653,6 +670,7 @@ async def autopilot(
         "adzuna":         results["adzuna"],
         "poste_detecte":  results["keywords"]["poste"],
         "localisation":   results["keywords"]["localisation"],
+        "promo_code":     used_promo_code,
         "ip":             request.client.host if request.client else "unknown",
         "origin":         request.headers.get("origin", "unknown"),
     })
@@ -667,8 +685,10 @@ async def get_logs(secret: str = ""):
 
     logs = get_logs_from_db(limit=500)
 
-    total_opts   = sum(1 for l in logs if l["event"] == "optimize")
-    total_pays   = sum(1 for l in logs if l["event"] == "payment_init")
+    total_opts    = sum(1 for l in logs if l["event"] == "optimize")
+    total_opts_qa = sum(1 for l in logs if l["event"] == "optimize" and l.get("promo_code") == QA_PROMO_CODE)
+    total_pays    = sum(1 for l in logs if l["event"] == "payment_init")
+    total_pays_qa = sum(1 for l in logs if l["event"] == "payment_init" and l.get("promo_code") == QA_PROMO_CODE)
     formats      = {}
     lm_count     = 0
     edited_count = 0
@@ -686,13 +706,18 @@ async def get_logs(secret: str = ""):
 
     return JSONResponse({
         "resume": {
-            "total_optimisations":   total_opts,
-            "total_paiements_init":  total_pays,
-            "lettres_generees":      lm_count,
-            "cv_edites_par_user":    edited_count,
-            "score_ats_moyen_apres": avg_score,
-            "formats":               formats,
-            "source":                "postgresql ✅ persistant",
+            "total_optimisations":            total_opts,
+            "total_optimisations_hors_qa":     total_opts - total_opts_qa,
+            "total_optimisations_qa_interne":  total_opts_qa,
+            "total_paiements_init":            total_pays,
+            "total_paiements_init_hors_qa":    total_pays - total_pays_qa,
+            "total_paiements_init_qa_interne": total_pays_qa,
+            "lettres_generees":                lm_count,
+            "cv_edites_par_user":              edited_count,
+            "score_ats_moyen_apres":           avg_score,
+            "formats":                         formats,
+            "note":                            "'_hors_qa' = chiffres fiables pour Station F/investisseurs, exclut le code QA_INTERNAL (tests Raymond + Claude)",
+            "source":                          "postgresql ✅ persistant",
         },
         "derniers_logs": logs[:50],
     })
