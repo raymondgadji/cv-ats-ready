@@ -1327,7 +1327,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
           <div class="autopilot-upsell" id="autopilotUpsell" style="display:none;margin-top:32px;">
             <h3>✈️ Tu veux encore plus d'offres et des alertes personnalisées ?</h3>
             <p>Passe au plan Autopilot pour accéder à toutes les offres et postuler en 1 clic depuis CV ATS.</p>
-            <button class="autopilot-upsell-btn" onclick="alert('Plan Autopilot bientôt disponible !')">S'abonner à Autopilot — 19,99€/mois →</button>
+            <button class="autopilot-upsell-btn" onclick="subscribeToPlan('autopilot')">S'abonner à Autopilot — 19,99€/mois →</button>
           </div>
         </div>
 
@@ -1403,7 +1403,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
             <li><span class="pf-check orange">✓</span> Priorité sur les serveurs IA</li>
             <li><span class="pf-check orange">✓</span> Annulable à tout moment</li>
           </ul>
-          <button class="pricing-cta primary" onclick="alert('Abonnement bientôt disponible — en cours de déploiement !')">
+          <button class="pricing-cta primary" onclick="subscribeToPlan('illimite')">
             S'abonner pour 9,99€/mois →
           </button>
         </div>
@@ -1412,7 +1412,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
 
         <!-- PLAN AUTOPILOT -->
         <div class="pricing-card" style="grid-column: 1 / -1; border-color: var(--orange); background: linear-gradient(160deg, #fff 60%, var(--orange-pale) 100%); box-shadow: 0 8px 40px rgba(255,107,0,0.15); max-width: 480px; margin: 0 auto;">
-          <div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--night);color:var(--orange);font-family:'Syne',sans-serif;font-size:0.72rem;font-weight:700;padding:4px 16px;border-radius:999px;white-space:nowrap;border:1px solid rgba(255,107,0,0.3);">✈️ Nouveau — Bientôt disponible</div>
+          <div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--night);color:var(--orange);font-family:'Syne',sans-serif;font-size:0.72rem;font-weight:700;padding:4px 16px;border-radius:999px;white-space:nowrap;border:1px solid rgba(255,107,0,0.3);">✈️ Nouveau</div>
           <div class="pricing-plan-name">Autopilot</div>
           <div class="pricing-price">
             <span class="pricing-currency">€</span>
@@ -1427,8 +1427,8 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
             <li><span class="pf-check orange">✓</span> Candidature en 1 clic depuis CV ATS</li>
             <li><span class="pf-check orange">✓</span> Alertes offres personnalisées</li>
           </ul>
-          <button class="pricing-cta primary" onclick="alert('Plan Autopilot bientôt disponible — rejoins la liste d\'attente !')">
-            Rejoindre la liste d'attente →
+          <button class="pricing-cta primary" onclick="subscribeToPlan('autopilot')">
+            S'abonner pour 19,99€/mois →
           </button>
         </div>
 
@@ -1558,9 +1558,58 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
     <script src="https://js.stripe.com/v3/"></script>
     <script>
       const API_BASE = "https://web-production-ec873.up.railway.app";
-      const STRIPE_PK = "pk_test_51TA7vD3FagSOekU9ijCuGDrJAcGHfkOPStJeKkfmhr2e2B5oL38xW92IWDH9HG9dYcCqPx8Xck4P8zsOpGeAIFbd00vR3E9BDN";
+      const STRIPE_PK = "pk_live_51TA7uyQNdcgobNClWhm344sY81iCFothnDZRI5v57uaip2rP6nuMu18kUm3huzQbOjmlzvwCdGZ0k5lPfqnUhjAH00NGk2EDzv";
       const stripe = Stripe(STRIPE_PK);
-      const state = { jobOffer: "", cvFile: null, paid: false, paymentIntentId: "", freeToken: "", optimizedCV: "", atsScore: null, selectedStyles: [], selectedStyle: null, wantsLM: null, selectedFormat: null };
+      const state = { jobOffer: "", cvFile: null, paid: false, paymentIntentId: "", freeToken: "", optimizedCV: "", atsScore: null, selectedStyles: [], selectedStyle: null, wantsLM: null, selectedFormat: null, subscriberToken: "", subscriberPlan: "" };
+
+      // ── Abonnements (Illimité / Autopilot) ──
+      function loadSubscriberState() {
+        state.subscriberToken = localStorage.getItem("cvats_subscriber_token") || "";
+        state.subscriberPlan  = localStorage.getItem("cvats_subscriber_plan")  || "";
+        if (state.subscriberToken && state.subscriberPlan) {
+          state.paid = true; // abonné = plus besoin de payer à l'unité
+          const label = state.subscriberPlan === "autopilot" ? "Autopilot" : "Illimité";
+          const btn = document.getElementById("btnPay");
+          if (btn) { btn.innerHTML = `✅ Abonnement ${label} actif — optimisations illimitées`; btn.classList.add("paid"); btn.disabled = true; }
+        }
+      }
+
+      function saveSubscriberState(token, plan) {
+        state.subscriberToken = token; state.subscriberPlan = plan; state.paid = true;
+        localStorage.setItem("cvats_subscriber_token", token);
+        localStorage.setItem("cvats_subscriber_plan", plan);
+      }
+
+      async function subscribeToPlan(plan) {
+        try {
+          const fd = new FormData(); fd.append("plan", plan);
+          const res  = await fetch(`${API_BASE}/api/create-checkout-session`, { method: "POST", body: fd });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.detail || "Erreur serveur");
+          window.location.href = data.checkout_url;
+        } catch (err) {
+          showToast(`❌ ${err.message}`, "error");
+        }
+      }
+
+      async function handleCheckoutReturn() {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("checkout_success") === "1" && params.get("session_id")) {
+          try {
+            const res  = await fetch(`${API_BASE}/api/checkout-success?session_id=${encodeURIComponent(params.get("session_id"))}`);
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || "Erreur de confirmation");
+            saveSubscriberState(data.access_token, data.plan);
+            const label = data.plan === "autopilot" ? "Autopilot (19,99€/mois)" : "Illimité (9,99€/mois)";
+            showToast(`✅ Abonnement ${label} activé !`, "success");
+          } catch (err) {
+            showToast(`❌ ${err.message}`, "error");
+          }
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } else if (params.get("checkout_canceled") === "1") {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      }
 
       window.addEventListener("scroll", () => {
         const nav = document.getElementById("navbar");
@@ -1647,7 +1696,11 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
         stripeCardElement.mount("#stripe-card-element");
         stripeCardElement.on("change", (e) => { document.getElementById("stripe-card-errors").textContent = e.error ? e.error.message : ""; });
       }
-      document.addEventListener("DOMContentLoaded", mountStripeCard);
+      document.addEventListener("DOMContentLoaded", () => {
+        mountStripeCard();
+        loadSubscriberState();
+        handleCheckoutReturn();
+      });
 
       async function pay() {
         const btn = document.getElementById("btnPay");
@@ -1698,6 +1751,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
           const fd = new FormData();
           fd.append("job_offer", state.jobOffer); fd.append("cv_file", state.cvFile);
           fd.append("payment_intent_id", state.paymentIntentId); fd.append("free_token", state.freeToken);
+          fd.append("access_token", state.subscriberToken);
           fd.append("wants_cover_letter", "false"); fd.append("export_format", "texte");
           const res = await fetch(`${API_BASE}/api/optimize`, { method: "POST", body: fd });
           const data = await res.json();
@@ -1767,6 +1821,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
           const fd = new FormData();
           fd.append("job_offer", state.jobOffer); fd.append("cv_file", state.cvFile);
           fd.append("payment_intent_id", state.paymentIntentId); fd.append("free_token", state.freeToken);
+          fd.append("access_token", state.subscriberToken);
           fd.append("wants_cover_letter", state.wantsLM ? "true" : "false");
           fd.append("cover_letter_style", state.selectedStyles.join(" + ") || "");
           fd.append("cover_letter_precision", document.getElementById("lmPrecision")?.value || "");
@@ -1856,12 +1911,14 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
         }, 300);
 
         try {
+          const isAutopilotSubscriber = state.subscriberPlan === "autopilot";
           const fd = new FormData();
           fd.append("cv_optimized",      state.optimizedCV);
           fd.append("job_offer",         state.jobOffer);
           fd.append("free_token",        state.freeToken);
           fd.append("payment_intent_id", state.paymentIntentId);
-          fd.append("nb_offres",         "3");  // 3 offres max — plan normal
+          fd.append("access_token",      state.subscriberToken);
+          fd.append("nb_offres",         isAutopilotSubscriber ? "40" : "3");  // 3 offres teaser, 40 pour abonnés Autopilot
 
           const res  = await fetch(`${API_BASE}/api/autopilot`, { method: "POST", body: fd });
           const data = await res.json();
@@ -1897,8 +1954,8 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
             grid.appendChild(card);
           });
 
-          // Upsell si moins de 20 offres ou pas abonné
-          upsell.style.display = "block";
+          // Upsell masqué pour les abonnés Autopilot (déjà tout inclus)
+          upsell.style.display = isAutopilotSubscriber ? "none" : "block";
 
         } catch (err) {
           loading.classList.remove("show");

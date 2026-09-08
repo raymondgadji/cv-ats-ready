@@ -35,6 +35,14 @@ FRONTEND_URL          = os.environ.get("FRONTEND_URL", "http://localhost:3000")
 ADMIN_SECRET          = os.environ.get("ADMIN_SECRET", "cv-ats-admin-2026")
 DATABASE_URL          = os.environ.get("DATABASE_URL", "")
 
+# Abonnements récurrents Stripe (Illimité 9,99€/mois, Autopilot 19,99€/mois)
+STRIPE_PRICE_ILLIMITE  = os.environ.get("STRIPE_PRICE_ILLIMITE",  "price_1UDOZXQNdcgobNCllFjGcjpr")
+STRIPE_PRICE_AUTOPILOT = os.environ.get("STRIPE_PRICE_AUTOPILOT", "price_1UDRE1QNdcgobNClq4zkgRtU")
+SUBSCRIPTION_PLANS = {
+    "illimite":  STRIPE_PRICE_ILLIMITE,
+    "autopilot": STRIPE_PRICE_AUTOPILOT,
+}
+
 PROMO_CODES = {
     "TEST_CV_ATS_READY": ("free",    0),
     "QA_INTERNAL":       ("free",    0),  # tests internes (Raymond + Claude) — exclu des stats de traction
@@ -88,10 +96,23 @@ def init_db():
                 data  JSONB
             );
         """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS subscribers (
+                id                      SERIAL PRIMARY KEY,
+                stripe_customer_id      TEXT NOT NULL UNIQUE,
+                stripe_subscription_id  TEXT,
+                email                   TEXT,
+                plan                    TEXT NOT NULL,
+                status                  TEXT NOT NULL,
+                access_token            TEXT NOT NULL UNIQUE,
+                created_at              TIMESTAMPTZ DEFAULT NOW(),
+                updated_at              TIMESTAMPTZ DEFAULT NOW()
+            );
+        """)
         conn.commit()
         cur.close()
         conn.close()
-        print("✅ PostgreSQL — table logs prête")
+        print("✅ PostgreSQL — tables logs + subscribers prêtes")
     except Exception as e:
         print(f"❌ PostgreSQL init error : {e}")
 
@@ -133,6 +154,66 @@ def get_logs_from_db(limit: int = 500) -> list:
     except Exception as e:
         print(f"⚠️  Get logs error : {e}")
         return []
+
+
+def _upsert_subscriber(customer_id: str, subscription_id: str | None, email: str | None, plan: str) -> str:
+    """Crée/replace l'abonné pour ce customer Stripe, statut 'active', et renvoie son access_token."""
+    access_token = secrets.token_urlsafe(32)
+    conn = get_db()
+    cur  = conn.cursor()
+    cur.execute("""
+        INSERT INTO subscribers (stripe_customer_id, stripe_subscription_id, email, plan, status, access_token)
+        VALUES (%s, %s, %s, %s, 'active', %s)
+        ON CONFLICT (stripe_customer_id) DO UPDATE SET
+            stripe_subscription_id = EXCLUDED.stripe_subscription_id,
+            plan         = EXCLUDED.plan,
+            status       = 'active',
+            access_token = EXCLUDED.access_token,
+            updated_at   = NOW()
+    """, (customer_id, subscription_id, email, plan, access_token))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return access_token
+
+
+def _update_subscription_status(subscription_id: str, status: str):
+    if not DATABASE_URL:
+        return
+    try:
+        conn = get_db()
+        cur  = conn.cursor()
+        cur.execute(
+            "UPDATE subscribers SET status = %s, updated_at = NOW() WHERE stripe_subscription_id = %s",
+            (status, subscription_id)
+        )
+        conn.commit()
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print(f"⚠️  Update subscription status error : {e}")
+
+
+def _check_subscriber_access(access_token: str, required_plan: str) -> bool:
+    """required_plan='illimite' -> accepte plan illimite OU autopilot (autopilot inclut illimite).
+    required_plan='autopilot' -> exige exactement le plan autopilot."""
+    if not access_token or not DATABASE_URL:
+        return False
+    try:
+        conn = get_db()
+        cur  = conn.cursor()
+        cur.execute("SELECT plan, status FROM subscribers WHERE access_token = %s", (access_token,))
+        row = cur.fetchone()
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print(f"⚠️  Check subscriber error : {e}")
+        return False
+    if not row or row["status"] != "active":
+        return False
+    if required_plan == "autopilot":
+        return row["plan"] == "autopilot"
+    return row["plan"] in ("illimite", "autopilot")
 
 
 # ─────────────────────────────────────────
@@ -360,6 +441,52 @@ async def create_payment_intent(
     }
 
 
+@app.post("/api/create-checkout-session")
+async def create_checkout_session(plan: str = Form(...)):
+    price_id = SUBSCRIPTION_PLANS.get(plan)
+    if not price_id:
+        raise HTTPException(status_code=400, detail=f"Plan inconnu : {plan}")
+
+    try:
+        session = stripe.checkout.Session.create(
+            mode="subscription",
+            line_items=[{"price": price_id, "quantity": 1}],
+            success_url=f"{FRONTEND_URL}/?checkout_success=1&session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url=f"{FRONTEND_URL}/?checkout_canceled=1",
+            allow_promotion_codes=True,
+            metadata={"plan": plan},
+        )
+    except stripe.error.StripeError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    return {"checkout_url": session.url}
+
+
+@app.get("/api/checkout-success")
+async def checkout_success(session_id: str):
+    try:
+        session = stripe.checkout.Session.retrieve(session_id, expand=["subscription"])
+    except stripe.error.StripeError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    if session.status != "complete":
+        raise HTTPException(status_code=402, detail="Paiement non finalisé.")
+
+    plan            = session.metadata.get("plan", "illimite")
+    customer_id     = session.customer
+    subscription_id = session.subscription.id if session.subscription else None
+    email           = session.customer_details.email if session.customer_details else None
+
+    access_token = _upsert_subscriber(customer_id, subscription_id, email, plan)
+
+    write_log("subscription_started", {
+        "plan":     plan,
+        "customer": customer_id,
+    })
+
+    return {"access_token": access_token, "plan": plan}
+
+
 from jinja2 import Environment, FileSystemLoader
 
 _PDF_TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "utils", "pdf_templates")
@@ -502,6 +629,7 @@ async def optimize(
     cv_file:                UploadFile = File(...),
     payment_intent_id:      str        = Form(""),
     free_token:             str        = Form(""),
+    access_token:           str        = Form(""),
     wants_cover_letter:     str        = Form("false"),
     cover_letter_style:     str        = Form("neutre & professionnel"),
     cover_letter_precision: str        = Form(""),
@@ -515,7 +643,9 @@ async def optimize(
 ):
     paid = False
     used_promo_code = None
-    if free_token:
+    if access_token and _check_subscriber_access(access_token, "illimite"):
+        paid, used_promo_code = True, "SUBSCRIBER"
+    elif free_token:
         paid, used_promo_code = _redeem_free_token(free_token)
     elif payment_intent_id:
         try:
@@ -634,11 +764,15 @@ async def autopilot(
     job_offer:         str = Form(...),
     payment_intent_id: str = Form(""),
     free_token:        str = Form(""),
+    access_token:      str = Form(""),
     nb_offres:         int = Form(40),
 ):
     paid = False
     used_promo_code = None
-    if free_token:
+    is_autopilot_subscriber = bool(access_token) and _check_subscriber_access(access_token, "autopilot")
+    if is_autopilot_subscriber:
+        paid, used_promo_code = True, "SUBSCRIBER_AUTOPILOT"
+    elif free_token:
         paid, used_promo_code = _redeem_free_token(free_token)
     elif payment_intent_id:
         try:
@@ -650,6 +784,10 @@ async def autopilot(
 
     if not paid:
         raise HTTPException(status_code=402, detail="Plan Autopilot requis. Abonnez-vous pour 19,99€/mois.")
+
+    # Aperçu gratuit (post-paiement 1€) limité à 3 offres — l'abonné Autopilot voit tout (jusqu'à 60)
+    if not is_autopilot_subscriber:
+        nb_offres = min(nb_offres, 3)
 
     if len(cv_optimized.strip()) < 50:
         raise HTTPException(status_code=400, detail="CV optimisé invalide.")
@@ -743,5 +881,16 @@ async def stripe_webhook(request: Request):
             "amount_cents":      pi["amount"],
             "promo_code":        pi.get("metadata", {}).get("promo_code"),
         })
+
+    elif event["type"] == "customer.subscription.updated":
+        sub = event["data"]["object"]
+        # Statuts Stripe : active, trialing, past_due, unpaid, canceled, incomplete, incomplete_expired, paused
+        _update_subscription_status(sub["id"], sub["status"])
+        write_log("subscription_updated", {"subscription_id": sub["id"], "status": sub["status"]})
+
+    elif event["type"] == "customer.subscription.deleted":
+        sub = event["data"]["object"]
+        _update_subscription_status(sub["id"], "canceled")
+        write_log("subscription_canceled", {"subscription_id": sub["id"]})
 
     return JSONResponse({"status": "ok"})
