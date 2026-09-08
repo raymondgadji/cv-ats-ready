@@ -32,6 +32,23 @@ Agent IA qui optimise automatiquement les CV pour les ATS (Applicant Tracking Sy
 
 ---
 
+## 🔍 SEO Google — statut (08/09/2026)
+
+**Diagnostic initial** : `site:cv-ats.com` ne renvoyait aucun résultat. Cause trouvée : `robots.txt` et `sitemap.xml` étaient tous les deux en 404 (jamais créés), et **le domaine n'avait jamais été ajouté à Google Search Console**.
+
+**Corrigé le 08/09/2026** :
+- `robots.txt` + `sitemap.xml` créés, déployés (Netlify), vérifiés en ligne (200 OK).
+- Propriété `https://cv-ats.com/` ajoutée et **vérifiée** dans Google Search Console (méthode : enregistrement DNS TXT sur IONOS, propagation quasi instantanée).
+- Sitemap soumis avec succès (1 page découverte).
+- **Découverte importante** : un ancien sitemap `sitemap_index.xml` (soumis le 24/03/2025, probablement une ancienne version WordPress avant la migration vers le site actuel) traînait avec 0 pages découvertes depuis plus d'un an — signe que le site n'a jamais eu de config SEO fonctionnelle depuis sa refonte.
+- **Découverte critique (via l'outil "Inspection d'URL")** : Google avait en réalité **déjà crawlé** cv-ats.com (dernier crawl le 28/08/2026, découvert via des liens entrants depuis koush.app et cv-ats-ready.fr) mais avait choisi de **NE PAS l'indexer** — statut "Crawled - currently not indexed". Ce n'est donc pas (uniquement) un problème de découverte technique, mais un signal de qualité/pertinence perçue par Google — typique d'un site à page unique, sans contenu substantiel ni autorité de domaine (backlinks).
+- Réindexation demandée manuellement via l'outil d'inspection d'URL.
+
+**Why:** Corriger le technique (robots.txt, sitemap, GSC) était nécessaire mais pas suffisant — Google a montré qu'il visite déjà le site sans l'indexer, ce qui pointe vers un besoin de contenu réel, pas juste de plomberie SEO.
+**How to apply:** Prochaine étape recommandée : construire 2-3 pages de contenu réellement utile et sourcé (ex: "comment fonctionne un ATS", "comment optimiser son CV pour passer les filtres ATS") plutôt que de compter sur la seule page produit pour se faire indexer — même logique que le contenu Koush ("carte Afrique") qui a été cité spontanément par les IA grâce à sa valeur informative, pas à des astuces techniques comme llms.txt (voir mémoire `geo_strategy_insights`).
+
+---
+
 ## 🏗️ Stack technique
 
 | Couche | Techno |
@@ -107,7 +124,8 @@ Frontend : Live Server → `http://127.0.0.1:5500`
 2. Copie cv-ats.html → renomme en index.html
 3. Copie og-image.png
 4. Copie robots.txt et sitemap.xml (ajoutés le 08/09/2026 — sans eux, Google n'indexe pas le site, voir points d'attention)
-5. app.netlify.com → ton site → Deploys → glisse le dossier deploy/
+5. Copie les DOSSIERS guide-ats-cv/ et optimiser-cv-ats/ (ajoutés le 08/09/2026, pages SEO — garder la structure de sous-dossiers, pas juste les fichiers index.html à la racine)
+6. app.netlify.com → ton site → Deploys → glisse le dossier deploy/ (avec ses sous-dossiers)
 ```
 
 ---
@@ -288,9 +306,10 @@ C'est un vrai signal produit — à prioriser dans le backlog.
 ### 🟡 Priorité moyenne
 - [ ] Feedbacks users sur section Social Proof — agrandir logos si nécessaire
 - [ ] Redirection cv-ats-ready.fr → cv-ats.com (fichier `_redirects` Netlify)
-- [ ] Configurer Stripe webhook secret en prod
-- [ ] Soumettre sitemap sur Google Search Console
+- [x] Configurer Stripe webhook secret en prod ✅
+- [x] Soumettre sitemap sur Google Search Console ✅ — fait le 08/09/2026, voir section SEO ci-dessous
 - [ ] Retester GEO dans 1 semaine — Perplexity doit citer le prix 1€
+- [ ] **Construire du contenu SEO/GEO ciblé** (2-3 pages utiles et sourcées, ex: "comment optimiser son CV pour un ATS") — Google a crawlé cv-ats.com mais a choisi de ne PAS l'indexer (voir section SEO), signe qu'il faut du contenu substantiel, pas juste du technique.
 
 ### 🟢 Idées futures
 - [ ] **MCP Server CV ATS** — exposer l'API aux agents IA (inspiré post Sokhna Seck / Convoy AI — étapes 02 et 03 "Agent Ready")
