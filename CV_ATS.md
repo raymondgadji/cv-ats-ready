@@ -106,7 +106,8 @@ Frontend : Live Server → `http://127.0.0.1:5500`
 1. Crée un dossier deploy/ sur le bureau
 2. Copie cv-ats.html → renomme en index.html
 3. Copie og-image.png
-4. app.netlify.com → ton site → Deploys → glisse le dossier deploy/
+4. Copie robots.txt et sitemap.xml (ajoutés le 08/09/2026 — sans eux, Google n'indexe pas le site, voir points d'attention)
+5. app.netlify.com → ton site → Deploys → glisse le dossier deploy/
 ```
 
 ---
@@ -143,9 +144,9 @@ Typo titres : Syne 800 | Typo corps : DM Sans
 
 | Plan | Prix | Détail | Statut |
 |------|------|--------|--------|
-| Pay as you go | ~~3,99€~~ **1€ HT** (1,20€ TTC) | Prix lancement — 500 premiers users | ✅ Live et actif (08/09/2026) — paiement réel possible pour la première fois |
-| Illimité | 9,99€ TTC/mois | CV illimités — rentabilisé dès la 3ème opti | 🟡 Prix Stripe live créé (`price_1UDOZXQNdcgobNCllFjGcjpr`) — aucun code d'abonnement (Checkout/webhook) encore construit |
-| Autopilot | 19,99€ TTC/mois | CV illimités + offres matchées + 1 clic | ⏳ Bientôt disponible / liste d'attente — pas de Prix Stripe créé (pas encore vendable) |
+| Pay as you go | ~~3,99€~~ **1€ HT** (1,20€ TTC) | Prix lancement — 500 premiers users | ✅ Live et actif (08/09/2026) — clé publique Stripe frontend corrigée (était encore en mode test) |
+| Illimité | 9,99€ TTC/mois | CV illimités — rentabilisé dès la 3ème opti | ✅ Abonnement Stripe Checkout complet et actif (08/09/2026) — `price_1UDOZXQNdcgobNCllFjGcjpr` |
+| Autopilot | 19,99€ TTC/mois | CV illimités + offres matchées + 1 clic | ✅ Abonnement Stripe Checkout complet et actif (08/09/2026) — `price_1UDRE1QNdcgobNClq4zkgRtU`, plus "bientôt disponible" |
 
 ---
 
@@ -278,8 +279,10 @@ C'est un vrai signal produit — à prioriser dans le backlog.
 - [x] **Réponse Round 2** ✅ — non retenu (22/07/2026), top 10% du batch, Landing Zone proposée en échange (249€ HT/poste/mois)
 - [x] **Candidature Landing Zone soumise** ✅ — 12/08/2026 (formulaire Fillout)
 - [ ] **Négocier la date d'arrivée réelle** sur la Landing Zone (1er octobre ou 1er novembre 2026) — le formulaire n'offrait qu'une seule date (11/09/2026), à corriger par email avec Station F
-- [ ] **Débloquer le déploiement Railway** — 6 échecs de build consécutifs le 08/09/2026 (kill forcé, signatures d'erreur variables), bloque l'activation de la clé Stripe live déjà configurée. Escalader vers station.railway.com si ça persiste.
-- [ ] **Code d'abonnement Stripe** pour Illimité (9,99€) — Checkout Session + webhook + gestion d'accès récurrent. Le Prix Stripe live existe (`price_1UDOZXQNdcgobNCllFjGcjpr`) mais aucun code ne l'utilise encore.
+- [x] **Débloquer le déploiement Railway** ✅ — résolu le 08/09/2026 (Dockerfile + fix $PORT + suppression Custom Start Command fantôme).
+- [x] **Code d'abonnement Stripe** ✅ — construit, déployé et vérifié le 08/09/2026 : table `subscribers` (Postgres), `/api/create-checkout-session`, `/api/checkout-success`, webhook `customer.subscription.updated/deleted`, gating dans `/api/optimize` et `/api/autopilot` via `access_token`. Frontend déployé sur Netlify et vérifié en ligne (clé Stripe live + boutons d'abonnement fonctionnels, redirection Stripe Checkout confirmée par Raymond et Claude).
+- [ ] **Test optionnel** : abonnement réel de bout en bout avec paiement complet (Illimité et Autopilot) — pas bloquant, à faire quand Raymond le souhaite.
+- [ ] **Portail client Stripe** (gestion/résiliation self-service) — pas encore activé pour les abonnements CV ATS (existe déjà pour Site72, à activer séparément si souhaité).
 - [ ] **Améliorer Autopilot** — France Travail retourne parfois 204
 
 ### 🟡 Priorité moyenne
