@@ -26,6 +26,9 @@ Agent IA qui optimise automatiquement les CV pour les ATS (Applicant Tracking Sy
 **DNS Ionos configuré :**
 - Enregistrement A : `@` → `75.2.60.5`
 - CNAME : `www` → `cv-ats-ready.netlify.app`
+- MX → IONOS Mail (mx00/mx01.ionos.fr)
+
+**Email pro :** `contact@cv-ats.com` — redirection IONOS (gratuite, pas de boîte mail) → `gadjiraymond7@gmail.com`, créée et testée le 08/09/2026 (aucune adresse n'existait avant, un email envoyé dessus avait rebondi "address not found").
 
 ---
 
@@ -140,16 +143,17 @@ Typo titres : Syne 800 | Typo corps : DM Sans
 
 | Plan | Prix | Détail | Statut |
 |------|------|--------|--------|
-| Pay as you go | ~~3,99€~~ **1€ HT** (1,20€ TTC) | Prix lancement — 500 premiers users | ✅ Opérationnel |
-| Illimité | 9,99€ TTC/mois | CV illimités — rentabilisé dès la 3ème opti | ⏳ Stripe à brancher |
-| Autopilot | 19,99€ TTC/mois | CV illimités + offres matchées + 1 clic | ⏳ Stripe à brancher |
+| Pay as you go | ~~3,99€~~ **1€ HT** (1,20€ TTC) | Prix lancement — 500 premiers users | ✅ Live et actif (08/09/2026) — paiement réel possible pour la première fois |
+| Illimité | 9,99€ TTC/mois | CV illimités — rentabilisé dès la 3ème opti | 🟡 Prix Stripe live créé (`price_1UDOZXQNdcgobNCllFjGcjpr`) — aucun code d'abonnement (Checkout/webhook) encore construit |
+| Autopilot | 19,99€ TTC/mois | CV illimités + offres matchées + 1 clic | ⏳ Bientôt disponible / liste d'attente — pas de Prix Stripe créé (pas encore vendable) |
 
 ---
 
 ## 🎟️ Codes promo
 
 ```
-TEST_CV_ATS_READY → 100% gratuit
+TEST_CV_ATS_READY → 100% gratuit (réservé aux vrais beta-testeurs externes)
+QA_INTERNAL       → 100% gratuit (réservé aux tests internes Raymond + Claude — voir /api/admin/logs *_hors_qa)
 BETA50            → -50%
 LAUNCH20          → -20%
 ```
@@ -224,7 +228,7 @@ POST /api/webhook/stripe
 |---------|---------|--------|--------|
 | **Mahdia FOUSSENI** | ODAH (odah.pro) — réseau pro Afrique | ✅ Call fait — proposition API/widget en cours | Préparer pilot 30 jours |
 | **Sébastien N'Goran KOUASSI** | EmploiRapide.Net + FAVITECH | ⏳ Pas de réponse | Relancer message court |
-| **Yannick Gnaman** | Agence Emploi Jeune CIV | ⏳ Pas de réponse | Relancer message court |
+| **Yannick Gnaman** | Agence Emploi Jeune CIV | ✅ Email de présentation envoyé le 08/09/2026 à info@emploijeunes.ci (traction 100+ opti, score 86,6%, Station F top 10%, + offre API Site72) | Attendre sa mise en relation avec la Direction de l'Information et de la Communication |
 
 ### Notes call ODAH (Mahdia) — ✅ Call réalisé
 
@@ -265,12 +269,17 @@ C'est un vrai signal produit — à prioriser dans le backlog.
 ### 🔴 Priorité haute
 - [x] **Candidature STIC 2026 soumise** ✅ — juin 2026
 - [x] **Sprint Templates CV frontend** ✅ — Q3/Q4 réorganisés, 3 templates, 2 color pickers live, preview en direct
-- [ ] **Sprint Templates CV backend** — générer le PDF dans le vrai template (Moderne/Classique) avec ReportLab + couleurs choisies → mettre à jour main.py
+- [x] **Sprint Templates CV backend** ✅ — templates Moderne + Classique avec ReportLab, 2 color pickers, max 2 pages
+- [ ] **Fix templates** — tester rendu final PDF Moderne + Classique sur vrai CV utilisateur
 - [ ] **Doc API** — documenter l'API CV ATS pour intégration externe (dev ivoirien ODAH)
 - [ ] **Pilot ODAH** — préparer proposition technique + 30 jours gratuits pour Mahdia
 - [x] **Rendez-vous CCI** ✅ — 3 entretiens avec Philip Dietrich (CCI75) — 16/06, 22/06, 02/07/2026
 - [x] **Dossier Round 2 Station F soumis** ✅ — juillet 2026
-- [ ] **Abonnements Stripe** 9,99€ + 19,99€ récurrents (attente création société + passeport)
+- [x] **Réponse Round 2** ✅ — non retenu (22/07/2026), top 10% du batch, Landing Zone proposée en échange (249€ HT/poste/mois)
+- [x] **Candidature Landing Zone soumise** ✅ — 12/08/2026 (formulaire Fillout)
+- [ ] **Négocier la date d'arrivée réelle** sur la Landing Zone (1er octobre ou 1er novembre 2026) — le formulaire n'offrait qu'une seule date (11/09/2026), à corriger par email avec Station F
+- [ ] **Débloquer le déploiement Railway** — 6 échecs de build consécutifs le 08/09/2026 (kill forcé, signatures d'erreur variables), bloque l'activation de la clé Stripe live déjà configurée. Escalader vers station.railway.com si ça persiste.
+- [ ] **Code d'abonnement Stripe** pour Illimité (9,99€) — Checkout Session + webhook + gestion d'accès récurrent. Le Prix Stripe live existe (`price_1UDOZXQNdcgobNCllFjGcjpr`) mais aucun code ne l'utilise encore.
 - [ ] **Améliorer Autopilot** — France Travail retourne parfois 204
 
 ### 🟡 Priorité moyenne
@@ -293,9 +302,10 @@ C'est un vrai signal produit — à prioriser dans le backlog.
 ## ⚠️ Points d'attention
 
 - **BYPASS BÊTA** dans `/api/optimize` et `/api/autopilot` — les free_tokens non reconnus sont acceptés. À remplacer par Redis avant lancement public payant.
-- **Stripe webhook secret** → à configurer en prod
+- **✅ Stripe live débloqué et actif (08/09/2026)** : `STRIPE_SECRET_KEY` = clé live du compte site72.fr, déployée avec succès et vérifiée (PaymentIntent créé avec `livemode: true` sur le bon compte). Cause racine des échecs de build : Railway/Railpack auto-générait une liste de paquets apt cassée (nom de paquet obsolète), + un "Custom Start Command" hérité de l'ancien Procfile écrasait silencieusement le CMD du nouveau Dockerfile sans passer par un shell (`$PORT` jamais substitué → 502). Fixé avec un `Dockerfile` dédié (`python:3.11-slim-bookworm`, bons noms de paquets, `CMD ["sh","-c","uvicorn ... --port $PORT"]`) + suppression du Custom Start Command dans Settings Railway.
+- **Stripe webhook secret** → à configurer en prod (mode live)
 - **Prévisions financières corrigées** (validées CCI) : 2026 ~500€ · 2027 ~36 000€ · 2028 ~77 000€
-- **Abonnements Stripe** → en attente création société + passeport
+- **Abonnements Stripe** → société existe désormais (micro-entreprise Raymond, voir RAYMOND_GADJI.md) ; blocage résolu, reste à construire le code d'abonnement (Checkout/webhook) pour Illimité/Autopilot
 - **GitHub** → NE JAMAIS pusher `.env` — toujours `git status` avant commit
 - **Netlify** → NE PAS connecter GitHub — drag & drop manuel uniquement
 - **Clés API** → régénérées suite incident GitGuardian juin 2026 ✅
