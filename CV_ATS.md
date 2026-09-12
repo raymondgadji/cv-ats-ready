@@ -49,6 +49,29 @@ Agent IA qui optimise automatiquement les CV pour les ATS (Applicant Tracking Sy
 
 ---
 
+## 🔧 Correctifs & nouvelles features — 12/09/2026
+
+Suite à un retour utilisateur réel (fils d'un contact de Raymond) signalant 3 points : l'outil se fie trop à l'offre plutôt qu'au CV, la rubrique "Profil" disparaît au téléchargement PDF, et des difficultés de mise en page/texte.
+
+**Causes trouvées et corrigées :**
+- `_parse_cv_sections()` (main.py) ne reconnaissait pas "RÉSUMÉ PROFESSIONNEL"/"Profil" comme section — le contenu tombait dans le bucket `header`, dont seules les 4 premières lignes sont gardées par les templates PDF Moderne/Classique/Designer → rubrique tronquée silencieusement. Section "profil" ajoutée (backend + son miroir JS frontend) + bloc dédié dans les 3 templates Jinja.
+- Extraction `.docx` ignorait le contenu des tableaux Word (`utils/cv_parser.py`) — un CV à mise en page 2 colonnes (profil en encadré latéral construit avec un tableau) perdait ce contenu à la lecture. Corrigé : lecture aussi de `doc.tables`.
+- Extraction `.pdf` lisait le texte en ordre brut (mélange des colonnes) — remplacé par un regroupement mot par mot (`get_text("words")`) par colonne avant reconstruction des lignes.
+- Prompt IA (`ai_agent.py`) rééquilibré : le contenu vient exclusivement du CV, l'offre ne sert que de vocabulaire, toutes les rubriques du CV original doivent être conservées.
+
+**Score ATS — suppression du plancher artificiel** : le prompt forçait `score_apres >= 80` ("l'optimisation ATS est toujours efficace") — un plancher, pas une vraie mesure. Retiré : un candidat mal ciblé pour l'offre reste noté bas même après réécriture (vérifié en prod : CV cuisinier vs offre Architecte Cloud → 8→12 ; CV Architecte Cloud vs la même offre → 68→82). ⚠️ Invalide la ligne "Score ATS après optimisation minimum 80%" listée plus bas dans "Features livrées" (gardée telle quelle pour l'historique, mais ce n'est plus le comportement actuel).
+
+**Page `/methode-score-ats/`** : explique la méthode (offre précise requise, 4 catégories, pas de plancher) et compare factuellement à CVDesignR, ChatGPT/Grok/Claude, France Travail — chaque affirmation vérifiée par recherche web avant rédaction. Liée dans le footer partout + sitemap.
+
+**Check ATS gratuit** (`POST /api/check-cv`) : point d'entrée gratuit inspiré de CVDesignR/Enhancv (scanner générique, sans offre ni paiement) — manque identifié en comparant à Enhancv.com. Audit 4 catégories (format, structure, clarté, mots-clés sectoriels) + secteur détecté + recommandations concrètes. Rate-limité 5/heure/IP (premier endpoint gratuit qui coûte un appel IA réel). Badge "🆓 Vérifie ton CV gratuitement" repositionné en haut du hero (avant le H1, sur demande de Raymond — visibilité maximale pour un lead magnet/upsell).
+
+**Traduction CV en anglais** (`POST /api/translate-cv`) : bouton en fin de parcours (après le téléchargement du CV optimisé), inclus dans le même achat (pas de palier séparé). Génère un 2e fichier téléchargeable (PDF/Word) en plus du CV français — comportement voulu, pas un remplacement.
+
+**Why:** Retour utilisateur réel + benchmark concurrentiel (CVDesignR, Enhancv) ont révélé un vrai trou dans l'entonnoir (aucun point d'entrée gratuit) et une faiblesse méthodologique (score gonflé artificiellement) qui minait la crédibilité de l'outil de mesure.
+**How to apply:** Les 2 nouveaux endpoints doivent être ajoutés à la liste "Endpoints API" ci-dessous. Le déploiement Netlify doit désormais inclure `methode-score-ats/` en plus des sous-dossiers déjà listés.
+
+---
+
 ## 🏗️ Stack technique
 
 | Couche | Techno |
@@ -124,7 +147,7 @@ Frontend : Live Server → `http://127.0.0.1:5500`
 2. Copie cv-ats.html → renomme en index.html
 3. Copie og-image.png
 4. Copie robots.txt et sitemap.xml (ajoutés le 08/09/2026 — sans eux, Google n'indexe pas le site, voir points d'attention)
-5. Copie les DOSSIERS guide-ats-cv/ et optimiser-cv-ats/ (ajoutés le 08/09/2026, pages SEO — garder la structure de sous-dossiers, pas juste les fichiers index.html à la racine)
+5. Copie les DOSSIERS guide-ats-cv/, optimiser-cv-ats/ et methode-score-ats/ (pages SEO/contenu — garder la structure de sous-dossiers, pas juste les fichiers index.html à la racine)
 6. app.netlify.com → ton site → Deploys → glisse le dossier deploy/ (avec ses sous-dossiers)
 ```
 
@@ -186,7 +209,11 @@ GET  /api/health
 GET  /api/admin/logs?secret=cv-ats-admin-2026
 POST /api/fetch-url              ← Récupère texte d'une offre depuis URL
 POST /api/create-payment-intent
-POST /api/optimize               ← CV + lettre de motivation
+POST /api/create-checkout-session ← Stripe Checkout abonnement (Illimité/Autopilot)
+GET  /api/checkout-success
+POST /api/optimize               ← CV + lettre de motivation (offre + paiement requis)
+POST /api/check-cv               ← Check ATS GRATUIT, sans offre ni paiement (12/09/2026)
+POST /api/translate-cv           ← Traduction CV, inclus dans l'achat (12/09/2026)
 POST /api/autopilot              ← Job matching France Travail + Adzuna
 POST /api/webhook/stripe
 ```
@@ -236,6 +263,12 @@ POST /api/webhook/stripe
 | **Dossier Round 2 Station F** — Pitch Deck + Preuve produit + Preuve marché + Annexe | ✅ | Sprint juillet |
 | **GEO ChatGPT fix** — 3 blocs JSON-LD séparés + SoftwareApplication + knowsAbout + section statique | ✅ | Sprint juillet |
 | **Sprint Templates CV** — Q3 "Veux-tu un CV mis en page ?" + 2 color pickers live + preview en direct | ✅ | Sprint juillet |
+| Stripe LIVE (compte site72.fr) + abonnements Illimité/Autopilot fonctionnels | ✅ | Sprint 08/09 |
+| Fix rubrique Profil disparue au téléchargement PDF + parsing CV colonnes/tableaux | ✅ | Sprint 12/09 |
+| Score ATS — suppression du plancher artificiel (remplace la ligne "minimum 80%" ci-dessus) | ✅ | Sprint 12/09 |
+| Page `/methode-score-ats/` — comparaison CVDesignR/ChatGPT/Grok/Claude/France Travail | ✅ | Sprint 12/09 |
+| Check ATS gratuit sans offre/paiement + badge en haut du hero | ✅ | Sprint 12/09 |
+| Traduction CV en anglais (2e fichier, inclus dans l'achat) | ✅ | Sprint 12/09 |
 
 ---
 
