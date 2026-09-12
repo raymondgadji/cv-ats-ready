@@ -38,12 +38,12 @@ INSTRUCTIONS :
    - Verbes d'action forts, chiffres quand possible
    - Ne jamais inventer de fausses informations ni gonfler un poste/une compétence au-delà de ce que le CV original indique réellement
 
-2. Calcule les scores ATS RÉELS et HONNÊTES basés sur l'analyse du CV original et du CV réécrit :
-   - score_avant : évalue VRAIMENT le CV original (compte les mots-clés manquants, problèmes de format, expérience non mise en valeur)
-   - score_apres : évalue VRAIMENT le CV réécrit après optimisation — le score apres doit toujours etre MINIMUM 80 car l'optimisation ATS est toujours efficace
-   - Les scores DOIVENT varier selon le CV fourni — un bon CV aura un score_avant plus eleve, un mauvais CV aura un score_avant plus bas
-   - Ne jamais mettre la meme valeur systematiquement
-   - 4 categories a evaluer separement et honnetement — chaque categorie apres optimisation doit etre MINIMUM 78
+2. Calcule les scores ATS RÉELS et HONNÊTES basés sur l'analyse du CV original et du CV réécrit — CV ATS est avant tout un outil de MESURE : mesurer véritablement si ce candidat correspond à CETTE offre précise est indispensable, jamais un chiffre rassurant :
+   - score_avant : évalue VRAIMENT le CV original par rapport à l'offre (mots-clés manquants, problèmes de format, expérience non mise en valeur)
+   - score_apres : évalue VRAIMENT le CV réécrit par rapport à l'offre — AUCUN plancher artificiel. Si le candidat correspond réellement au poste, la réécriture fera naturellement remonter le score ; mais si le CV ne correspond fondamentalement pas à l'offre (mauvaise cible, compétences/expérience très éloignées), le score_apres DOIT rester bas et honnête même après réécriture — ne jamais forcer un score élevé pour rassurer l'utilisateur
+   - Les scores DOIVENT varier selon le CV ET l'offre fournis — un candidat bien ciblé aura un score élevé, un candidat mal ciblé pour cette offre précise aura un score bas, y compris après optimisation
+   - Ne jamais mettre la même valeur systématiquement, ne jamais arrondir vers un chiffre "rond" par facilité (80, 85, 90) sauf si c'est vraiment le résultat de ton analyse
+   - 4 categories a evaluer separement et honnetement, sans aucun plancher artificiel
 
 RÉPONDS UNIQUEMENT avec ce JSON valide (remplace CHAQUE valeur numérique par ton évaluation réelle) :
 {{
