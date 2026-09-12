@@ -152,6 +152,14 @@
     </div>
 
     <div class="main">
+      {% if profil %}
+      <div class="main-block">
+        <h2>Profil</h2>
+        {% for line in profil %}
+        <p>{{ line }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
       {% if experience %}
       <div class="main-block">
         <h2>Expérience</h2>

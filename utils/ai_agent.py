@@ -30,11 +30,13 @@ CV ACTUEL :
 INSTRUCTIONS :
 
 1. Réécris le CV complet en format texte structuré, optimisé ATS :
-   - Intègre les mots-clés exacts de l'offre naturellement
-   - Structure claire : NOM, COORDONNÉES, RÉSUMÉ PROFESSIONNEL, COMPÉTENCES, EXPÉRIENCES, FORMATION
+   - Le CONTENU (postes, missions, responsabilités, résultats, dates, diplômes) doit venir EXCLUSIVEMENT du CV original — l'offre ne sert JAMAIS de source de contenu, uniquement de guide de vocabulaire
+   - Intègre les mots-clés exacts de l'offre naturellement, seulement là où ils décrivent une compétence/expérience RÉELLEMENT présente dans le CV original (reformuler le vocabulaire du candidat avec les termes de l'offre, jamais ajouter une compétence ou expérience qui ne s'y trouve pas)
+   - Conserve TOUTES les rubriques substantielles présentes dans le CV original (y compris "Profil" / "À propos" / "Objectif" si elles existent) — ne jamais en faire disparaître une seule, même si elle ne correspond pas exactement à la liste de structure ci-dessous
+   - Structure claire : NOM, COORDONNÉES, RÉSUMÉ PROFESSIONNEL (reprend et enrichit le "Profil"/"À propos" du CV original s'il existe, ne le remplace pas par du texte générique tourné vers l'offre), COMPÉTENCES, EXPÉRIENCES, FORMATION
    - Pas de colonnes, tableaux, icônes (illisibles par les ATS)
    - Verbes d'action forts, chiffres quand possible
-   - Ne jamais inventer de fausses informations
+   - Ne jamais inventer de fausses informations ni gonfler un poste/une compétence au-delà de ce que le CV original indique réellement
 
 2. Calcule les scores ATS RÉELS et HONNÊTES basés sur l'analyse du CV original et du CV réécrit :
    - score_avant : évalue VRAIMENT le CV original (compte les mots-clés manquants, problèmes de format, expérience non mise en valeur)

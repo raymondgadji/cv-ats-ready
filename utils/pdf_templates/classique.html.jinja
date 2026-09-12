@@ -79,6 +79,15 @@
   {% endif %}
   <hr class="accent-rule">
 
+  {% if profil %}
+  <div class="block">
+    <h2>Profil</h2>
+    {% for line in profil %}
+    <p>{{ line }}</p>
+    {% endfor %}
+  </div>
+  {% endif %}
+
   {% if experience %}
   <div class="block">
     <h2>Expérience Professionnelle</h2>

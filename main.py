@@ -506,10 +506,14 @@ def _is_noise_line(line_clean: str) -> bool:
 
 def _parse_cv_sections(cv_text: str) -> dict:
     """Parse le texte du CV en sections."""
-    sections = {"header": [], "experience": [], "formation": [], "competences": [], "autres": []}
+    sections = {"header": [], "profil": [], "experience": [], "formation": [], "competences": [], "autres": []}
     current = "header"
     lines = cv_text.strip().split("\n")
     section_map = {
+        "résumé professionnel": "profil", "resume professionnel": "profil",
+        "profil": "profil", "profile": "profil",
+        "à propos": "profil", "a propos": "profil",
+        "objectif professionnel": "profil", "objectif": "profil", "summary": "profil",
         "expérience": "experience", "experience": "experience",
         "formation": "formation", "éducation": "formation", "education": "formation",
         "compétences": "competences", "competences": "competences", "skills": "competences",
@@ -551,6 +555,7 @@ def export_to_pdf_template(
     html = jinja_tpl.render(
         name=sections["header"][0] if sections["header"] else "Candidat",
         contact_lines=[l for l in sections["header"][1:4] if l.strip()],
+        profil=sections["profil"],
         experience=sections["experience"],
         formation=sections["formation"],
         competences=sections["competences"],
@@ -607,6 +612,7 @@ def export_to_pdf_designer(
         blocks_page2=blocks_page2,
         name=sections["header"][0] if sections["header"] else "Candidat",
         contact_lines=[l for l in sections["header"][1:4] if l.strip()],
+        profil=sections["profil"],
         experience=sections["experience"],
         formation=sections["formation"],
         competences=sections["competences"],

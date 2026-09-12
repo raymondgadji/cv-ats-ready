@@ -2052,7 +2052,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
 
     const DESIGNER_SECTION_LABELS = {
       identite: 'Identité', photo: 'Photo', competences: 'Compétences',
-      formation: 'Formation', experience: 'Expérience', autres: 'Autres',
+      formation: 'Formation', profil: 'Profil', experience: 'Expérience', autres: 'Autres',
     };
 
     // Ratio A4 (210x297mm) — le canvas à l'écran a exactement le même ratio que la page PDF.
@@ -2064,9 +2064,13 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
       photo:       { x: 78, y: 4,  w: 18, h: Math.round(18 * PAGE_ASPECT * 10) / 10, shape: 'circle' },
       competences: { x: 4,  y: 20, w: 28, h: 34 },
       formation:   { x: 4,  y: 57, w: 28, h: 18 },
-      experience:  { x: 35, y: 20, w: 61, h: 45 },
+      profil:      { x: 35, y: 20, w: 61, h: 16 },
+      experience:  { x: 35, y: 38, w: 61, h: 27 },
       autres:      { x: 35, y: 68, w: 61, h: 24 },
     };
+    // Position par défaut de "expérience" quand il n'y a pas de bloc "profil" au-dessus
+    // (sinon un CV sans profil garde un grand vide entre l'identité et l'expérience).
+    const EXPERIENCE_DEFAULT_NO_PROFIL = { x: 35, y: 20, w: 61, h: 45 };
 
     const MIN_BLOCK_W = 8;
     const MIN_BLOCK_H = 6;
@@ -2075,7 +2079,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
     const MIN_BLOCK_H_BY_TYPE = { identite: 9 };
 
     let designerBlocks = [];
-    let designerSections = { header: [], experience: [], formation: [], competences: [], autres: [] };
+    let designerSections = { header: [], profil: [], experience: [], formation: [], competences: [], autres: [] };
     let designerInitialized = false;
     let designerDragCtx = null;
     let designerShapeCounter = 0;
@@ -2095,9 +2099,13 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
     // Miroir JS de _parse_cv_sections() (main.py) — garder les deux logiques synchronisées,
     // sinon l'aperçu de l'éditeur ne correspond plus au PDF final réellement généré.
     function parseCvSectionsClient(cvText) {
-      const sections = { header: [], experience: [], formation: [], competences: [], autres: [] };
+      const sections = { header: [], profil: [], experience: [], formation: [], competences: [], autres: [] };
       let current = 'header';
       const sectionMap = {
+        'résumé professionnel': 'profil', 'resume professionnel': 'profil',
+        'profil': 'profil', 'profile': 'profil',
+        'à propos': 'profil', 'a propos': 'profil',
+        'objectif professionnel': 'profil', 'objectif': 'profil', 'summary': 'profil',
         'expérience': 'experience', 'experience': 'experience',
         'formation': 'formation', 'éducation': 'formation', 'education': 'formation',
         'compétences': 'competences', 'competences': 'competences', 'skills': 'competences',
@@ -2128,7 +2136,8 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
       blocks.push({ id: 'photo', type: 'photo', ...DESIGNER_DEFAULTS.photo, photo: designerBlocks.find(b => b.type === 'photo')?.photo || null });
       if (sections.competences.length) blocks.push({ id: 'competences', type: 'competences', ...DESIGNER_DEFAULTS.competences });
       if (sections.formation.length)   blocks.push({ id: 'formation',   type: 'formation',   ...DESIGNER_DEFAULTS.formation });
-      if (sections.experience.length)  blocks.push({ id: 'experience',  type: 'experience',  ...DESIGNER_DEFAULTS.experience });
+      if (sections.profil.length)      blocks.push({ id: 'profil',      type: 'profil',      ...DESIGNER_DEFAULTS.profil });
+      if (sections.experience.length)  blocks.push({ id: 'experience',  type: 'experience',  ...(sections.profil.length ? DESIGNER_DEFAULTS.experience : EXPERIENCE_DEFAULT_NO_PROFIL) });
       if (sections.autres.length)      blocks.push({ id: 'autres',      type: 'autres',      ...DESIGNER_DEFAULTS.autres });
       // Conserve les formes ajoutées manuellement par l'utilisateur lors d'un reset
       designerBlocks.filter(b => b.type === 'forme').forEach(b => blocks.push(b));
@@ -2173,6 +2182,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
 
     const COLOR_TARGETS_BY_TYPE = {
       competences: ['title', 'text', 'bg'], formation: ['title', 'text', 'bg'],
+      profil: ['title', 'text', 'bg'],
       experience: ['title', 'text', 'bg'], autres: ['title', 'text', 'bg'],
       forme: ['bg'],
     };
@@ -2476,7 +2486,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
         const pills = lines.map(l => `<div style="background:${pillBg};border-radius:4px;padding:2px 7px;margin-bottom:4px;font-size:0.56rem;color:${textColor};line-height:1.3;overflow-wrap:break-word;">${designerEscapeHtml(l)}</div>`).join('');
         return heading + pills;
       }
-      if (block.type === 'experience' || block.type === 'autres') {
+      if (block.type === 'experience' || block.type === 'autres' || block.type === 'profil') {
         const lines = (designerSections[block.type] || []).slice(0, 10);
         const heading = `<div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.58rem;text-transform:uppercase;letter-spacing:.03em;color:${titleColor};margin-bottom:5px;">${DESIGNER_SECTION_LABELS[block.type]}</div>`;
         const wrapStyle = bgColor ? `background:color-mix(in srgb, ${bgColor} 16%, white);border-radius:6px;padding:6px 8px;` : '';
@@ -2555,7 +2565,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
 
         canvas.appendChild(el);
         attachDesignerDrag(el, block, canvas);
-        if (['identite', 'competences', 'formation', 'experience', 'autres'].includes(block.type)) {
+        if (['identite', 'competences', 'formation', 'profil', 'experience', 'autres'].includes(block.type)) {
           checkDesignerBlockOverflow(el, content, block);
         }
       });

@@ -140,6 +140,14 @@
         <div class="photo-placeholder">{{ (name[0] if name else '?') | upper }}</div>
         {% endif %}
 
+      {% elif b.type == 'profil' %}
+        <div style="{% if b.bgColor %}background:{{ b.bgColor_light or accent_light }}; border-radius:6px; padding:8px 10px; height:100%; box-sizing:border-box;{% endif %}">
+        <h2 style="color:{{ b.titleColor or accent_color }};">Profil</h2>
+        {% for line in profil %}
+        <p style="color:{{ b.textColor or dark_text }};">{{ line }}</p>
+        {% endfor %}
+        </div>
+
       {% elif b.type == 'competences' %}
         <h2 style="color:{{ b.titleColor or accent_color }};">Compétences</h2>
         {% for line in competences %}
