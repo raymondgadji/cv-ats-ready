@@ -22,7 +22,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 
 from utils.cv_parser import extract_text_from_cv
-from utils.ai_agent import optimize_cv_ats, generate_cover_letter
+from utils.ai_agent import optimize_cv_ats, generate_cover_letter, check_cv_ats_generic, translate_cv
 from utils.exporter import export_to_pdf, export_to_docx
 
 # ─────────────────────────────────────────
@@ -55,6 +55,25 @@ QA_PROMO_CODE = "QA_INTERNAL"
 
 # token -> code promo utilisé pour le générer (permet de tracer quel code a servi à chaque optimisation)
 VALID_FREE_TOKENS: dict[str, str] = {}
+
+# ─────────────────────────────────────────
+# RATE LIMIT (endpoints gratuits sans paiement) — protection basique contre l'abus,
+# en mémoire (suffisant pour une seule instance Railway ; se réinitialise au redéploiement).
+# ─────────────────────────────────────────
+_FREE_CHECK_HISTORY: dict[str, list] = {}
+FREE_CHECK_MAX_PER_HOUR = 5
+
+
+def _free_check_rate_limited(ip: str) -> bool:
+    import time
+    now = time.time()
+    history = [t for t in _FREE_CHECK_HISTORY.get(ip, []) if now - t < 3600]
+    if len(history) >= FREE_CHECK_MAX_PER_HOUR:
+        _FREE_CHECK_HISTORY[ip] = history
+        return True
+    history.append(now)
+    _FREE_CHECK_HISTORY[ip] = history
+    return False
 
 
 def _redeem_free_token(free_token: str) -> tuple[bool, str | None]:
@@ -758,6 +777,107 @@ async def optimize(
                 "X-ATS-Score-Avant":  str(ats_score.get("score_avant", 0)),
                 "X-ATS-Score-Apres":  str(ats_score.get("score_apres", 0)),
             }
+        )
+    else:
+        raise HTTPException(status_code=400, detail=f"Format non supporté : {fmt}")
+
+
+@app.post("/api/check-cv")
+async def check_cv(
+    request: Request,
+    cv_file: UploadFile = File(...),
+):
+    """
+    Check ATS GRATUIT, sans paiement ni offre d'emploi — audit générique de lisibilité ATS
+    (point d'entrée gratuit, équivalent au scanner gratuit des concurrents type CVDesignR/Enhancv).
+    """
+    ip = request.client.host if request.client else "unknown"
+    if _free_check_rate_limited(ip):
+        raise HTTPException(status_code=429, detail="Trop de vérifications gratuites depuis cette adresse. Réessaie plus tard.")
+
+    cv_bytes = await cv_file.read()
+    try:
+        cv_text = extract_text_from_cv(cv_bytes, cv_file.filename)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    if len(cv_text.strip()) < 50:
+        raise HTTPException(status_code=400, detail="Le CV semble vide ou illisible.")
+
+    try:
+        result = check_cv_ats_generic(cv_text=cv_text, api_key=ANTHROPIC_API_KEY)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur IA : {str(e)}")
+
+    write_log("free_check", {
+        "secteur_detecte": result.get("secteur_detecte"),
+        "score_global":    result.get("score_global"),
+        "ip":              ip,
+        "origin":          request.headers.get("origin", "unknown"),
+    })
+
+    return JSONResponse(result)
+
+
+@app.post("/api/translate-cv")
+async def translate_cv_endpoint(
+    request:       Request,
+    cv_text:       str = Form(...),
+    target_lang:   str = Form("en"),
+    payment_intent_id: str = Form(""),
+    free_token:        str = Form(""),
+    access_token:      str = Form(""),
+    export_format:     str = Form("texte"),
+):
+    """
+    Traduit un CV déjà optimisé dans une autre langue. Réutilise le même contrôle d'accès que
+    /api/optimize : inclus dans le même achat/abonnement, pas de paywall séparé.
+    """
+    paid = False
+    if access_token and _check_subscriber_access(access_token, "illimite"):
+        paid = True
+    elif free_token:
+        paid, _ = _redeem_free_token(free_token)
+    elif payment_intent_id:
+        try:
+            intent = stripe.PaymentIntent.retrieve(payment_intent_id)
+            if intent.status == "succeeded":
+                paid = True
+        except stripe.error.StripeError:
+            pass
+
+    if not paid:
+        raise HTTPException(status_code=402, detail="Paiement non confirmé.")
+
+    if len(cv_text.strip()) < 50:
+        raise HTTPException(status_code=400, detail="CV vide ou trop court à traduire.")
+
+    try:
+        translated = translate_cv(cv_text=cv_text, target_lang=target_lang, api_key=ANTHROPIC_API_KEY)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur IA : {str(e)}")
+
+    write_log("translate_cv", {
+        "target_lang": target_lang,
+        "ip":          request.client.host if request.client else "unknown",
+    })
+
+    fmt = export_format.lower().strip()
+    if fmt == "texte":
+        return JSONResponse({"cv_translated": translated})
+    elif fmt == "pdf":
+        pdf_bytes = export_to_pdf(translated)
+        return StreamingResponse(
+            io.BytesIO(pdf_bytes),
+            media_type="application/pdf",
+            headers={"Content-Disposition": f'attachment; filename="cv-ats-{target_lang}.pdf"'}
+        )
+    elif fmt in ("word", "docx"):
+        docx_bytes = export_to_docx(translated)
+        return StreamingResponse(
+            io.BytesIO(docx_bytes),
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            headers={"Content-Disposition": f'attachment; filename="cv-ats-{target_lang}.docx"'}
         )
     else:
         raise HTTPException(status_code=400, detail=f"Format non supporté : {fmt}")

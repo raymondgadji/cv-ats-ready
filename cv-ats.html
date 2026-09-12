@@ -938,6 +938,12 @@
           🎉 Offre lancement <span style="text-decoration:line-through;opacity:0.6;margin:0 4px;">3,99€</span> 1€ HT — limité aux 500 premiers
         </div>
 
+        <div style="margin-bottom:20px;">
+          <a href="#" id="freeCheckLink" onclick="openFreeCheckModal();return false;" style="font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:600;color:var(--orange-dark);text-decoration:underline;text-underline-offset:3px;">
+            🆓 Pas encore d'offre sous la main ? Vérifie ton CV gratuitement, sans paiement →
+          </a>
+        </div>
+
         <!-- MAIN APP CARD -->
         <div class="main-card" id="app-card">
           <div class="steps">
@@ -1080,6 +1086,50 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
         <div class="modal-score-reveal" id="modalScoreReveal">
           <div class="modal-score-big" id="modalScoreBig">—</div>
           <div class="modal-score-label">Score ATS après optimisation 🎯</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FREE CHECK MODAL (gratuit, sans offre, sans paiement) -->
+    <div class="modal-overlay" id="freeCheckModal">
+      <div class="modal" style="max-width:600px;">
+        <button type="button" onclick="closeFreeCheckModal()" aria-label="Fermer" style="position:absolute;top:14px;right:14px;background:none;border:none;font-size:1.4rem;line-height:1;cursor:pointer;color:var(--text-muted);">✕</button>
+
+        <div id="freeCheckStepUpload">
+          <div class="modal-icon">🆓</div>
+          <div class="modal-title">Vérifie ton CV gratuitement</div>
+          <div class="modal-sub">Sans offre d'emploi, sans paiement — un audit générique de lisibilité ATS en quelques secondes.</div>
+          <div class="upload-zone" id="freeCheckUploadZone">
+            <input type="file" id="freeCheckFile" accept=".pdf,.doc,.docx" />
+            <div class="upload-icon-wrap">☁️</div>
+            <div class="upload-text"><strong>Clique ou glisse ton CV ici</strong><br />PDF ou Word — max 5 Mo</div>
+          </div>
+          <div class="file-selected" id="freeCheckFileSelected">
+            <span>✅</span>
+            <span class="file-selected-name" id="freeCheckFileName">—</span>
+          </div>
+          <button class="btn-cta" id="btnFreeCheck" onclick="submitFreeCheck()" disabled style="margin-top:18px;">
+            <span class="btn-cta-label">Analyser mon CV →</span>
+            <div class="spinner"></div>
+          </button>
+        </div>
+
+        <div id="freeCheckStepLoading" style="display:none;">
+          <div class="modal-icon">🤖</div>
+          <div class="modal-title">Analyse en cours…</div>
+          <div class="modal-sub">Lecture du CV et audit générique de lisibilité ATS.</div>
+        </div>
+
+        <div id="freeCheckStepResult" style="display:none;text-align:left;">
+          <div style="text-align:center;margin-bottom:8px;">
+            <div class="modal-score-big" id="freeCheckScoreBig" style="color:var(--orange-dark);">—</div>
+            <div class="modal-score-label">Score ATS générique — secteur détecté : <strong id="freeCheckSecteur">—</strong></div>
+          </div>
+          <div id="freeCheckCategories" style="margin:18px 0;"></div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.85rem;color:var(--text);margin-bottom:8px;">💡 Recommandations</div>
+          <ul id="freeCheckRecos" style="padding-left:18px;color:var(--text-2);font-size:0.88rem;line-height:1.65;margin:0 0 8px;"></ul>
+          <div style="font-size:0.78rem;color:var(--text-muted);margin:10px 0 16px;">Ce score est générique (sans offre précise). Pour un score de correspondance réel à un poste, colle une offre d'emploi ci-dessous.</div>
+          <button class="btn-cta" onclick="continueToFullFlow()">Continuer avec une offre précise →</button>
         </div>
       </div>
     </div>
@@ -1288,6 +1338,13 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
           </div>
         </div>
         <button class="btn-download" id="btnDownload" onclick="generateFinal()" disabled>🎁 Générer et télécharger mes fichiers</button>
+
+        <div style="margin-top:22px;padding-top:20px;border-top:1px solid var(--night-border);">
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;color:#fff;margin-bottom:10px;">🌍 Besoin d'une version anglaise ?</div>
+          <button class="btn-download" id="btnTranslate" onclick="translateCvToEnglish()" type="button" style="background:linear-gradient(135deg,#1a1a2e,#2d2d4a);box-shadow:none;">Traduire mon CV en anglais →</button>
+          <div id="translateResultZone" style="display:none;margin-top:16px;background:var(--night-1);border:1px solid var(--night-border);border-radius:var(--r-lg);padding:24px;color:rgba(255,255,255,.85);font-size:.88rem;line-height:1.8;white-space:pre-wrap;max-height:500px;overflow-y:auto;"></div>
+          <div id="translateActions" style="display:none;margin-top:12px;gap:10px;flex-wrap:wrap;"></div>
+        </div>
       </div>
     </section>
 
@@ -1628,6 +1685,72 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
       uploadZone.addEventListener("dragleave", () => uploadZone.classList.remove("drag-over"));
       uploadZone.addEventListener("drop", (e) => { e.preventDefault(); uploadZone.classList.remove("drag-over"); if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
       function handleFile(file) { state.cvFile = file; document.getElementById("fileName").textContent = file.name; fileSelected.classList.add("show"); checkReady(); }
+
+      // ── Check ATS gratuit (sans offre, sans paiement) ──
+      let freeCheckFile = null;
+      const freeCheckFileInput = document.getElementById("freeCheckFile");
+      const freeCheckUploadZone = document.getElementById("freeCheckUploadZone");
+      const freeCheckFileSelected = document.getElementById("freeCheckFileSelected");
+      freeCheckFileInput.addEventListener("change", (e) => { if (e.target.files[0]) handleFreeCheckFile(e.target.files[0]); });
+      freeCheckUploadZone.addEventListener("dragover", (e) => { e.preventDefault(); freeCheckUploadZone.classList.add("drag-over"); });
+      freeCheckUploadZone.addEventListener("dragleave", () => freeCheckUploadZone.classList.remove("drag-over"));
+      freeCheckUploadZone.addEventListener("drop", (e) => { e.preventDefault(); freeCheckUploadZone.classList.remove("drag-over"); if (e.dataTransfer.files[0]) handleFreeCheckFile(e.dataTransfer.files[0]); });
+      function handleFreeCheckFile(file) {
+        freeCheckFile = file;
+        document.getElementById("freeCheckFileName").textContent = file.name;
+        freeCheckFileSelected.classList.add("show");
+        document.getElementById("btnFreeCheck").disabled = false;
+      }
+
+      function openFreeCheckModal() {
+        document.getElementById("freeCheckModal").classList.add("show");
+        document.getElementById("freeCheckStepUpload").style.display = "block";
+        document.getElementById("freeCheckStepLoading").style.display = "none";
+        document.getElementById("freeCheckStepResult").style.display = "none";
+      }
+      function closeFreeCheckModal() { document.getElementById("freeCheckModal").classList.remove("show"); }
+      function continueToFullFlow() { closeFreeCheckModal(); scrollToApp(); document.getElementById("jobOffer")?.focus(); }
+
+      async function submitFreeCheck() {
+        if (!freeCheckFile) return;
+        document.getElementById("freeCheckStepUpload").style.display = "none";
+        document.getElementById("freeCheckStepLoading").style.display = "block";
+        try {
+          const fd = new FormData();
+          fd.append("cv_file", freeCheckFile);
+          const res = await fetch(`${API_BASE}/api/check-cv`, { method: "POST", body: fd });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.detail || "Erreur lors de l'analyse");
+          renderFreeCheckResult(data);
+        } catch (err) {
+          document.getElementById("freeCheckStepLoading").style.display = "none";
+          document.getElementById("freeCheckStepUpload").style.display = "block";
+          showToast(`❌ ${err.message}`, "error");
+        }
+      }
+
+      function renderFreeCheckResult(data) {
+        document.getElementById("freeCheckStepLoading").style.display = "none";
+        document.getElementById("freeCheckStepResult").style.display = "block";
+        document.getElementById("freeCheckScoreBig").textContent = (data.score_global ?? "—") + "%";
+        document.getElementById("freeCheckSecteur").textContent = data.secteur_detecte || "non déterminé";
+        const container = document.getElementById("freeCheckCategories");
+        container.innerHTML = "";
+        Object.values(data.categories || {}).forEach(cat => {
+          const row = document.createElement("div");
+          row.className = "ats-cat-row";
+          row.innerHTML = `<div class="ats-cat-label"><span>${cat.label}</span><span class="ats-cat-scores"><strong>${cat.score}%</strong></span></div><div class="ats-bar-track"><div class="ats-bar-apres" data-width="${cat.score}"></div></div>`;
+          container.appendChild(row);
+        });
+        setTimeout(() => { container.querySelectorAll(".ats-bar-apres").forEach(b => b.style.width = b.dataset.width + "%"); }, 100);
+        const recosEl = document.getElementById("freeCheckRecos");
+        recosEl.innerHTML = "";
+        (data.recommandations || []).forEach(r => {
+          const li = document.createElement("li");
+          li.textContent = r;
+          recosEl.appendChild(li);
+        });
+      }
       // ── Détection URL dans le champ offre d'emploi
       let urlFetchTimeout = null;
       document.getElementById("jobOffer").addEventListener("input", (e) => {
@@ -1843,6 +1966,62 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
           // ✅ Autopilot — poser la question après téléchargement
           setTimeout(() => showAutopilotQuestion(), 1000);
         } catch (err) { btn.disabled = false; btn.textContent = "🎁 Générer et télécharger mes fichiers"; showToast(`❌ ${err.message}`, "error"); }
+      }
+
+      async function translateCvToEnglish() {
+        const cvText = document.getElementById("cvOutput")?.value || state.optimizedCV || "";
+        if (!cvText.trim()) { showToast("❌ Aucun CV optimisé à traduire pour l'instant", "error"); return; }
+        const btn = document.getElementById("btnTranslate");
+        btn.disabled = true; const originalLabel = btn.textContent; btn.textContent = "⏳ Traduction en cours…";
+        try {
+          const fd = new FormData();
+          fd.append("cv_text", cvText); fd.append("target_lang", "en");
+          fd.append("payment_intent_id", state.paymentIntentId); fd.append("free_token", state.freeToken);
+          fd.append("access_token", state.subscriberToken); fd.append("export_format", "texte");
+          const res = await fetch(`${API_BASE}/api/translate-cv`, { method: "POST", body: fd });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.detail || "Erreur lors de la traduction");
+          const zone = document.getElementById("translateResultZone");
+          zone.style.display = "block"; zone.textContent = data.cv_translated;
+          state.translatedCV = data.cv_translated;
+          const actions = document.getElementById("translateActions");
+          actions.style.display = "flex"; actions.innerHTML = "";
+          const mkBtn = (label, fmt) => {
+            const b = document.createElement("button");
+            b.textContent = label;
+            b.style.cssText = "padding:10px 18px;background:var(--orange);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:Syne,sans-serif;font-weight:700;font-size:.82rem;";
+            b.onclick = () => downloadTranslatedCv(fmt);
+            return b;
+          };
+          const copyBtn = document.createElement("button");
+          copyBtn.textContent = "📋 Copier";
+          copyBtn.style.cssText = "padding:10px 18px;background:rgba(255,255,255,.1);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:Syne,sans-serif;font-weight:700;font-size:.82rem;";
+          copyBtn.onclick = () => { navigator.clipboard.writeText(state.translatedCV); copyBtn.textContent = "✅ Copié !"; setTimeout(() => copyBtn.textContent = "📋 Copier", 2000); };
+          actions.appendChild(mkBtn("📕 Télécharger en PDF", "pdf"));
+          actions.appendChild(mkBtn("📘 Télécharger en Word", "docx"));
+          actions.appendChild(copyBtn);
+          btn.textContent = "✅ Traduit !";
+          setTimeout(() => { zone.scrollIntoView({ behavior: "smooth", block: "nearest" }); }, 100);
+        } catch (err) {
+          btn.disabled = false; btn.textContent = originalLabel;
+          showToast(`❌ ${err.message}`, "error");
+        }
+      }
+
+      async function downloadTranslatedCv(fmt) {
+        try {
+          const fd = new FormData();
+          fd.append("cv_text", state.translatedCV || ""); fd.append("target_lang", "en");
+          fd.append("payment_intent_id", state.paymentIntentId); fd.append("free_token", state.freeToken);
+          fd.append("access_token", state.subscriberToken); fd.append("export_format", fmt);
+          const res = await fetch(`${API_BASE}/api/translate-cv`, { method: "POST", body: fd });
+          if (!res.ok) { const e = await res.json(); throw new Error(e.detail || "Erreur lors du téléchargement"); }
+          const blob = await res.blob(); const ext = fmt === "pdf" ? "pdf" : "docx";
+          const url = URL.createObjectURL(blob); const a = document.createElement("a");
+          a.href = url; a.download = `cv-ats-en.${ext}`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+        } catch (err) {
+          showToast(`❌ ${err.message}`, "error");
+        }
       }
 
       function _showTextResult(data) {

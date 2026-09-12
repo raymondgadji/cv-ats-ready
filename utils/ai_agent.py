@@ -1,7 +1,9 @@
 """
 utils/ai_agent.py
 Appels Claude API :
-    - optimize_cv_ats()      → CV réécrit + score ATS avant/après
+    - optimize_cv_ats()       → CV réécrit + score ATS avant/après (par rapport à une offre précise)
+    - check_cv_ats_generic()  → check ATS gratuit, sans offre d'emploi (audit générique)
+    - translate_cv()          → traduction du CV dans une autre langue
     - generate_cover_letter() → Lettre de motivation
 """
 
@@ -113,6 +115,138 @@ def _default_score() -> dict:
             "competences": {"avant": 28, "apres": 78, "label": "Compétences"}
         }
     }
+
+
+def check_cv_ats_generic(cv_text: str, api_key: str) -> dict:
+    """
+    Check ATS GRATUIT, SANS offre d'emploi précise — audit générique de lisibilité ATS
+    et de qualité de rédaction (équivalent à un scanner ATS générique).
+    Retourne : { "secteur_detecte": str, "score_global": int, "categories": dict, "recommandations": list }
+    """
+    client = anthropic.Anthropic(api_key=api_key)
+
+    prompt = f"""Tu es un expert ATS (Applicant Tracking System) et recruteur senior.
+
+MISSION : Analyser ce CV de façon GÉNÉRIQUE, SANS offre d'emploi précise — comme le ferait un scanner ATS
+standard. Ce n'est PAS une comparaison à un poste précis, juste un audit de qualité générale.
+
+CV À ANALYSER :
+{cv_text}
+
+INSTRUCTIONS :
+
+1. Détecte le secteur/métier probable du candidat à partir du contenu du CV (ex: "Développement web",
+   "Comptabilité", "Marketing digital"...).
+
+2. Évalue 4 catégories, HONNÊTEMENT et SANS AUCUN PLANCHER — un CV faible doit recevoir un score bas :
+   - format : lisibilité machine (structure claire, absence de colonnes/tableaux complexes qui cassent
+     l'extraction, coordonnées facilement identifiables)
+   - structure : présence et clarté des rubriques standards (expérience, formation, compétences,
+     résumé/profil) avec des intitulés reconnaissables par un ATS
+   - clarte : qualité de rédaction (verbes d'action, résultats chiffrés, absence de formulations vagues
+     ou de fautes)
+   - mots_cles_sectoriels : présence de mots-clés génériquement attendus pour LE SECTEUR détecté
+     (pas une offre précise — les termes/compétences standards du métier)
+
+3. Donne 3 à 5 recommandations CONCRÈTES et actionnables, spécifiques à CE CV précis (jamais des
+   conseils passe-partout type "ajoutez des mots-clés").
+
+RÉPONDS UNIQUEMENT avec ce JSON valide :
+{{
+    "secteur_detecte": "SECTEUR DÉTECTÉ",
+    "score_global": SCORE_REEL_0_A_100,
+    "categories": {{
+        "format":               {{"score": SCORE_REEL, "label": "Format ATS"}},
+        "structure":            {{"score": SCORE_REEL, "label": "Structure des rubriques"}},
+        "clarte":               {{"score": SCORE_REEL, "label": "Clarté du contenu"}},
+        "mots_cles_sectoriels": {{"score": SCORE_REEL, "label": "Mots-clés sectoriels"}}
+    }},
+    "recommandations": ["RECOMMANDATION 1", "RECOMMANDATION 2", "..."]
+}}"""
+
+    message = client.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=1200,
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    raw = message.content[0].text.strip()
+    if raw.startswith("```"):
+        raw = raw.split("```")[1]
+        if raw.startswith("json"):
+            raw = raw[4:]
+        raw = raw.strip()
+
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        json_match = re.search(r'\{.*\}', raw, re.DOTALL)
+        if json_match:
+            try:
+                return json.loads(json_match.group())
+            except Exception:
+                pass
+        return _default_generic_check()
+
+
+def _default_generic_check() -> dict:
+    """Résultat par défaut si le parsing JSON échoue complètement."""
+    return {
+        "secteur_detecte": "Non déterminé",
+        "score_global": 50,
+        "categories": {
+            "format":               {"score": 50, "label": "Format ATS"},
+            "structure":            {"score": 50, "label": "Structure des rubriques"},
+            "clarte":               {"score": 50, "label": "Clarté du contenu"},
+            "mots_cles_sectoriels": {"score": 50, "label": "Mots-clés sectoriels"},
+        },
+        "recommandations": [
+            "Analyse indisponible pour le moment — réessaie dans quelques instants."
+        ]
+    }
+
+
+LANGUE_LABELS = {
+    "en": "anglais",
+    "es": "espagnol",
+    "de": "allemand",
+    "it": "italien",
+    "pt": "portugais",
+}
+
+
+def translate_cv(cv_text: str, target_lang: str, api_key: str) -> str:
+    """
+    Traduit un CV déjà rédigé/optimisé dans une autre langue, en conservant la structure
+    et les codes professionnels de la langue cible (pas une traduction mot à mot).
+    """
+    client = anthropic.Anthropic(api_key=api_key)
+    langue = LANGUE_LABELS.get(target_lang.lower(), target_lang)
+
+    prompt = f"""Tu es un traducteur professionnel spécialisé dans les CV et documents de candidature.
+
+CV À TRADUIRE (français) :
+{cv_text}
+
+MISSION : Traduis ce CV en {langue.upper()}, professionnel, prêt à l'emploi.
+
+INSTRUCTIONS :
+- Ne traduis PAS mot à mot : adapte aux codes/conventions d'un CV en {langue} (intitulés de rubriques
+  standards dans cette langue, formulations idiomatiques du monde professionnel visé)
+- Conserve EXACTEMENT les mêmes informations factuelles (dates, noms d'entreprises, diplômes, chiffres)
+  — ne jamais inventer ni omettre une information
+- Garde la même structure générale (rubriques dans le même ordre)
+- Adapte les intitulés de poste à leur équivalent standard dans la langue cible quand il existe
+
+Réponds UNIQUEMENT avec le CV traduit, sans commentaire ni introduction."""
+
+    message = client.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=3000,
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    return message.content[0].text.strip()
 
 
 def generate_cover_letter(
