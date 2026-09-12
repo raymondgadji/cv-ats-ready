@@ -284,7 +284,7 @@ def health():
     return {
         "status":  "ok",
         "service": "cv-ats",
-        "version": "1.4.1",
+        "version": "1.5.0",
         "db":      "postgresql ✅" if db_ok else "postgresql ❌ non connecté",
     }
 
