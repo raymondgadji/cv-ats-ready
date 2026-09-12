@@ -332,6 +332,10 @@
       .ats-bar-track { height: 8px; background: rgba(255, 255, 255, 0.07); border-radius: 999px; overflow: hidden; position: relative; }
       .ats-bar-avant { position: absolute; top: 0; left: 0; height: 100%; background: rgba(239, 68, 68, 0.4); border-radius: 999px; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); width: 0%; }
       .ats-bar-apres { position: absolute; top: 0; left: 0; height: 100%; background: linear-gradient(90deg, var(--orange), var(--success)); border-radius: 999px; transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1); width: 0%; }
+      /* Barre à score unique (check gratuit, pas de comparaison avant/après) — couleur reflète honnêtement le score, jamais un dégradé "positif" fixe */
+      .ats-bar-generic { position: absolute; top: 0; left: 0; height: 100%; border-radius: 999px; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); width: 0%; }
+      /* Le check gratuit peut avoir beaucoup de contenu (recommandations) — rend le modal scrollable en interne plutôt que de laisser le haut (score) devenir inaccessible */
+      #freeCheckModal .modal { max-height: 90vh; overflow-y: auto; }
 
       /* SECTIONS */
       .explainer { padding: 110px 40px; background: var(--night-1); position: relative; overflow: hidden; }
@@ -1736,13 +1740,14 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
         document.getElementById("freeCheckSecteur").textContent = data.secteur_detecte || "non déterminé";
         const container = document.getElementById("freeCheckCategories");
         container.innerHTML = "";
+        const scoreColor = (s) => s >= 70 ? "var(--success)" : s >= 40 ? "var(--orange)" : "#ef4444";
         Object.values(data.categories || {}).forEach(cat => {
           const row = document.createElement("div");
           row.className = "ats-cat-row";
-          row.innerHTML = `<div class="ats-cat-label"><span>${cat.label}</span><span class="ats-cat-scores"><strong>${cat.score}%</strong></span></div><div class="ats-bar-track"><div class="ats-bar-apres" data-width="${cat.score}"></div></div>`;
+          row.innerHTML = `<div class="ats-cat-label"><span>${cat.label}</span><span class="ats-cat-scores"><strong>${cat.score}%</strong></span></div><div class="ats-bar-track"><div class="ats-bar-generic" data-width="${cat.score}" style="background:${scoreColor(cat.score)};"></div></div>`;
           container.appendChild(row);
         });
-        setTimeout(() => { container.querySelectorAll(".ats-bar-apres").forEach(b => b.style.width = b.dataset.width + "%"); }, 100);
+        setTimeout(() => { container.querySelectorAll(".ats-bar-generic").forEach(b => b.style.width = b.dataset.width + "%"); }, 100);
         const recosEl = document.getElementById("freeCheckRecos");
         recosEl.innerHTML = "";
         (data.recommandations || []).forEach(r => {
