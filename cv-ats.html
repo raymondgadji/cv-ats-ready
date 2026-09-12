@@ -77,6 +77,10 @@
       .hero-content { position: relative; z-index: 1; max-width: 900px; width: 100%; }
       .eyebrow { display: inline-flex; align-items: center; gap: 8px; background: var(--orange-pale); border: 1px solid rgba(255, 107, 0, 0.25); color: var(--orange-dark); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 6px 14px; border-radius: 999px; margin-bottom: 28px; animation: fadeUp 0.5s ease both; }
 
+      /* Badge du check ATS gratuit — premier point d'engagement possible, juste sous l'eyebrow */
+      .free-check-badge { display: flex; align-items: center; justify-content: center; gap: 8px; margin: -14px auto 28px; background: #fff; border: 1.5px solid var(--orange); color: var(--orange-dark); font-family: "DM Sans", sans-serif; font-size: 0.9rem; font-weight: 700; padding: 10px 22px; border-radius: 999px; cursor: pointer; box-shadow: 0 4px 14px rgba(255, 107, 0, 0.14); transition: all 0.2s; animation: fadeUp 0.55s 0.05s ease both; }
+      .free-check-badge:hover { background: var(--orange-pale); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(255, 107, 0, 0.22); }
+
       /* ✅ h1 RÉDUIT — nouveau slogan */
       h1 { font-family: "Syne", sans-serif; font-size: clamp(1.9rem, 4.5vw, 3.2rem); font-weight: 800; line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 24px; animation: fadeUp 0.55s 0.08s ease both; }
       h1 .accent { color: var(--orange); position: relative; display: inline-block; }
@@ -656,6 +660,7 @@
         .logo-mark { width: 28px; height: 28px; font-size: 0.75rem; }
         .hero { padding: 80px 16px 40px; min-height: auto; }
         .eyebrow { font-size: 0.68rem; padding: 5px 12px; margin-bottom: 20px; }
+        .free-check-badge { font-size: 0.8rem; padding: 9px 16px; margin: -8px auto 20px; text-align: center; }
         h1 { font-size: clamp(1.7rem, 8vw, 2.2rem); margin-bottom: 16px; letter-spacing: -0.02em; }
         .hero-sub { font-size: 0.92rem; margin-bottom: 28px; padding: 0 4px; }
         .hero-sub br { display: none; }
@@ -928,6 +933,10 @@
       <div class="hero-content">
         <div class="eyebrow">✦ Agent IA spécialisé candidature</div>
 
+        <button type="button" id="freeCheckLink" onclick="openFreeCheckModal()" class="free-check-badge">
+          🆓 Vérifie ton CV gratuitement — sans offre, sans paiement →
+        </button>
+
         <!-- ✅ NOUVEAU HOOK — taille réduite -->
         <h1>
           À chaque candidature<br />
@@ -940,12 +949,6 @@
         </p>
         <div style="display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,rgba(239,68,68,0.12),rgba(220,38,38,0.08));border:2px solid rgba(239,68,68,0.35);color:#dc2626;font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;padding:12px 28px;border-radius:999px;margin-bottom:28px;animation:fadeUp 0.65s 0.2s ease both;box-shadow:0 4px 16px rgba(239,68,68,0.15);">
           🎉 Offre lancement <span style="text-decoration:line-through;opacity:0.6;margin:0 4px;">3,99€</span> 1€ HT — limité aux 500 premiers
-        </div>
-
-        <div style="margin-bottom:20px;">
-          <a href="#" id="freeCheckLink" onclick="openFreeCheckModal();return false;" style="font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:600;color:var(--orange-dark);text-decoration:underline;text-underline-offset:3px;">
-            🆓 Pas encore d'offre sous la main ? Vérifie ton CV gratuitement, sans paiement →
-          </a>
         </div>
 
         <!-- MAIN APP CARD -->
