@@ -329,7 +329,7 @@ C'est un vrai signal produit — à prioriser dans le backlog.
 - [x] **Candidature STIC 2026 soumise** ✅ — juin 2026
 - [x] **Sprint Templates CV frontend** ✅ — Q3/Q4 réorganisés, 3 templates, 2 color pickers live, preview en direct
 - [x] **Sprint Templates CV backend** ✅ — templates Moderne + Classique avec ReportLab, 2 color pickers, max 2 pages
-- [ ] **Fix templates** — tester rendu final PDF Moderne + Classique sur vrai CV utilisateur
+- [x] **Fix templates** ✅ — 21/09/2026 : testé sur vrai CV via l'API en prod (Moderne, Classique, Designer, PDF/DOCX simples) — vide coloré forcé supprimé, vraies puces, titres de poste en gras
 - [ ] **Doc API** — documenter l'API CV ATS pour intégration externe (dev ivoirien ODAH)
 - [ ] **Pilot ODAH** — préparer proposition technique + 30 jours gratuits pour Mahdia
 - [x] **Rendez-vous CCI** ✅ — 3 entretiens avec Philip Dietrich (CCI75) — 16/06, 22/06, 02/07/2026
@@ -349,7 +349,7 @@ C'est un vrai signal produit — à prioriser dans le backlog.
 - [x] Configurer Stripe webhook secret en prod ✅
 - [x] Soumettre sitemap sur Google Search Console ✅ — fait le 08/09/2026, voir section SEO ci-dessous
 - [ ] Retester GEO dans 1 semaine — Perplexity doit citer le prix 1€
-- [ ] **Construire du contenu SEO/GEO ciblé** (2-3 pages utiles et sourcées, ex: "comment optimiser son CV pour un ATS") — Google a crawlé cv-ats.com mais a choisi de ne PAS l'indexer (voir section SEO), signe qu'il faut du contenu substantiel, pas juste du technique.
+- [x] **Construire du contenu SEO/GEO ciblé** ✅ — 4 pages livrées entre le 08/09 et le 21/09 : `/guide-ats-cv/`, `/optimiser-cv-ats/`, `/methode-score-ats/`, `/mots-cles-cv-par-secteur/`. Indexation confirmée (3 pages indexées via `site:cv-ats.com`, citées dans l'AI Overview Google aux côtés de France Travail).
 
 ### 🟢 Idées futures
 - [ ] **MCP Server CV ATS** — exposer l'API aux agents IA (inspiré post Sokhna Seck / Convoy AI — étapes 02 et 03 "Agent Ready")
