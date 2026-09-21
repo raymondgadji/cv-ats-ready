@@ -1,0 +1,5 @@
+# Ancien domaine (cv-ats-ready.fr) -> nouveau domaine (cv-ats.com)
+# Les deux domaines pointent vers le meme site Netlify — sans "!" Netlify servirait
+# le fichier local existant au lieu d'appliquer la redirection (meme contenu des deux cotes).
+https://cv-ats-ready.fr/*      https://cv-ats.com/:splat   301!
+https://www.cv-ats-ready.fr/*  https://cv-ats.com/:splat   301!

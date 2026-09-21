@@ -148,7 +148,8 @@ Frontend : Live Server → `http://127.0.0.1:5500`
 3. Copie og-image.png
 4. Copie robots.txt et sitemap.xml (ajoutés le 08/09/2026 — sans eux, Google n'indexe pas le site, voir points d'attention)
 5. Copie les DOSSIERS guide-ats-cv/, optimiser-cv-ats/ et methode-score-ats/ (pages SEO/contenu — garder la structure de sous-dossiers, pas juste les fichiers index.html à la racine)
-6. app.netlify.com → ton site → Deploys → glisse le dossier deploy/ (avec ses sous-dossiers)
+6. Copie `_redirects` (ajouté le 21/09/2026 — redirige cv-ats-ready.fr/www.cv-ats-ready.fr vers cv-ats.com, les deux domaines pointent vers ce même site Netlify)
+7. app.netlify.com → ton site → Deploys → glisse le dossier deploy/ (avec ses sous-dossiers)
 ```
 
 ---
@@ -339,7 +340,7 @@ C'est un vrai signal produit — à prioriser dans le backlog.
 
 ### 🟡 Priorité moyenne
 - [ ] Feedbacks users sur section Social Proof — agrandir logos si nécessaire
-- [ ] Redirection cv-ats-ready.fr → cv-ats.com (fichier `_redirects` Netlify)
+- [x] Redirection cv-ats-ready.fr → cv-ats.com ✅ — 21/09/2026, fichier `_redirects` créé (confirmé : les deux domaines pointent vers le même site Netlify — contenu identique, `_redirects` avec `301!` pour forcer la redirection malgré les fichiers locaux existants)
 - [x] Configurer Stripe webhook secret en prod ✅
 - [x] Soumettre sitemap sur Google Search Console ✅ — fait le 08/09/2026, voir section SEO ci-dessous
 - [ ] Retester GEO dans 1 semaine — Perplexity doit citer le prix 1€
