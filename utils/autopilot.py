@@ -107,6 +107,27 @@ def _get_france_travail_token() -> Optional[str]:
     return None
 
 
+def _search_france_travail(token: str, mots_cles: str, nb: int) -> Optional[list]:
+    """Une seule requête de recherche. Retourne None sur erreur, [] si 204 (aucun résultat), sinon la liste brute."""
+    resp = httpx.get(
+        "https://api.francetravail.io/partenaire/offresdemploi/v2/offres/search",
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Accept":        "application/json",
+        },
+        params={"motsCles": mots_cles, "range": f"0-{nb - 1}", "sort": "1"},
+        timeout=15,
+    )
+    print(f"🔍 France Travail search ('{mots_cles}') status : {resp.status_code}")
+    # ✅ 200 = OK, 206 = Partial Content (résultats trouvés, pagination possible)
+    if resp.status_code == 204:
+        return []
+    if resp.status_code not in (200, 206):
+        print(f"❌ France Travail search error : {resp.text[:300]}")
+        return None
+    return resp.json().get("resultats", [])
+
+
 def fetch_france_travail(keywords: dict, nb: int = 25) -> list:
     token = _get_france_travail_token()
     if not token:
@@ -115,33 +136,20 @@ def fetch_france_travail(keywords: dict, nb: int = 25) -> list:
         # Mots-clés courts — top 2 mots max pour France Travail
         mots = (keywords["poste"] or keywords["keywords"]).split()[:2]
         query_ft = " ".join(mots)
-
-        params = {
-            "motsCles": query_ft,
-            "range":    f"0-{nb - 1}",
-            "sort":     "1",
-        }
         # ✅ Pas de filtre géographique — trop restrictif, laisse chercher France entière
 
-        resp = httpx.get(
-            "https://api.francetravail.io/partenaire/offresdemploi/v2/offres/search",
-            headers={
-                "Authorization": f"Bearer {token}",
-                "Accept":        "application/json",
-            },
-            params=params,
-            timeout=15,
-        )
-        print(f"🔍 France Travail search status : {resp.status_code}")
-        # ✅ 200 = OK, 206 = Partial Content (résultats trouvés, pagination possible)
-        if resp.status_code == 204:
-            print(f"⚠️  France Travail : aucun résultat (204)")
-            return []
-        if resp.status_code not in (200, 206):
-            print(f"❌ France Travail search error : {resp.text[:300]}")
+        offres = _search_france_travail(token, query_ft, nb)
+
+        # ⚠️ Requête à 2 mots trop restrictive (0 résultat) : élargit avec le 1er mot seul
+        # avant d'abandonner — beaucoup de "204" venaient d'une requête trop précise, pas
+        # d'une vraie absence d'offres.
+        if offres == [] and len(mots) > 1:
+            print("⚠️  France Travail : 0 résultat sur la requête complète, élargissement...")
+            offres = _search_france_travail(token, mots[0], nb)
+
+        if offres is None:
             return []
 
-        offres = resp.json().get("resultats", [])
         print(f"✅ France Travail : {len(offres)} offres trouvées")
         results = []
         for o in offres:
@@ -221,8 +229,19 @@ def fetch_adzuna(keywords: dict, nb: int = 25) -> list:
 # FONCTION PRINCIPALE
 # ─────────────────────────────────────────
 
-def find_matching_jobs(cv_optimized: str, job_offer: str, nb_total: int = 40) -> dict:
-    keywords = extract_keywords(cv_optimized, job_offer)
+def find_matching_jobs(cv_optimized: str, job_offer: str, nb_total: int = 40, api_key: str = "") -> dict:
+    keywords = None
+    if api_key:
+        try:
+            from utils.ai_agent import extract_job_keywords_ai
+            keywords = extract_job_keywords_ai(job_offer, api_key)
+            if not keywords.get("poste") and not keywords.get("keywords"):
+                keywords = None  # réponse vide malgré un JSON valide -> retombe sur le fallback
+        except Exception as e:
+            print(f"⚠️  Extraction mots-clés IA indisponible ({e}), fallback sur l'extraction par fréquence")
+            keywords = None
+    if keywords is None:
+        keywords = extract_keywords(cv_optimized, job_offer)
     print(f"🎯 Autopilot keywords : {keywords}")
     nb_each  = nb_total // 2
 

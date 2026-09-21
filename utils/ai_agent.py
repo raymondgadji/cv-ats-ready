@@ -1,10 +1,11 @@
 """
 utils/ai_agent.py
 Appels Claude API :
-    - optimize_cv_ats()       → CV réécrit + score ATS avant/après (par rapport à une offre précise)
-    - check_cv_ats_generic()  → check ATS gratuit, sans offre d'emploi (audit générique)
-    - translate_cv()          → traduction du CV dans une autre langue
-    - generate_cover_letter() → Lettre de motivation
+    - optimize_cv_ats()          → CV réécrit + score ATS avant/après (par rapport à une offre précise)
+    - check_cv_ats_generic()     → check ATS gratuit, sans offre d'emploi (audit générique)
+    - translate_cv()             → traduction du CV dans une autre langue
+    - extract_job_keywords_ai()  → poste/mots-clés/localisation pour Autopilot (France Travail/Adzuna)
+    - generate_cover_letter()    → Lettre de motivation
 """
 
 import json
@@ -249,6 +250,61 @@ Réponds UNIQUEMENT avec le CV traduit, sans commentaire ni introduction."""
     )
 
     return message.content[0].text.strip()
+
+
+def extract_job_keywords_ai(job_offer: str, api_key: str) -> dict:
+    """
+    Extrait un intitulé de poste + mots-clés de recherche + localisation depuis une offre
+    d'emploi, pour alimenter les recherches France Travail/Adzuna (Autopilot).
+
+    Remplace l'ancienne extraction par fréquence de mots (utils/autopilot.py) qui
+    remontait souvent des mots génériques d'annonce ("expérience", "compétences",
+    "candidature"...) plutôt que le vrai métier — d'où des requêtes creuses renvoyant
+    un 204 (aucun résultat) même quand des offres existent réellement.
+    Retourne le même format que l'ancienne fonction pour rester compatible :
+    {"poste": str, "keywords": str, "localisation": str}
+    """
+    client = anthropic.Anthropic(api_key=api_key)
+
+    prompt = f"""Tu es un expert en recherche d'emploi. Analyse cette offre et extrait les termes de
+recherche les plus efficaces pour la retrouver (ou des offres similaires) sur un moteur de recherche
+d'emploi (type France Travail, Adzuna).
+
+OFFRE D'EMPLOI :
+{job_offer}
+
+INSTRUCTIONS :
+- "poste" : l'intitulé de poste réel, court (2 à 4 mots MAX), tel qu'un recruteur l'écrirait dans une
+  offre similaire — PAS de mots génériques d'annonce ("expérience", "compétences", "candidature",
+  "profil", "recherche"...), uniquement le vrai métier/fonction (ex: "développeur backend",
+  "assistant de gestion", "chef de projet marketing")
+- "keywords" : 2-3 mots-clés complémentaires utiles pour élargir la recherche si besoin (compétence
+  ou secteur clé, jamais des mots d'annonce génériques)
+- "localisation" : la ville mentionnée dans l'offre si elle existe (une seule, en français, ex:
+  "Paris", "Lyon"), chaîne vide sinon — ne jamais inventer une ville non mentionnée
+
+RÉPONDS UNIQUEMENT avec ce JSON valide :
+{{"poste": "...", "keywords": "...", "localisation": "..."}}"""
+
+    message = client.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=300,
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    raw = message.content[0].text.strip()
+    if raw.startswith("```"):
+        raw = raw.split("```")[1]
+        if raw.startswith("json"):
+            raw = raw[4:]
+        raw = raw.strip()
+
+    data = json.loads(raw)  # laisse volontairement remonter l'exception — le fallback est géré côté appelant
+    return {
+        "poste":        (data.get("poste") or "").strip(),
+        "keywords":     (data.get("keywords") or "").strip(),
+        "localisation": (data.get("localisation") or "").strip(),
+    }
 
 
 def generate_cover_letter(

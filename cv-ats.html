@@ -1018,6 +1018,7 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
             <button class="btn-stripe" id="btnPay" onclick="pay()" style="align-self: flex-start">
               🔒 Payer 1€ HT (1.20€ TTC) avec Stripe
             </button>
+            <a href="#" id="manageSubBtn" onclick="manageSubscription();return false;" style="display:none;align-self:flex-start;margin-top:8px;font-size:0.82rem;color:var(--orange-dark);text-decoration:underline;text-underline-offset:2px;">⚙️ Gérer mon abonnement (facture, moyen de paiement, résiliation)</a>
           </div>
 
           <button class="btn-cta" id="btnOptimize" onclick="startOptimization()" disabled>
@@ -1635,6 +1636,25 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
           const label = state.subscriberPlan === "autopilot" ? "Autopilot" : "Illimité";
           const btn = document.getElementById("btnPay");
           if (btn) { btn.innerHTML = `✅ Abonnement ${label} actif — optimisations illimitées`; btn.classList.add("paid"); btn.disabled = true; }
+          const manageBtn = document.getElementById("manageSubBtn");
+          if (manageBtn) manageBtn.style.display = "inline-block";
+        }
+      }
+
+      async function manageSubscription() {
+        if (!state.subscriberToken) return;
+        const link = document.getElementById("manageSubBtn");
+        const originalText = link.textContent;
+        link.textContent = "⏳ Ouverture du portail…";
+        try {
+          const fd = new FormData(); fd.append("access_token", state.subscriberToken);
+          const res  = await fetch(`${API_BASE}/api/create-portal-session`, { method: "POST", body: fd });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.detail || "Erreur serveur");
+          window.location.href = data.portal_url;
+        } catch (err) {
+          link.textContent = originalText;
+          showToast(`❌ ${err.message}`, "error");
         }
       }
 

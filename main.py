@@ -284,7 +284,7 @@ def health():
     return {
         "status":  "ok",
         "service": "cv-ats",
-        "version": "1.5.2",
+        "version": "1.6.0",
         "db":      "postgresql ✅" if db_ok else "postgresql ❌ non connecté",
     }
 
@@ -504,6 +504,38 @@ async def checkout_success(session_id: str):
     })
 
     return {"access_token": access_token, "plan": plan}
+
+
+@app.post("/api/create-portal-session")
+async def create_portal_session(access_token: str = Form(...)):
+    """
+    Portail client Stripe self-service (gestion moyen de paiement, factures, résiliation)
+    pour un abonné CV ATS identifié par son access_token.
+    """
+    if not DATABASE_URL:
+        raise HTTPException(status_code=500, detail="Base de données indisponible.")
+    try:
+        conn = get_db()
+        cur  = conn.cursor()
+        cur.execute("SELECT stripe_customer_id FROM subscribers WHERE access_token = %s", (access_token,))
+        row = cur.fetchone()
+        cur.close()
+        conn.close()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur base de données : {str(e)}")
+
+    if not row:
+        raise HTTPException(status_code=404, detail="Abonnement introuvable.")
+
+    try:
+        session = stripe.billing_portal.Session.create(
+            customer=row["stripe_customer_id"],
+            return_url=FRONTEND_URL,
+        )
+    except stripe.error.StripeError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    return {"portal_url": session.url}
 
 
 from jinja2 import Environment, FileSystemLoader
@@ -924,6 +956,7 @@ async def autopilot(
             cv_optimized=cv_optimized,
             job_offer=job_offer,
             nb_total=min(nb_offres, 60),
+            api_key=ANTHROPIC_API_KEY,
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur Autopilot : {str(e)}")

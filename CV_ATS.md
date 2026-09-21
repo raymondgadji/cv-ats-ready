@@ -211,10 +211,11 @@ POST /api/fetch-url              ← Récupère texte d'une offre depuis URL
 POST /api/create-payment-intent
 POST /api/create-checkout-session ← Stripe Checkout abonnement (Illimité/Autopilot)
 GET  /api/checkout-success
+POST /api/create-portal-session  ← Portail client Stripe self-service (21/09/2026)
 POST /api/optimize               ← CV + lettre de motivation (offre + paiement requis)
 POST /api/check-cv               ← Check ATS GRATUIT, sans offre ni paiement (12/09/2026)
 POST /api/translate-cv           ← Traduction CV, inclus dans l'achat (12/09/2026)
-POST /api/autopilot              ← Job matching France Travail + Adzuna
+POST /api/autopilot              ← Job matching France Travail + Adzuna (extraction mots-clés IA depuis 21/09/2026)
 POST /api/webhook/stripe
 ```
 
@@ -333,8 +334,8 @@ C'est un vrai signal produit — à prioriser dans le backlog.
 - [x] **Débloquer le déploiement Railway** ✅ — résolu le 08/09/2026 (Dockerfile + fix $PORT + suppression Custom Start Command fantôme).
 - [x] **Code d'abonnement Stripe** ✅ — construit, déployé et vérifié le 08/09/2026 : table `subscribers` (Postgres), `/api/create-checkout-session`, `/api/checkout-success`, webhook `customer.subscription.updated/deleted`, gating dans `/api/optimize` et `/api/autopilot` via `access_token`. Frontend déployé sur Netlify et vérifié en ligne (clé Stripe live + boutons d'abonnement fonctionnels, redirection Stripe Checkout confirmée par Raymond et Claude).
 - [ ] **Test optionnel** : abonnement réel de bout en bout avec paiement complet (Illimité et Autopilot) — pas bloquant, à faire quand Raymond le souhaite.
-- [ ] **Portail client Stripe** (gestion/résiliation self-service) — pas encore activé pour les abonnements CV ATS (existe déjà pour Site72, à activer séparément si souhaité).
-- [ ] **Améliorer Autopilot** — France Travail retourne parfois 204
+- [x] **Portail client Stripe** ✅ — 21/09/2026 : `/api/create-portal-session` + bouton "Gérer mon abonnement" affiché aux abonnés reconnus sur la home.
+- [x] **Améliorer Autopilot** ✅ — 21/09/2026 : extraction mots-clés remplacée par un appel IA (`extract_job_keywords_ai`, fallback sur l'ancienne extraction par fréquence en cas d'échec) + retry France Travail avec une requête élargie si 0 résultat, avant d'abandonner.
 
 ### 🟡 Priorité moyenne
 - [ ] Feedbacks users sur section Social Proof — agrandir logos si nécessaire
