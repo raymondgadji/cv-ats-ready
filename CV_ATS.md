@@ -147,7 +147,7 @@ Frontend : Live Server → `http://127.0.0.1:5500`
 2. Copie cv-ats.html → renomme en index.html
 3. Copie og-image.png
 4. Copie robots.txt et sitemap.xml (ajoutés le 08/09/2026 — sans eux, Google n'indexe pas le site, voir points d'attention)
-5. Copie les DOSSIERS guide-ats-cv/, optimiser-cv-ats/ et methode-score-ats/ (pages SEO/contenu — garder la structure de sous-dossiers, pas juste les fichiers index.html à la racine)
+5. Copie les DOSSIERS guide-ats-cv/, optimiser-cv-ats/, methode-score-ats/ et mots-cles-cv-par-secteur/ (pages SEO/contenu — garder la structure de sous-dossiers, pas juste les fichiers index.html à la racine)
 6. Copie `_redirects` (ajouté le 21/09/2026 — redirige cv-ats-ready.fr/www.cv-ats-ready.fr vers cv-ats.com, les deux domaines pointent vers ce même site Netlify)
 7. app.netlify.com → ton site → Deploys → glisse le dossier deploy/ (avec ses sous-dossiers)
 ```
@@ -271,6 +271,11 @@ POST /api/webhook/stripe
 | Page `/methode-score-ats/` — comparaison CVDesignR/ChatGPT/Grok/Claude/France Travail | ✅ | Sprint 12/09 |
 | Check ATS gratuit sans offre/paiement + badge en haut du hero | ✅ | Sprint 12/09 |
 | Traduction CV en anglais (2e fichier, inclus dans l'achat) | ✅ | Sprint 12/09 |
+| UX export CV — vraies puces + titres de poste en gras (5 formats) | ✅ | Sprint 21/09 |
+| Autopilot — extraction mots-clés IA (fix 204) + retry France Travail élargi | ✅ | Sprint 21/09 |
+| Portail client Stripe self-service (`/api/create-portal-session`) | ✅ | Sprint 21/09 |
+| Redirection cv-ats-ready.fr (+ www) → cv-ats.com | ✅ | Sprint 21/09 |
+| Page `/mots-cles-cv-par-secteur/` — 8 secteurs, mots-clés ATS concrets | ✅ | Sprint 21/09 |
 
 ---
 
