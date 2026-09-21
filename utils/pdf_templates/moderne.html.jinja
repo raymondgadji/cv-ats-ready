@@ -93,6 +93,20 @@
     font-size: 9.5pt;
     line-height: 1.55;
   }
+  .main-block p.entry-title {
+    font-weight: 700;
+    margin: 14px 0 4px;
+  }
+  .main-block p.entry-title:first-child { margin-top: 0; }
+  .main-block ul.bullet-list {
+    margin: 0 0 6px;
+    padding-left: 18px;
+  }
+  .main-block ul.bullet-list li {
+    font-size: 9.5pt;
+    line-height: 1.55;
+    margin-bottom: 2px;
+  }
 
   .cover-letter {
     background: #ffffff;
@@ -122,6 +136,18 @@
 </style>
 </head>
 <body>
+
+{% macro render_block_lines(lines, bold_titles=false) %}
+  {%- for line in lines %}
+    {%- if line.startswith('- ') %}
+    <ul class="bullet-list"><li>{{ line[2:] }}</li></ul>
+    {%- elif bold_titles %}
+    <p class="entry-title">{{ line }}</p>
+    {%- else %}
+    <p>{{ line }}</p>
+    {%- endif %}
+  {%- endfor %}
+{% endmacro %}
 
   <div class="header">
     <div class="name">{{ name }}</div>
@@ -154,25 +180,19 @@
       {% if profil %}
       <div class="main-block">
         <h2>Profil</h2>
-        {% for line in profil %}
-        <p>{{ line }}</p>
-        {% endfor %}
+        {{ render_block_lines(profil) }}
       </div>
       {% endif %}
       {% if experience %}
       <div class="main-block">
         <h2>Expérience</h2>
-        {% for line in experience %}
-        <p>{{ line }}</p>
-        {% endfor %}
+        {{ render_block_lines(experience, bold_titles=true) }}
       </div>
       {% endif %}
       {% if autres %}
       <div class="main-block">
         <h2>Autres</h2>
-        {% for line in autres %}
-        <p>{{ line }}</p>
-        {% endfor %}
+        {{ render_block_lines(autres) }}
       </div>
       {% endif %}
     </div>

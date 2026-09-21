@@ -56,6 +56,21 @@
     line-height: 1.55;
     text-align: justify;
   }
+  .block p.entry-title {
+    font-weight: 700;
+    text-align: left;
+    margin: 14px 0 4px;
+  }
+  .block p.entry-title:first-child { margin-top: 0; }
+  .block ul.bullet-list {
+    margin: 0 0 6px;
+    padding-left: 18px;
+  }
+  .block ul.bullet-list li {
+    font-size: 9.7pt;
+    line-height: 1.55;
+    margin-bottom: 2px;
+  }
 
   .footer {
     margin-top: 18px;
@@ -73,6 +88,18 @@
 </head>
 <body>
 
+{% macro render_block_lines(lines, bold_titles=false) %}
+  {%- for line in lines %}
+    {%- if line.startswith('- ') %}
+    <ul class="bullet-list"><li>{{ line[2:] }}</li></ul>
+    {%- elif bold_titles %}
+    <p class="entry-title">{{ line }}</p>
+    {%- else %}
+    <p>{{ line }}</p>
+    {%- endif %}
+  {%- endfor %}
+{% endmacro %}
+
   <div class="name">{{ name }}</div>
   {% if contact_lines %}
   <div class="contact">{{ contact_lines | join(' &nbsp;·&nbsp; ') }}</div>
@@ -82,45 +109,35 @@
   {% if profil %}
   <div class="block">
     <h2>Profil</h2>
-    {% for line in profil %}
-    <p>{{ line }}</p>
-    {% endfor %}
+    {{ render_block_lines(profil) }}
   </div>
   {% endif %}
 
   {% if experience %}
   <div class="block">
     <h2>Expérience Professionnelle</h2>
-    {% for line in experience %}
-    <p>{{ line }}</p>
-    {% endfor %}
+    {{ render_block_lines(experience, bold_titles=true) }}
   </div>
   {% endif %}
 
   {% if formation %}
   <div class="block">
     <h2>Formation</h2>
-    {% for line in formation %}
-    <p>{{ line }}</p>
-    {% endfor %}
+    {{ render_block_lines(formation) }}
   </div>
   {% endif %}
 
   {% if competences %}
   <div class="block">
     <h2>Compétences</h2>
-    {% for line in competences %}
-    <p>{{ line }}</p>
-    {% endfor %}
+    {{ render_block_lines(competences) }}
   </div>
   {% endif %}
 
   {% if autres %}
   <div class="block">
     <h2>Autres</h2>
-    {% for line in autres %}
-    <p>{{ line }}</p>
-    {% endfor %}
+    {{ render_block_lines(autres) }}
   </div>
   {% endif %}
 

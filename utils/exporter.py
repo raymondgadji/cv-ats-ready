@@ -62,6 +62,18 @@ def export_to_pdf(cv_text: str, cover_letter_text: str = "") -> bytes:
         leading=15,
         spaceAfter=3,
     )
+    style_entry_title = ParagraphStyle(
+        "EntryTitle",
+        parent=style_body,
+        fontName="Helvetica-Bold",
+        spaceBefore=8,
+    )
+    style_bullet = ParagraphStyle(
+        "Bullet",
+        parent=style_body,
+        leftIndent=14,
+        bulletIndent=2,
+    )
     style_watermark = ParagraphStyle(
         "Watermark",
         parent=styles["Normal"],
@@ -76,6 +88,7 @@ def export_to_pdf(cv_text: str, cover_letter_text: str = "") -> bytes:
     story.append(Paragraph("CV optimisé — ATS Ready", style_title))
     story.append(HRFlowable(width="100%", thickness=2, color=ORANGE, spaceAfter=12))
 
+    current_section = ""
     for line in cv_text.split("\n"):
         line = line.strip()
         if not line:
@@ -85,10 +98,17 @@ def export_to_pdf(cv_text: str, cover_letter_text: str = "") -> bytes:
         if line.isupper() and len(line) > 3:
             story.append(Paragraph(line, style_section))
             story.append(HRFlowable(width="100%", thickness=0.5, color=colors.HexColor("#EEEEEE"), spaceAfter=4))
+            current_section = line
+            continue
+        if line.startswith("- "):
+            safe_line = line[2:].replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+            story.append(Paragraph(safe_line, style_bullet, bulletText="•"))
         else:
-            # Échapper les caractères HTML spéciaux
             safe_line = line.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-            story.append(Paragraph(safe_line, style_body))
+            if "EXPÉRIENCE" in current_section or "EXPERIENCE" in current_section:
+                story.append(Paragraph(safe_line, style_entry_title))
+            else:
+                story.append(Paragraph(safe_line, style_body))
 
     # Watermark bas de page
     story.append(Spacer(1, 20))
@@ -149,6 +169,7 @@ def export_to_docx(cv_text: str, cover_letter_text: str = "") -> bytes:
         sep = doc.add_paragraph()
         sep.paragraph_format.space_after = Pt(6)
 
+        current_section = ""
         for line in text.split("\n"):
             line = line.strip()
             if not line:
@@ -163,11 +184,19 @@ def export_to_docx(cv_text: str, cover_letter_text: str = "") -> bytes:
                 run.bold = True
                 run.font.color.rgb = ORANGE_RGB
                 run.font.size = Pt(11)
-            else:
-                p = doc.add_paragraph(line)
+                current_section = line
+            elif line.startswith("- "):
+                p = doc.add_paragraph(line[2:], style="List Bullet")
                 p.paragraph_format.space_after = Pt(2)
                 for run in p.runs:
                     run.font.size = Pt(10)
+            else:
+                p = doc.add_paragraph(line)
+                p.paragraph_format.space_after = Pt(2)
+                is_entry_title = "EXPÉRIENCE" in current_section or "EXPERIENCE" in current_section
+                for run in p.runs:
+                    run.font.size = Pt(10)
+                    run.bold = is_entry_title
 
         # Watermark footer
         footer_p = doc.add_paragraph(f"Généré par cv-ats-ready.fr — {date.today().strftime('%d/%m/%Y')}")

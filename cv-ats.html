@@ -2678,7 +2678,16 @@ https://www.hellowork.com/fr-fr/emploi/..."></textarea>
         const lines = (designerSections[block.type] || []).slice(0, 10);
         const heading = `<div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.58rem;text-transform:uppercase;letter-spacing:.03em;color:${titleColor};margin-bottom:5px;">${DESIGNER_SECTION_LABELS[block.type]}</div>`;
         const wrapStyle = bgColor ? `background:color-mix(in srgb, ${bgColor} 16%, white);border-radius:6px;padding:6px 8px;` : '';
-        const paras = lines.map(l => `<div style="font-size:0.56rem;color:${textColor};line-height:1.35;margin-bottom:3px;">${designerEscapeHtml(l)}</div>`).join('');
+        const bulletTitles = block.type === 'experience';
+        const paras = lines.map(l => {
+          if (l.startsWith('- ')) {
+            return `<div style="font-size:0.56rem;color:${textColor};line-height:1.35;margin:0 0 3px;padding-left:10px;">&bull;&nbsp;${designerEscapeHtml(l.slice(2))}</div>`;
+          }
+          if (bulletTitles) {
+            return `<div style="font-size:0.58rem;font-weight:700;color:${textColor};line-height:1.35;margin:6px 0 2px;">${designerEscapeHtml(l)}</div>`;
+          }
+          return `<div style="font-size:0.56rem;color:${textColor};line-height:1.35;margin-bottom:3px;">${designerEscapeHtml(l)}</div>`;
+        }).join('');
         return `<div style="${wrapStyle}">` + heading + paras + `</div>`;
       }
       return '';
