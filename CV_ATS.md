@@ -340,7 +340,7 @@ C'est un vrai signal produit — à prioriser dans le backlog.
 
 ### 🟡 Priorité moyenne
 - [ ] Feedbacks users sur section Social Proof — agrandir logos si nécessaire
-- [x] Redirection cv-ats-ready.fr → cv-ats.com ✅ — 21/09/2026, fichier `_redirects` créé (confirmé : les deux domaines pointent vers le même site Netlify — contenu identique, `_redirects` avec `301!` pour forcer la redirection malgré les fichiers locaux existants)
+- [x] Redirection cv-ats-ready.fr → cv-ats.com ✅ — 21/09/2026, fichier `_redirects` créé (confirmé : les deux domaines pointent vers le même site Netlify — contenu identique, `_redirects` avec `301!` pour forcer la redirection malgré les fichiers locaux existants). **Bonus trouvé en vérifiant** : `www.cv-ats-ready.fr` renvoyait une erreur SSL (`SEC_E_WRONG_PRINCIPAL`) car ce sous-domaine n'avait jamais été ajouté comme domain alias sur Netlify (le certificat Let's Encrypt ne couvrait que `cv-ats-ready.fr`, `cv-ats.com`, `www.cv-ats.com`) — DNS IONOS pourtant correct des deux côtés (`@` et `www` → 75.2.60.5). Ajouté comme domain alias dans Netlify → domain-management, certificat reprovisionné automatiquement en quelques secondes, redirection vérifiée (301 → cv-ats.com).
 - [x] Configurer Stripe webhook secret en prod ✅
 - [x] Soumettre sitemap sur Google Search Console ✅ — fait le 08/09/2026, voir section SEO ci-dessous
 - [ ] Retester GEO dans 1 semaine — Perplexity doit citer le prix 1€
