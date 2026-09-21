@@ -36,6 +36,7 @@ INSTRUCTIONS :
    - Intègre les mots-clés exacts de l'offre naturellement, seulement là où ils décrivent une compétence/expérience RÉELLEMENT présente dans le CV original (reformuler le vocabulaire du candidat avec les termes de l'offre, jamais ajouter une compétence ou expérience qui ne s'y trouve pas)
    - Conserve TOUTES les rubriques substantielles présentes dans le CV original (y compris "Profil" / "À propos" / "Objectif" si elles existent) — ne jamais en faire disparaître une seule, même si elle ne correspond pas exactement à la liste de structure ci-dessous
    - Structure claire : NOM, COORDONNÉES, RÉSUMÉ PROFESSIONNEL (reprend et enrichit le "Profil"/"À propos" du CV original s'il existe, ne le remplace pas par du texte générique tourné vers l'offre), COMPÉTENCES, EXPÉRIENCES, FORMATION
+   - Les coordonnées (email, téléphone, adresse) apparaissent UNE SEULE FOIS, tout en haut sous le nom — ne jamais les répéter ou les reformuler ailleurs dans le document (pas de ligne "Informations de contact" ou équivalent plus loin dans le CV)
    - Pas de colonnes, tableaux, icônes (illisibles par les ATS)
    - Verbes d'action forts, chiffres quand possible
    - Ne jamais inventer de fausses informations ni gonfler un poste/une compétence au-delà de ce que le CV original indique réellement
