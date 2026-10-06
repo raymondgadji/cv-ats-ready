@@ -72,6 +72,23 @@ Suite à un retour utilisateur réel (fils d'un contact de Raymond) signalant 3 
 
 ---
 
+## 🔍 SEO — titres/meta des 4 pages de contenu (06/10/2026)
+
+**Contexte** : Raymond reçoit des emails GSC confirmant la progression réelle du trafic (10 puis 14 clics/28 jours). Analyse fine de Search Console (position + impressions par requête et par page, pas juste les totaux) demandée pour comprendre pourquoi les 4 pages de contenu ont des impressions mais 0 clic.
+
+**Diagnostic — 2 causes distinctes selon la page, pas un seul problème générique :**
+- `/mots-cles-cv-par-secteur/` (position moy. 18.9, pointe à position 4 sur "mots cles cv") et `/methode-score-ats/` (position moy. 10.2, la meilleure des 4) sont **déjà bien classées** mais avec des titres trop longs (jusqu'à 104 caractères, tronqués dans le SERP) ou qui ne reprenaient pas le vocabulaire exact des vraies requêtes ("liste de compétence cv" amenait 21 impressions mais le mot "compétences" n'était nulle part dans le titre). → vrai problème de titre/CTR, corrigible.
+- `/guide-ats-cv/` (position moy. 54) et `/optimiser-cv-ats/` (position moy. 60.6) sont **trop mal classées pour être vues** (page 5-6+) — aucun titre ne fera venir de clic tant que le classement ne monte pas (backlinks/autorité, pas du meta tag).
+
+**Corrigé** : title/meta description/og:title/og:description/JSON-LD headline/H1 réécrits sur les 4 pages pour matcher le vocabulaire réel des requêtes GSC et tenir dans la largeur SERP, `dateModified` JSON-LD mis à jour. Déployé et vérifié en ligne (titres confirmés sur les 4 URLs en prod).
+
+**Découverte annexe** : la requête "cv ats optimisation" a 621 impressions (de loin la plus grosse du site) mais position 31 sur la page d'accueil — même diagnostic que guide-ats-cv/optimiser-cv-ats, problème de ranking pas de titre.
+
+**Why:** Une page avec des impressions réelles mais 0 clic n'a pas forcément un problème de titre — il faut vérifier la position par requête avant de conclure, sinon on corrige un titre qui n'était pas le vrai problème.
+**How to apply:** Avant tout futur "cette page ne convertit pas", vérifier la position moyenne par requête (GSC → Performance → activer la colonne Position, filtrer par page) avant de toucher au titre. Position <20 = le titre peut aider. Position >40 = c'est un problème de ranking, le titre seul ne suffira pas.
+
+---
+
 ## 🏗️ Stack technique
 
 | Couche | Techno |
@@ -142,15 +159,19 @@ Frontend : Live Server → `http://127.0.0.1:5500`
 
 ## 📋 Déploiement Netlify (drag & drop)
 
+**Dossier de staging permanent** (depuis 06/10/2026) : `Bureau\netlify\` (OneDrive). Claude tient ce dossier à jour tout seul après chaque commit git sur un fichier frontend — Raymond n'a plus qu'à glisser le dossier entier sur Netlify, pas besoin de recréer un dossier deploy/ à chaque fois.
+
+⚠️ Ne pas confondre avec `Bureau\frontend\` (= staging de **KOUSH**, pas CV ATS) ni `Bureau\cv_ats.com\` (= vieux dossier data-analyst sans rapport, même nom par coïncidence).
+
+Mapping source → staging (si le dossier doit être reconstruit un jour) :
 ```
-1. Crée un dossier deploy/ sur le bureau
-2. Copie cv-ats.html → renomme en index.html
-3. Copie og-image.png
-4. Copie robots.txt et sitemap.xml (ajoutés le 08/09/2026 — sans eux, Google n'indexe pas le site, voir points d'attention)
-5. Copie les DOSSIERS guide-ats-cv/, optimiser-cv-ats/, methode-score-ats/ et mots-cles-cv-par-secteur/ (pages SEO/contenu — garder la structure de sous-dossiers, pas juste les fichiers index.html à la racine)
-6. Copie `_redirects` (ajouté le 21/09/2026 — redirige cv-ats-ready.fr/www.cv-ats-ready.fr vers cv-ats.com, les deux domaines pointent vers ce même site Netlify)
-7. app.netlify.com → ton site → Deploys → glisse le dossier deploy/ (avec ses sous-dossiers)
+C:\Projects\cv_ats.com\cv-ats.html              → Bureau\netlify\index.html  (renommé)
+C:\Projects\cv_ats.com\og-image.png              → Bureau\netlify\og-image.png
+C:\Projects\cv_ats.com\robots.txt, sitemap.xml   → même nom, racine (sans eux, Google n'indexe pas le site)
+C:\Projects\cv_ats.com\_redirects                → même nom, racine (redirige cv-ats-ready.fr/www vers cv-ats.com)
+C:\Projects\cv_ats.com\<page>/index.html         → Bureau\netlify\<page>\index.html (guide-ats-cv, optimiser-cv-ats, methode-score-ats, mots-cles-cv-par-secteur, et toute future page de contenu)
 ```
+Puis : app.netlify.com → le site → Deploys → glisser tout le dossier `netlify/`.
 
 ---
 
