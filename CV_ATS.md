@@ -413,6 +413,14 @@ C'est un vrai signal produit — à prioriser dans le backlog.
 - Dossier PDF : STIC2026_CVATS_Candidature.pdf
 - Formulaire : https://docs.google.com/forms/d/e/1FAIpQLSda3SfDegE2CxhcTPVFmsLXZTPT2AtBVvx62znYsNNCUs4xPg/viewform
 
+### United Founders × EWOR × Albert School — ✅ CANDIDATURE SOUMISE (09/10/2026)
+- Soirée "Se lancer : de l'idée au premier chèque" — vendredi 16/10/2026, 18h30, Albert School (Paris 10e)
+- Intervenants : Simon Dussart (CEO Adjust), Nicolas Dehandschoewercker (agents IA n°1 benchmark AndroidWorld), équipe United Founders (chèques 100K€-1M€)
+- Projet présenté : CV ATS.COM, statut "Startup lancée", lien https://cv-ats.com
+- Candidature au pitch 60s sur scène (3 projets retenus) : OUI
+- Question préparée pour les intervenants : solo founder + IA comme "CTO" — à partir de quand l'absence de cofondateur technique humain est un vrai risque investisseur ?
+- Toutes les réponses au formulaire + préparation (pitch, démo) dans le doc "United Founders x EWOR x Albert School - 16oct2026 - QA CV ATS" (voir Documents produits)
+
 ---
 
 ## 📄 Documents produits
@@ -426,8 +434,11 @@ C'est un vrai signal produit — à prioriser dans le backlog.
   - 🎬 YouTube : https://youtu.be/YxzzGaG3hP4
 - `CVATS_MarketExecution_Proof.pdf` — Preuve d'exécution marché (3 pages)
 - `CVATS_Annexe_Screenshots.pdf` — Annexe screenshots + Thomas Hacala + AirBnB (6 pages)
+- `UnitedFounders_16oct2026_QA_CVATS.docx` (dans `img/`) — Q&A candidature United Founders × EWOR × Albert School (09/10/2026)
 - `RAYMOND_GADJI.md` — contexte fondateur
 - `KOUSH_APP.md` — projet GEO Monitor Africa
+
+**Dossier Google Drive dédié** (créé 09/10/2026) : [CV ATS](https://drive.google.com/drive/folders/19hClNxahZZiek9qjtjpco7PuQ5iB8bDO) — regroupe Business Plan CV ATS, Pitch_CV_ATS.COM, STIC2026_CVATS_Candidature.pdf, ODAH (prep call pricing B2B), et le doc Q&A United Founders ci-dessus. N'y mettre que des documents dont le sujet principal EST CV ATS — un doc qui mentionne juste cv-ats.com en passant (ex. bio perso multi-projets, correspondance classée ailleurs pour un autre motif) reste à sa place d'origine.
 
 ---
 
