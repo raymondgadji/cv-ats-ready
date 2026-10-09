@@ -407,11 +407,12 @@ C'est un vrai signal produit — à prioriser dans le backlog.
 
 ## 🏆 Concours & Distinctions
 
-### STIC 2026 — Sahal Tech Innovation Challenge ✅ SOUMIS
+### STIC 2026 — Sahal Tech Innovation Challenge ❌ NON RETENUE
 - Candidature soumise — juin 2026
 - Domaine : FinTech & Automatisation
 - Dossier PDF : STIC2026_CVATS_Candidature.pdf
 - Formulaire : https://docs.google.com/forms/d/e/1FAIpQLSda3SfDegE2CxhcTPVFmsLXZTPT2AtBVvx62znYsNNCUs4xPg/viewform
+- **Résultat : candidature non retenue** (confirmé par Raymond le 09/10/2026)
 
 ### United Founders × EWOR × Albert School — ✅ CANDIDATURE SOUMISE (09/10/2026)
 - Soirée "Se lancer : de l'idée au premier chèque" — vendredi 16/10/2026, 18h30, Albert School (Paris 10e)
@@ -425,7 +426,7 @@ C'est un vrai signal produit — à prioriser dans le backlog.
 
 ## 📄 Documents produits
 
-- `STIC2026_CVATS_Candidature.pdf` — dossier concours STIC
+- `STIC2026_CVATS_Candidature.pdf` — dossier concours STIC (candidature non retenue)
 - `CVATS_BusinessPlan_2026.pdf` — business plan complet 10 sections
 - `CVATS_Pitch_CCI_2026.pdf` — pitch CCI 5 pages : 3 formats oraux (15s, 1min, 1min30) + problème/solution + modèle éco + profil
 - `CVATS_PitchDeck_Round2_StationF.pdf` — Pitch Deck Round 2 (14 pages)
