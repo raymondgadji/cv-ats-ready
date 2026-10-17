@@ -716,6 +716,58 @@ def _fit_scale_for_block(block_type: str, lines: list, width_mm: float, height_m
         return 1.0
 
 
+_DEFAULT_TEMPLATE_COLOR = "#FF6B00"
+
+
+def _detect_accent_color_from_cv(cv_bytes: bytes, filename: str) -> str | None:
+    """Détecte une éventuelle couleur de marque dans le CV original uploadé (PDF uniquement pour
+    l'instant — un .docx n'a pas de rendu visuel direct sans conversion), pour personnaliser le
+    template choisi avec 'son' identité visuelle sans cloner sa mise en page (voir CV_ATS.md,
+    discussion Mahdia/ODAH du 11-17/10/2026). Retourne None si aucune couleur distincte trouvée
+    (CV en noir et blanc, cas le plus courant) ou en cas d'erreur — comportement alors inchangé
+    (couleur par défaut orange)."""
+    if not filename or not filename.lower().endswith(".pdf"):
+        return None
+    try:
+        import fitz
+        from collections import Counter
+
+        pdf = fitz.open(stream=cv_bytes, filetype="pdf")
+        if pdf.page_count == 0:
+            pdf.close()
+            return None
+
+        counter = Counter()
+        step = 4  # 1 pixel sur 4 : largement suffisant pour une couleur dominante, 4x plus rapide
+        for page_index in range(min(pdf.page_count, 2)):  # les 2 premières pages suffisent, un CV
+            pix = pdf[page_index].get_pixmap(dpi=72)       # peut avoir sa couleur de marque sur la 2e
+            samples, n = pix.samples, pix.n  # n = composantes/pixel (3=RGB, 4=RGBA ou CMYK selon la source)
+            for i in range(0, len(samples) - n, n * step):
+                r, g, b = samples[i], samples[i + 1], samples[i + 2]
+                mx, mn = max(r, g, b), min(r, g, b)
+                if mx > 235 and mn > 200:
+                    continue  # quasi-blanc (fond de page)
+                if mx < 60:
+                    continue  # quasi-noir (texte standard)
+                if mx - mn < 25:
+                    continue  # gris (faible saturation, pas une "couleur" au sens marque)
+                # Quantifie légèrement pour regrouper l'anticrénelage/les variations de nuance d'une
+                # même couleur plutôt que de les disperser en des centaines de teintes quasi uniques.
+                counter[(r // 16 * 16, g // 16 * 16, b // 16 * 16)] += 1
+        pdf.close()
+
+        if not counter:
+            return None
+        (r, g, b), count = counter.most_common(1)[0]
+        if count < max(sum(counter.values()) * 0.01, 15):
+            return None  # couleur trop marginale (quelques pixels isolés) pour être une vraie couleur de marque
+        return f"#{r:02x}{g:02x}{b:02x}"
+    except Exception:
+        # Une détection ratée ne doit jamais faire planter l'export — on revient simplement à la
+        # couleur par défaut, comme avant ce correctif.
+        return None
+
+
 def _measure_single_height_pt(content_html: str, width_mm: float, scale: float) -> float:
     """Variante à une seule échelle de _measure_candidates_height_pt, pour la recherche par
     dichotomie de _split_block_content() (beaucoup plus d'appels, donc un seul candidat par appel)."""
@@ -968,6 +1020,11 @@ async def optimize(
     if len(cv_text.strip()) < 50:
         raise HTTPException(status_code=400, detail="Le CV semble vide ou illisible.")
 
+    # Couleur de marque détectée dans le CV original, utilisée seulement si l'utilisateur n'a pas
+    # explicitement choisi une couleur dans l'éditeur (cv_template_color encore à sa valeur par
+    # défaut) — garde son identité visuelle sans cloner sa mise en page.
+    detected_accent_color = _detect_accent_color_from_cv(cv_bytes, cv_file.filename)
+
     try:
         result       = optimize_cv_ats(cv_text=cv_text, job_offer=job_offer, api_key=ANTHROPIC_API_KEY)
         optimized_cv = result["cv_optimized"]
@@ -1009,6 +1066,15 @@ async def optimize(
     fmt = export_format.lower().strip()
     tpl = cv_template.lower().strip()
 
+    # N'applique la couleur détectée que si l'utilisateur n'a pas lui-même choisi une couleur
+    # (cv_template_color encore à la valeur par défaut envoyée par le frontend) — un choix
+    # explicite de l'utilisateur prime toujours sur la détection automatique.
+    effective_template_color = (
+        detected_accent_color
+        if detected_accent_color and cv_template_color == _DEFAULT_TEMPLATE_COLOR
+        else cv_template_color
+    )
+
     if fmt == "texte":
         return JSONResponse({"cv_optimized": final_cv, "cover_letter": cover_letter, "ats_score": ats_score})
     elif fmt == "pdf":
@@ -1018,7 +1084,7 @@ async def optimize(
                 cv_text=final_cv,
                 cover_letter=cover_letter,
                 template=tpl,
-                color=cv_template_color,
+                color=effective_template_color,
                 bg_color=cv_template_bg,
             )
         elif tpl == "designer" and designer_layout.strip():
@@ -1030,7 +1096,7 @@ async def optimize(
                 cv_text=final_cv,
                 cover_letter=cover_letter,
                 layout=layout,
-                color=cv_template_color,
+                color=effective_template_color,
             )
         else:
             pdf_bytes = export_to_pdf(final_cv, cover_letter)
