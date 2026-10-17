@@ -17,59 +17,22 @@
     font-size: 9.5pt;
   }
 
-  .page {
+  /* En-tête (identité + photo + formes décoratives) : seule partie encore positionnée librement
+     par bloc, en mm absolus (calculés côté Python) pour ne pas dépendre de la hauteur du
+     conteneur — voir la note "Pourquoi un flux normal" plus bas. */
+  .header-canvas {
     position: relative;
     width: 210mm;
-    height: 297mm;
     background: #ffffff;
-    overflow: hidden;
   }
-
   .block {
     position: absolute;
     overflow: hidden;
     padding: 10px 12px;
-    --fit-scale: 1;
   }
   .block.shape-circle {
     border-radius: 50%;
     padding: 0;
-  }
-
-  .block h2 {
-    font-family: 'Syne', sans-serif;
-    font-size: 10.5pt;
-    font-weight: 700;
-    color: {{ accent_color }};
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    margin: 0 0 8px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
-  }
-  /* Les métriques ci-dessous sont pilotées par --fit-scale (1 = taille normale, < 1 = réduit
-     automatiquement quand le contenu réel dépasse la boîte — voir _fit_scale_for_block() dans
-     main.py, qui mesure le rendu réel plutôt que d'estimer). Les formules ici DOIVENT rester
-     identiques à celles utilisées pour la mesure, sinon le contenu mesuré "tient" mais pas le
-     rendu final (ou l'inverse). */
-  .block p {
-    margin: 0 0 calc(6px * var(--fit-scale));
-    line-height: 1.5;
-    font-size: calc(9.5pt * var(--fit-scale));
-  }
-  .block p.entry-title {
-    font-weight: 700;
-    margin: calc(10px * var(--fit-scale)) 0 calc(3px * var(--fit-scale));
-  }
-  .block p.entry-title:first-child { margin-top: 0; }
-  .block ul.bullet-list {
-    margin: 0 0 calc(5px * var(--fit-scale));
-    padding-left: calc(16px * var(--fit-scale));
-  }
-  .block ul.bullet-list li {
-    line-height: 1.5;
-    margin-bottom: calc(2px * var(--fit-scale));
-    font-size: calc(9.5pt * var(--fit-scale));
   }
 
   .id-name {
@@ -84,17 +47,6 @@
     font-size: 8.5pt;
     color: {{ text_muted }};
   }
-
-  .pill {
-    display: block;
-    background: {{ accent_light }};
-    border-radius: 5px;
-    padding: calc(5px * var(--fit-scale)) calc(9px * var(--fit-scale));
-    margin-bottom: calc(6px * var(--fit-scale));
-    font-size: calc(8.5pt * var(--fit-scale));
-    line-height: 1.3;
-  }
-
   .photo-fill {
     width: 100%;
     height: 100%;
@@ -114,8 +66,61 @@
     font-size: 22pt;
   }
 
+  /* Pourquoi un flux normal (pas des blocs positionnés en absolu) pour le corps du CV :
+     Profil/Compétences/Formation/Expérience sont de longueur très variable d'un candidat à
+     l'autre. Des blocs à taille fixe forçaient soit une troncature silencieuse du contenu, soit
+     un découpage d'une même section entre des pages non-adjacentes (confus à la lecture, retour
+     explicite de Raymond le 17/10/2026). Un flux normal laisse WeasyPrint paginer nativement :
+     chaque section est entière avant de passer à la suivante, sur autant de pages que nécessaire. */
+  .flow {
+    padding: 0 16mm;
+  }
+  .flow-section {
+    margin-bottom: 16px;
+  }
+  .flow-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 11pt;
+    font-weight: 700;
+    color: {{ accent_color }};
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0 0 8px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+  }
+  .flow-section p {
+    margin: 0 0 8px;
+    line-height: 1.55;
+  }
+  .flow-section p.entry-title {
+    font-weight: 700;
+    margin: 12px 0 4px;
+  }
+  .flow-section p.entry-title:first-child { margin-top: 0; }
+  .flow-section ul.bullet-list {
+    margin: 0 0 6px;
+    padding-left: 18px;
+  }
+  .flow-section ul.bullet-list li {
+    line-height: 1.55;
+    margin-bottom: 3px;
+  }
+  .pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+  .pill {
+    background: {{ accent_light }};
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 9pt;
+    line-height: 1.3;
+  }
+
   .footer {
-    position: absolute;
+    position: fixed;
     bottom: 6mm;
     left: 0;
     right: 0;
@@ -143,71 +148,26 @@
     text-align: justify;
   }
 </style>
+</head>
+<body>
 
-{% macro render_block_lines(lines, text_color, bold_titles=false) %}
-  {%- for line in lines %}
-    {%- if line.startswith('- ') %}
-    <ul class="bullet-list" style="color:{{ text_color }};"><li>{{ line[2:] }}</li></ul>
-    {%- elif bold_titles %}
-    <p class="entry-title" style="color:{{ text_color }};">{{ line }}</p>
-    {%- else %}
-    <p style="color:{{ text_color }};">{{ line }}</p>
-    {%- endif %}
-  {%- endfor %}
-{% endmacro %}
+  <div class="footer">CV généré par CV-ATS.COM</div>
 
-{% macro render_block(b) %}
+  <div class="header-canvas" style="height:{{ header_height_mm }}mm;">
+    {% for b in header_blocks %}
     <div class="block {% if b.shape == 'circle' %}shape-circle{% endif %}"
-         style="left:{{ b.x }}%; top:{{ b.y }}%; width:{{ b.w }}%; height:{{ b.h }}%; --fit-scale:{{ b.fitScale if b.fitScale else 1 }};">
-
+         style="left:{{ b.x_mm }}mm; top:{{ b.y_mm }}mm; width:{{ b.w_mm }}mm; height:{{ b.h_mm }}mm;">
       {% if b.type == 'identite' %}
         <div class="id-name">{{ name }}</div>
         {% if contact_lines %}
         <div class="id-contact">{{ contact_lines | join(' &nbsp;·&nbsp; ') }}</div>
         {% endif %}
-
       {% elif b.type == 'photo' %}
         {% if b.photo %}
         <img class="photo-fill" src="{{ b.photo }}" />
         {% else %}
         <div class="photo-placeholder">{{ (name[0] if name else '?') | upper }}</div>
         {% endif %}
-
-      {% elif b.type == 'profil' %}
-        {% set content = b._lines_override if (b._lines_override is defined and b._lines_override is not none) else profil %}
-        <div style="{% if b.bgColor %}background:{{ b.bgColor_light or accent_light }}; border-radius:6px; padding:8px 10px; height:100%; box-sizing:border-box;{% endif %}">
-        <h2 style="color:{{ b.titleColor or accent_color }};">Profil{% if b.suite %} (suite){% endif %}</h2>
-        {{ render_block_lines(content, b.textColor or dark_text) }}
-        </div>
-
-      {% elif b.type == 'competences' %}
-        {% set content = b._lines_override if (b._lines_override is defined and b._lines_override is not none) else competences %}
-        <h2 style="color:{{ b.titleColor or accent_color }};">Compétences{% if b.suite %} (suite){% endif %}</h2>
-        {% for line in content %}
-        <div class="pill" style="background:{{ b.bgColor_light or accent_light }}; color:{{ b.textColor or dark_text }};">{{ line }}</div>
-        {% endfor %}
-
-      {% elif b.type == 'formation' %}
-        {% set content = b._lines_override if (b._lines_override is defined and b._lines_override is not none) else formation %}
-        <h2 style="color:{{ b.titleColor or accent_color }};">Formation{% if b.suite %} (suite){% endif %}</h2>
-        {% for line in content %}
-        <div class="pill" style="background:{{ b.bgColor_light or accent_light }}; color:{{ b.textColor or dark_text }};">{{ line }}</div>
-        {% endfor %}
-
-      {% elif b.type == 'experience' %}
-        {% set content = b._lines_override if (b._lines_override is defined and b._lines_override is not none) else experience %}
-        <div style="{% if b.bgColor %}background:{{ b.bgColor_light or accent_light }}; border-radius:6px; padding:8px 10px; height:100%; box-sizing:border-box;{% endif %}">
-        <h2 style="color:{{ b.titleColor or accent_color }};">Expérience{% if b.suite %} (suite){% endif %}</h2>
-        {{ render_block_lines(content, b.textColor or dark_text, bold_titles=true) }}
-        </div>
-
-      {% elif b.type == 'autres' %}
-        {% set content = b._lines_override if (b._lines_override is defined and b._lines_override is not none) else autres %}
-        <div style="{% if b.bgColor %}background:{{ b.bgColor_light or accent_light }}; border-radius:6px; padding:8px 10px; height:100%; box-sizing:border-box;{% endif %}">
-        <h2 style="color:{{ b.titleColor or accent_color }};">Autres{% if b.suite %} (suite){% endif %}</h2>
-        {{ render_block_lines(content, b.textColor or dark_text) }}
-        </div>
-
       {% elif b.type == 'forme' %}
         {% if b.photo %}
         <img class="photo-fill" src="{{ b.photo }}" />
@@ -216,28 +176,55 @@
         {% endif %}
       {% endif %}
     </div>
-{% endmacro %}
-</head>
-<body>
-
-  <div class="page">
-    {% for b in blocks %}{{ render_block(b) }}{% endfor %}
-    <div class="footer">CV généré par CV-ATS.COM</div>
+    {% endfor %}
   </div>
 
-  {% if blocks_page2 %}
-  <div class="page" style="page-break-before: always;">
-    {% for b in blocks_page2 %}{{ render_block(b) }}{% endfor %}
-    <div class="footer">CV généré par CV-ATS.COM</div>
-  </div>
-  {% endif %}
+  <div class="flow">
+    {% if profil %}
+    <div class="flow-section">
+      <h2>Profil</h2>
+      {% for line in profil %}<p>{{ line }}</p>{% endfor %}
+    </div>
+    {% endif %}
 
-  {% for page_blocks in extra_pages %}
-  <div class="page" style="page-break-before: always;">
-    {% for b in page_blocks %}{{ render_block(b) }}{% endfor %}
-    <div class="footer">CV généré par CV-ATS.COM</div>
+    {% if competences %}
+    <div class="flow-section">
+      <h2>Compétences</h2>
+      <div class="pill-row">
+        {% for line in competences %}<div class="pill">{{ line }}</div>{% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if formation %}
+    <div class="flow-section">
+      <h2>Formation</h2>
+      <div class="pill-row">
+        {% for line in formation %}<div class="pill">{{ line }}</div>{% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if experience %}
+    <div class="flow-section">
+      <h2>Expérience</h2>
+      {% for line in experience %}
+        {%- if line.startswith('- ') %}
+        <ul class="bullet-list"><li>{{ line[2:] }}</li></ul>
+        {%- else %}
+        <p class="entry-title">{{ line }}</p>
+        {%- endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if autres %}
+    <div class="flow-section">
+      <h2>Autres</h2>
+      {% for line in autres %}<p>{{ line }}</p>{% endfor %}
+    </div>
+    {% endif %}
   </div>
-  {% endfor %}
 
   {% if cover_letter_lines %}
   <div class="cover-letter" style="page-break-before: always;">
