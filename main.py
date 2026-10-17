@@ -683,6 +683,15 @@ def _measure_candidates_height_pt(content_html: str, width_mm: float) -> dict:
     return heights
 
 
+def _inner_box_mm(width_mm: float, height_mm: float) -> tuple:
+    """Dimensions utiles d'un bloc Designer une fois retirés son padding CSS (10px/12px) et la
+    place prise par son <h2> de section (non réduit par le fit)."""
+    px_to_mm = 25.4 / 96  # CSS px (96dpi) -> mm
+    inner_width_mm = max(width_mm - 2 * (12 * px_to_mm), 10)
+    inner_height_mm = max(height_mm - 2 * (10 * px_to_mm) - _BLOCK_H2_OVERHEAD_MM, 5)
+    return inner_width_mm, inner_height_mm
+
+
 def _fit_scale_for_block(block_type: str, lines: list, width_mm: float, height_mm: float, bold_titles: bool = False) -> float:
     """Trouve la plus grande échelle (parmi _FIT_SCALE_CANDIDATES) pour laquelle le contenu tient
     réellement dans la boîte, mesurée en rendant le vrai contenu (pas une estimation théorique).
@@ -690,11 +699,7 @@ def _fit_scale_for_block(block_type: str, lines: list, width_mm: float, height_m
     if not lines:
         return 1.0
     try:
-        px_to_mm = 25.4 / 96  # CSS px (96dpi) -> mm
-        padding_h_mm = 12 * px_to_mm
-        padding_v_mm = 10 * px_to_mm
-        inner_width_mm = max(width_mm - 2 * padding_h_mm, 10)
-        inner_height_mm = max(height_mm - 2 * padding_v_mm - _BLOCK_H2_OVERHEAD_MM, 5)
+        inner_width_mm, inner_height_mm = _inner_box_mm(width_mm, height_mm)
         target_height_pt = inner_height_mm * _PT_PER_MM
 
         content_html = _block_inner_html(block_type, lines, bold_titles=bold_titles)
@@ -709,6 +714,132 @@ def _fit_scale_for_block(block_type: str, lines: list, width_mm: float, height_m
         # Une mesure ratée ne doit jamais faire planter l'export — on revient au comportement
         # d'avant ce correctif (pas de réduction) plutôt que de bloquer le téléchargement du CV.
         return 1.0
+
+
+def _measure_single_height_pt(content_html: str, width_mm: float, scale: float) -> float:
+    """Variante à une seule échelle de _measure_candidates_height_pt, pour la recherche par
+    dichotomie de _split_block_content() (beaucoup plus d'appels, donc un seul candidat par appel)."""
+    from weasyprint import HTML as WeasyHTML
+    import fitz
+
+    doc_html = f"""<!DOCTYPE html><html><head><meta charset="utf-8">
+    <style>
+      @page {{ size: {width_mm}mm 1000mm; margin: 0; }}
+      * {{ box-sizing: border-box; }}
+      body {{ margin: 0; font-family: 'DM Sans', sans-serif; --fit-scale: {scale}; }}
+      p {{ margin: 0 0 calc(6px * var(--fit-scale)); line-height: 1.5; font-size: calc(9.5pt * var(--fit-scale)); }}
+      p.entry-title {{ font-weight: 700; margin: calc(10px * var(--fit-scale)) 0 calc(3px * var(--fit-scale)); }}
+      p.entry-title:first-child {{ margin-top: 0; }}
+      ul.bullet-list {{ margin: 0 0 calc(5px * var(--fit-scale)); padding-left: calc(16px * var(--fit-scale)); }}
+      ul.bullet-list li {{ line-height: 1.5; margin-bottom: calc(2px * var(--fit-scale)); font-size: calc(9.5pt * var(--fit-scale)); }}
+      .pill {{ display: block; font-size: calc(8.5pt * var(--fit-scale)); padding: calc(5px * var(--fit-scale)) calc(9px * var(--fit-scale)); margin-bottom: calc(6px * var(--fit-scale)); line-height: 1.3; }}
+    </style></head><body>{content_html}</body></html>"""
+
+    pdf_bytes = WeasyHTML(string=doc_html).write_pdf()
+    pdf = fitz.open(stream=pdf_bytes, filetype="pdf")
+    blocks = pdf[0].get_text("blocks")
+    height = max((b[3] for b in blocks), default=0.0)
+    pdf.close()
+    return height
+
+
+def _split_block_content(block_type: str, lines: list, bold_titles: bool, width_mm: float, height_mm: float, scale: float = _FIT_SCALE_FLOOR) -> tuple:
+    """Même à l'échelle plancher, un bloc peut rester trop petit pour tout son contenu (CV très
+    dense). Plutôt que de tronquer en silence, détermine par dichotomie la plus grande partie du
+    contenu qui tient réellement (mesuré, pas estimé) ; le reste est renvoyé pour continuer sur une
+    page suivante. Retourne (lignes_qui_tiennent, lignes_restantes) — restantes=[] si tout tient."""
+    if not lines:
+        return lines, []
+    try:
+        inner_width_mm, inner_height_mm = _inner_box_mm(width_mm, height_mm)
+        target_height_pt = inner_height_mm * _PT_PER_MM
+
+        def fits(candidate_lines: list) -> bool:
+            if not candidate_lines:
+                return True
+            html_frag = _block_inner_html(block_type, candidate_lines, bold_titles=bold_titles)
+            return _measure_single_height_pt(html_frag, inner_width_mm, scale) <= target_height_pt
+
+        # Bloc à items indépendants (puces d'expérience, pastilles compétences/formation) :
+        # découpe ligne par ligne par dichotomie — chaque ligne reste intacte.
+        if len(lines) > 1:
+            lo, hi = 0, len(lines)
+            while lo < hi:
+                mid = (lo + hi + 1) // 2
+                if fits(lines[:mid]):
+                    lo = mid
+                else:
+                    hi = mid - 1
+            if lo > 0:
+                return lines[:lo], lines[lo:]
+            # même 1 seule ligne ne tient pas (paragraphe/puce très longue) -> dicotomie par mot ci-dessous
+
+        # Paragraphe unique trop long (profil/autres) ou ligne isolée encore trop longue :
+        # découpe mot par mot pour que la suite continue proprement sur la page suivante.
+        text = " ".join(lines)
+        words = text.split(" ")
+        lo, hi = 0, len(words)
+        while lo < hi:
+            mid = (lo + hi + 1) // 2
+            if fits([" ".join(words[:mid])]):
+                lo = mid
+            else:
+                hi = mid - 1
+        fitted = [" ".join(words[:lo])] if lo > 0 else []
+        remaining = [" ".join(words[lo:])] if lo < len(words) else []
+        return fitted, remaining
+    except Exception:
+        # Une mesure ratée ne doit jamais faire planter l'export ni faire perdre de contenu :
+        # on laisse tout sur le bloc d'origine, comme avant ce correctif.
+        return lines, []
+
+
+_SECTION_TITLES = {
+    "profil": "Profil", "experience": "Expérience", "autres": "Autres",
+    "competences": "Compétences", "formation": "Formation",
+}
+
+
+def _paginate_designer_overflow(blocks_page1: list, block_content_map: dict) -> list:
+    """Pour chaque bloc de la page 1 dont le contenu ne tient toujours pas à l'échelle plancher,
+    retire le surplus (block["_lines_override"]) et construit les pages de continuation
+    nécessaires (même bloc, presque pleine page, "(suite)") jusqu'à épuisement du contenu —
+    remplace la troncature silencieuse trouvée via le retour de Mahdia (ODAH, 11/10/2026)."""
+    extra_pages = []
+    # Grande boîte quasi pleine page pour les pages de continuation (marges ~12-16mm)
+    CONT_W_MM, CONT_H_MM = 210 - 2 * 12, 297 - 2 * 16
+
+    for block in blocks_page1:
+        if not isinstance(block, dict):
+            continue
+        content = block_content_map.get(block.get("type"))
+        if not content:
+            continue
+        lines, bold_titles = content
+        if not lines or block.get("fitScale") != _FIT_SCALE_FLOOR:
+            continue  # tout tenait déjà à une échelle >= plancher, rien à découper
+
+        width_mm = (float(block.get("w") or 0) / 100) * 210
+        height_mm = (float(block.get("h") or 0) / 100) * 297
+        fitted, remaining = _split_block_content(block["type"], lines, bold_titles, width_mm, height_mm)
+        if not remaining:
+            continue  # tenait déjà entièrement à l'échelle plancher
+
+        block["_lines_override"] = fitted
+
+        safety = 0
+        while remaining and safety < 10:  # anti-boucle infinie, un CV ne devrait jamais déclencher ça
+            safety += 1
+            cont_fitted, remaining = _split_block_content(block["type"], remaining, bold_titles, CONT_W_MM, CONT_H_MM, scale=1.0)
+            if not cont_fitted:
+                cont_fitted, remaining = remaining, []
+            extra_pages.append([{
+                "type": block["type"], "x": 6, "y": 6, "w": 88, "h": 88,
+                "suite": True, "fitScale": 1.0, "_lines_override": cont_fitted,
+                "titleColor": block.get("titleColor"), "textColor": block.get("textColor"),
+            }])
+
+    return extra_pages
 
 
 def export_to_pdf_designer(
@@ -761,13 +892,19 @@ def export_to_pdf_designer(
             height_mm = (float(block.get("h") or 0) / 100) * 297
             block["fitScale"] = _fit_scale_for_block(block["type"], lines, width_mm, height_mm, bold_titles=bold_titles)
 
-    # Pagination — max 2 pages (au-delà, on encourage à réduire le contenu plutôt qu'empiler des pages)
+    # Pages définies par l'utilisateur dans l'éditeur (1 ou 2)
     blocks_page1 = [b for b in layout if isinstance(b, dict) and int(b.get("page") or 1) == 1]
     blocks_page2 = [b for b in layout if isinstance(b, dict) and int(b.get("page") or 1) == 2]
+
+    # Pages de continuation automatiques : un bloc de la page 1 qui ne tient toujours pas à
+    # l'échelle plancher continue sur une page dédiée plutôt que d'être tronqué silencieusement
+    # (décision prise avec Raymond le 17/10/2026 : pagination automatique, sans confirmation).
+    extra_pages = _paginate_designer_overflow(blocks_page1, _BLOCK_CONTENT)
 
     html = jinja_tpl.render(
         blocks=blocks_page1,
         blocks_page2=blocks_page2,
+        extra_pages=extra_pages,
         name=sections["header"][0] if sections["header"] else "Candidat",
         contact_lines=[l for l in sections["header"][1:4] if l.strip()],
         profil=sections["profil"],

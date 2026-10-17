@@ -174,33 +174,38 @@
         {% endif %}
 
       {% elif b.type == 'profil' %}
+        {% set content = b._lines_override if (b._lines_override is defined and b._lines_override is not none) else profil %}
         <div style="{% if b.bgColor %}background:{{ b.bgColor_light or accent_light }}; border-radius:6px; padding:8px 10px; height:100%; box-sizing:border-box;{% endif %}">
-        <h2 style="color:{{ b.titleColor or accent_color }};">Profil</h2>
-        {{ render_block_lines(profil, b.textColor or dark_text) }}
+        <h2 style="color:{{ b.titleColor or accent_color }};">Profil{% if b.suite %} (suite){% endif %}</h2>
+        {{ render_block_lines(content, b.textColor or dark_text) }}
         </div>
 
       {% elif b.type == 'competences' %}
-        <h2 style="color:{{ b.titleColor or accent_color }};">Compétences</h2>
-        {% for line in competences %}
+        {% set content = b._lines_override if (b._lines_override is defined and b._lines_override is not none) else competences %}
+        <h2 style="color:{{ b.titleColor or accent_color }};">Compétences{% if b.suite %} (suite){% endif %}</h2>
+        {% for line in content %}
         <div class="pill" style="background:{{ b.bgColor_light or accent_light }}; color:{{ b.textColor or dark_text }};">{{ line }}</div>
         {% endfor %}
 
       {% elif b.type == 'formation' %}
-        <h2 style="color:{{ b.titleColor or accent_color }};">Formation</h2>
-        {% for line in formation %}
+        {% set content = b._lines_override if (b._lines_override is defined and b._lines_override is not none) else formation %}
+        <h2 style="color:{{ b.titleColor or accent_color }};">Formation{% if b.suite %} (suite){% endif %}</h2>
+        {% for line in content %}
         <div class="pill" style="background:{{ b.bgColor_light or accent_light }}; color:{{ b.textColor or dark_text }};">{{ line }}</div>
         {% endfor %}
 
       {% elif b.type == 'experience' %}
+        {% set content = b._lines_override if (b._lines_override is defined and b._lines_override is not none) else experience %}
         <div style="{% if b.bgColor %}background:{{ b.bgColor_light or accent_light }}; border-radius:6px; padding:8px 10px; height:100%; box-sizing:border-box;{% endif %}">
-        <h2 style="color:{{ b.titleColor or accent_color }};">Expérience</h2>
-        {{ render_block_lines(experience, b.textColor or dark_text, bold_titles=true) }}
+        <h2 style="color:{{ b.titleColor or accent_color }};">Expérience{% if b.suite %} (suite){% endif %}</h2>
+        {{ render_block_lines(content, b.textColor or dark_text, bold_titles=true) }}
         </div>
 
       {% elif b.type == 'autres' %}
+        {% set content = b._lines_override if (b._lines_override is defined and b._lines_override is not none) else autres %}
         <div style="{% if b.bgColor %}background:{{ b.bgColor_light or accent_light }}; border-radius:6px; padding:8px 10px; height:100%; box-sizing:border-box;{% endif %}">
-        <h2 style="color:{{ b.titleColor or accent_color }};">Autres</h2>
-        {{ render_block_lines(autres, b.textColor or dark_text) }}
+        <h2 style="color:{{ b.titleColor or accent_color }};">Autres{% if b.suite %} (suite){% endif %}</h2>
+        {{ render_block_lines(content, b.textColor or dark_text) }}
         </div>
 
       {% elif b.type == 'forme' %}
@@ -226,6 +231,13 @@
     <div class="footer">CV généré par CV-ATS.COM</div>
   </div>
   {% endif %}
+
+  {% for page_blocks in extra_pages %}
+  <div class="page" style="page-break-before: always;">
+    {% for b in page_blocks %}{{ render_block(b) }}{% endfor %}
+    <div class="footer">CV généré par CV-ATS.COM</div>
+  </div>
+  {% endfor %}
 
   {% if cover_letter_lines %}
   <div class="cover-letter" style="page-break-before: always;">
