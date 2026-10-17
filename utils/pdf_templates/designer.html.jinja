@@ -29,6 +29,7 @@
     position: absolute;
     overflow: hidden;
     padding: 10px 12px;
+    --fit-scale: 1;
   }
   .block.shape-circle {
     border-radius: 50%;
@@ -46,22 +47,29 @@
     padding-bottom: 5px;
     border-bottom: 1px solid rgba(0,0,0,0.1);
   }
+  /* Les métriques ci-dessous sont pilotées par --fit-scale (1 = taille normale, < 1 = réduit
+     automatiquement quand le contenu réel dépasse la boîte — voir _fit_scale_for_block() dans
+     main.py, qui mesure le rendu réel plutôt que d'estimer). Les formules ici DOIVENT rester
+     identiques à celles utilisées pour la mesure, sinon le contenu mesuré "tient" mais pas le
+     rendu final (ou l'inverse). */
   .block p {
-    margin: 0 0 6px;
+    margin: 0 0 calc(6px * var(--fit-scale));
     line-height: 1.5;
+    font-size: calc(9.5pt * var(--fit-scale));
   }
   .block p.entry-title {
     font-weight: 700;
-    margin: 10px 0 3px;
+    margin: calc(10px * var(--fit-scale)) 0 calc(3px * var(--fit-scale));
   }
   .block p.entry-title:first-child { margin-top: 0; }
   .block ul.bullet-list {
-    margin: 0 0 5px;
-    padding-left: 16px;
+    margin: 0 0 calc(5px * var(--fit-scale));
+    padding-left: calc(16px * var(--fit-scale));
   }
   .block ul.bullet-list li {
     line-height: 1.5;
-    margin-bottom: 2px;
+    margin-bottom: calc(2px * var(--fit-scale));
+    font-size: calc(9.5pt * var(--fit-scale));
   }
 
   .id-name {
@@ -81,9 +89,9 @@
     display: block;
     background: {{ accent_light }};
     border-radius: 5px;
-    padding: 5px 9px;
-    margin-bottom: 6px;
-    font-size: 8.5pt;
+    padding: calc(5px * var(--fit-scale)) calc(9px * var(--fit-scale));
+    margin-bottom: calc(6px * var(--fit-scale));
+    font-size: calc(8.5pt * var(--fit-scale));
     line-height: 1.3;
   }
 
@@ -150,7 +158,7 @@
 
 {% macro render_block(b) %}
     <div class="block {% if b.shape == 'circle' %}shape-circle{% endif %}"
-         style="left:{{ b.x }}%; top:{{ b.y }}%; width:{{ b.w }}%; height:{{ b.h }}%;">
+         style="left:{{ b.x }}%; top:{{ b.y }}%; width:{{ b.w }}%; height:{{ b.h }}%; --fit-scale:{{ b.fitScale if b.fitScale else 1 }};">
 
       {% if b.type == 'identite' %}
         <div class="id-name">{{ name }}</div>

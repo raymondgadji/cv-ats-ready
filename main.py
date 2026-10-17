@@ -9,6 +9,7 @@ import re
 import json
 import secrets
 import datetime
+import html as html_lib
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -622,6 +623,94 @@ def export_to_pdf_template(
     return WeasyHTML(string=html, base_url=_PDF_TEMPLATES_DIR).write_pdf()
 
 
+_PT_PER_MM = 72 / 25.4
+_FIT_SCALE_CANDIDATES = (1.0, 0.9, 0.8, 0.7, 0.6, 0.55)  # du moins réduit au plus réduit
+_FIT_SCALE_FLOOR = _FIT_SCALE_CANDIDATES[-1]
+_BLOCK_H2_OVERHEAD_MM = 8.6  # hauteur du <h2> de section (titre + marge + bordure), non réduit par le fit
+
+
+def _block_inner_html(block_type: str, lines: list, bold_titles: bool = False) -> str:
+    """Reconstruit le HTML interne d'un bloc Designer (sans le wrapper .block), identique à
+    render_block_lines()/la boucle pastilles du template, pour mesurer sa hauteur réelle rendue."""
+    if block_type in ("competences", "formation"):
+        return "".join(f'<div class="pill">{html_lib.escape(line)}</div>' for line in lines)
+    parts = []
+    for line in lines:
+        if line.startswith("- "):
+            parts.append(f'<ul class="bullet-list"><li>{html_lib.escape(line[2:])}</li></ul>')
+        elif bold_titles:
+            parts.append(f'<p class="entry-title">{html_lib.escape(line)}</p>')
+        else:
+            parts.append(f'<p>{html_lib.escape(line)}</p>')
+    return "".join(parts)
+
+
+def _measure_candidates_height_pt(content_html: str, width_mm: float) -> dict:
+    """Rend content_html à chaque échelle de _FIT_SCALE_CANDIDATES (une page par échelle, dans un
+    seul appel WeasyPrint) sur une page assez haute pour ne jamais rogner, puis mesure la hauteur
+    réellement occupée (via PyMuPDF) pour chaque échelle. Retourne {scale: hauteur_pt}."""
+    from weasyprint import HTML as WeasyHTML
+    import fitz
+
+    pages_html = []
+    for scale in _FIT_SCALE_CANDIDATES:
+        pages_html.append(f"""
+        <div class="fit-page" style="--fit-scale:{scale};">{content_html}</div>
+        """)
+    doc_html = f"""<!DOCTYPE html><html><head><meta charset="utf-8">
+    <style>
+      @page {{ size: {width_mm}mm 1000mm; margin: 0; }}
+      * {{ box-sizing: border-box; }}
+      body {{ margin: 0; font-family: 'DM Sans', sans-serif; }}
+      .fit-page {{ page-break-after: always; width: {width_mm}mm; }}
+      .fit-page p {{ margin: 0 0 calc(6px * var(--fit-scale)); line-height: 1.5; font-size: calc(9.5pt * var(--fit-scale)); }}
+      .fit-page p.entry-title {{ font-weight: 700; margin: calc(10px * var(--fit-scale)) 0 calc(3px * var(--fit-scale)); }}
+      .fit-page p.entry-title:first-child {{ margin-top: 0; }}
+      .fit-page ul.bullet-list {{ margin: 0 0 calc(5px * var(--fit-scale)); padding-left: calc(16px * var(--fit-scale)); }}
+      .fit-page ul.bullet-list li {{ line-height: 1.5; margin-bottom: calc(2px * var(--fit-scale)); font-size: calc(9.5pt * var(--fit-scale)); }}
+      .fit-page .pill {{ display: block; font-size: calc(8.5pt * var(--fit-scale)); padding: calc(5px * var(--fit-scale)) calc(9px * var(--fit-scale)); margin-bottom: calc(6px * var(--fit-scale)); line-height: 1.3; }}
+    </style></head><body>{''.join(pages_html)}</body></html>"""
+
+    pdf_bytes = WeasyHTML(string=doc_html).write_pdf()
+    pdf = fitz.open(stream=pdf_bytes, filetype="pdf")
+    heights = {}
+    for i, scale in enumerate(_FIT_SCALE_CANDIDATES):
+        if i >= pdf.page_count:
+            break
+        blocks = pdf[i].get_text("blocks")
+        heights[scale] = max((b[3] for b in blocks), default=0.0)
+    pdf.close()
+    return heights
+
+
+def _fit_scale_for_block(block_type: str, lines: list, width_mm: float, height_mm: float, bold_titles: bool = False) -> float:
+    """Trouve la plus grande échelle (parmi _FIT_SCALE_CANDIDATES) pour laquelle le contenu tient
+    réellement dans la boîte, mesurée en rendant le vrai contenu (pas une estimation théorique).
+    Content vide ou erreur de mesure -> 1.0 (comportement inchangé)."""
+    if not lines:
+        return 1.0
+    try:
+        px_to_mm = 25.4 / 96  # CSS px (96dpi) -> mm
+        padding_h_mm = 12 * px_to_mm
+        padding_v_mm = 10 * px_to_mm
+        inner_width_mm = max(width_mm - 2 * padding_h_mm, 10)
+        inner_height_mm = max(height_mm - 2 * padding_v_mm - _BLOCK_H2_OVERHEAD_MM, 5)
+        target_height_pt = inner_height_mm * _PT_PER_MM
+
+        content_html = _block_inner_html(block_type, lines, bold_titles=bold_titles)
+        heights_pt = _measure_candidates_height_pt(content_html, inner_width_mm)
+
+        for scale in _FIT_SCALE_CANDIDATES:
+            h = heights_pt.get(scale)
+            if h is not None and h <= target_height_pt:
+                return scale
+        return _FIT_SCALE_FLOOR
+    except Exception:
+        # Une mesure ratée ne doit jamais faire planter l'export — on revient au comportement
+        # d'avant ce correctif (pas de réduction) plutôt que de bloquer le téléchargement du CV.
+        return 1.0
+
+
 def export_to_pdf_designer(
     cv_text: str,
     cover_letter: str = "",
@@ -644,7 +733,19 @@ def export_to_pdf_designer(
         except Exception:
             return "#f3f3f3"
 
+    # Contenu par type de bloc "à texte", pour le calcul de fitScale ci-dessous
+    _BLOCK_CONTENT = {
+        "profil":      (sections["profil"], False),
+        "experience":  (sections["experience"], True),
+        "autres":      (sections["autres"], False),
+        "competences": (sections["competences"], False),
+        "formation":   (sections["formation"], False),
+    }
+
     # Couleur par bloc (titre / texte / fond) : précalcule les teintes claires des pastilles
+    # + fitScale : réduit automatiquement (texte/puces/pastilles) le contenu d'un bloc qui déborde
+    # de sa boîte au lieu de le tronquer silencieusement (bug trouvé via le retour de Mahdia/ODAH,
+    # 11/10/2026 — voir CV_ATS.md backlog). Mesuré en rendant le vrai contenu, pas estimé.
     layout = layout or []
     for block in layout:
         if not isinstance(block, dict):
@@ -653,6 +754,12 @@ def export_to_pdf_designer(
             block["titleColor_light"] = _lighten(block["titleColor"], 0.85)
         if block.get("bgColor"):
             block["bgColor_light"] = _lighten(block["bgColor"], 0.7)
+        content = _BLOCK_CONTENT.get(block.get("type"))
+        if content:
+            lines, bold_titles = content
+            width_mm = (float(block.get("w") or 0) / 100) * 210
+            height_mm = (float(block.get("h") or 0) / 100) * 297
+            block["fitScale"] = _fit_scale_for_block(block["type"], lines, width_mm, height_mm, bold_titles=bold_titles)
 
     # Pagination — max 2 pages (au-delà, on encourage à réduire le contenu plutôt qu'empiler des pages)
     blocks_page1 = [b for b in layout if isinstance(b, dict) and int(b.get("page") or 1) == 1]
